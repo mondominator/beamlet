@@ -21,7 +21,7 @@ func NewInviteStore(db *sql.DB) *InviteStore {
 }
 
 func (s *InviteStore) Create(creatorID, createdUserID string, ttl time.Duration) (*model.Invite, string, error) {
-	tokenBytes := make([]byte, 32)
+	tokenBytes := make([]byte, 16)
 	if _, err := rand.Read(tokenBytes); err != nil {
 		return nil, "", fmt.Errorf("generate token: %w", err)
 	}
