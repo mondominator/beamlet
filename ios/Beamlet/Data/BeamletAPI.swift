@@ -254,6 +254,8 @@ class BeamletAPI {
         body.appendMultipartFile(boundary: boundary, name: "file", filename: filename, mimeType: mimeType, data: fileData)
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
 
+        request.httpBody = body
+
         let (data, response) = try await session.data(for: request)
         guard let http = response as? HTTPURLResponse else {
             throw APIError.invalidResponse

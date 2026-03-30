@@ -24,7 +24,7 @@ class AuthRepository {
            let url = URL(string: urlString) {
             serverURL = url
         }
-        token = keychain.get("authToken")
+        token = defaults?.string(forKey: "authToken")
     }
 
     func store(serverURL: URL, token: String) {
@@ -33,7 +33,7 @@ class AuthRepository {
 
         let defaults = UserDefaults(suiteName: suiteName)
         defaults?.set(serverURL.absoluteString, forKey: "serverURL")
-        keychain.set(token, forKey: "authToken")
+        defaults?.set(token, forKey: "authToken")
     }
 
     func storeDeviceToken(_ token: String) {
@@ -47,7 +47,7 @@ class AuthRepository {
 
         let defaults = UserDefaults(suiteName: suiteName)
         defaults?.removeObject(forKey: "serverURL")
-        keychain.delete("authToken")
+        defaults?.removeObject(forKey: "authToken")
     }
 }
 

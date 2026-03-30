@@ -84,4 +84,9 @@ struct QRPayload: Codable, Identifiable {
     var id: String { invite }
     let url: String
     let invite: String
+
+    enum CodingKeys: String, CodingKey {
+        case url = "u"
+        case invite = "i"
+    }
 }
