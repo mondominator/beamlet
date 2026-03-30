@@ -8,6 +8,8 @@ struct SetupView: View {
     @State private var token = ""
     @State private var isConnecting = false
     @State private var error: String?
+    @State private var showScanner = false
+    @State private var scannedPayload: QRPayload?
 
     var body: some View {
         NavigationStack {
@@ -22,13 +24,34 @@ struct SetupView: View {
                         Text("Beamlet")
                             .font(.largeTitle.bold())
 
-                        Text("Enter your server details to get started")
+                        Text("Scan a QR code or enter your server details")
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                     }
                     .padding(.top, 40)
 
-                    // Form
+                    // QR Scan button
+                    Button {
+                        showScanner = true
+                    } label: {
+                        Label("Scan QR Code", systemImage: "qrcode.viewfinder")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .padding(.horizontal)
+
+                    // Divider
+                    HStack {
+                        Rectangle().frame(height: 1).foregroundStyle(.secondary.opacity(0.3))
+                        Text("or enter manually")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Rectangle().frame(height: 1).foregroundStyle(.secondary.opacity(0.3))
+                    }
+                    .padding(.horizontal)
+
+                    // Manual form
                     VStack(spacing: 16) {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Server URL")
@@ -57,7 +80,6 @@ struct SetupView: View {
                             .padding(.horizontal)
                     }
 
-                    // Connect button
                     Button(action: connect) {
                         if isConnecting {
                             ProgressView()
@@ -67,14 +89,52 @@ struct SetupView: View {
                                 .frame(maxWidth: .infinity)
                         }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(.bordered)
                     .controlSize(.large)
                     .disabled(serverURL.isEmpty || token.isEmpty || isConnecting)
                     .padding(.horizontal)
                 }
             }
             .navigationBarHidden(true)
+            .sheet(isPresented: $showScanner) {
+                NavigationStack {
+                    QRScannerView { value in
+                        handleScan(value)
+                    }
+                    .ignoresSafeArea()
+                    .navigationTitle("Scan QR Code")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") { showScanner = false }
+                        }
+                    }
+                }
+            }
+            .sheet(item: $scannedPayload) { payload in
+                NavigationStack {
+                    NameEntryView(
+                        serverURL: URL(string: payload.url)!,
+                        inviteToken: payload.invite,
+                        onComplete: { scannedPayload = nil }
+                    )
+                    .environment(authRepository)
+                    .environment(api)
+                    .navigationTitle("Setup")
+                    .navigationBarTitleDisplayMode(.inline)
+                }
+            }
         }
+    }
+
+    private func handleScan(_ value: String) {
+        showScanner = false
+        guard let data = value.data(using: .utf8),
+              let payload = try? JSONDecoder().decode(QRPayload.self, from: data) else {
+            error = "Invalid QR code"
+            return
+        }
+        scannedPayload = payload
     }
 
     private func connect() {
@@ -87,14 +147,11 @@ struct SetupView: View {
         error = nil
 
         Task {
-            // Temporarily store credentials to test the connection
             authRepository.store(serverURL: url, token: token.trimmingCharacters(in: .whitespacesAndNewlines))
 
             do {
-                // Verify by fetching user list
                 let _ = try await api.listUsers()
 
-                // Register for push notifications
                 let center = UNUserNotificationCenter.current()
                 let granted = try? await center.requestAuthorization(options: [.alert, .badge, .sound])
                 if granted == true {
@@ -103,13 +160,11 @@ struct SetupView: View {
                     }
                 }
 
-                // Register device token if we already have one
                 if let deviceToken = UserDefaults(suiteName: "group.com.beamlet.shared")?.string(forKey: "apnsDeviceToken") {
                     authRepository.storeDeviceToken(deviceToken)
                     try? await api.registerDevice(apnsToken: deviceToken)
                 }
             } catch {
-                // Connection failed — clear credentials
                 authRepository.clear()
                 self.error = error.localizedDescription
             }

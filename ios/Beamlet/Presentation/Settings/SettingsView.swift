@@ -9,6 +9,20 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
+                Section("Contacts") {
+                    NavigationLink {
+                        AddContactView()
+                    } label: {
+                        Label("Add Contact", systemImage: "person.badge.plus")
+                    }
+
+                    NavigationLink {
+                        ScanInviteView()
+                    } label: {
+                        Label("Scan Invite", systemImage: "qrcode.viewfinder")
+                    }
+                }
+
                 Section("Server") {
                     if let url = authRepository.serverURL {
                         LabeledContent("URL", value: url.absoluteString)

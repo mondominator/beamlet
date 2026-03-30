@@ -307,6 +307,67 @@ class BeamletAPI {
 
         return try decoder.decode(BeamletFile.self, from: data)
     }
+
+    // MARK: - Invites
+
+    func createInvite() async throws -> InviteResponse {
+        try await request("/api/invites", method: "POST")
+    }
+
+    func redeemInvite(serverURL: URL, inviteToken: String, name: String) async throws -> RedeemResponse {
+        let url = serverURL.appendingPathComponent("/api/invites/redeem")
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode([
+            "invite_token": inviteToken,
+            "name": name,
+        ])
+
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, 200..<300 ~= http.statusCode else {
+            let msg = String(data: data, encoding: .utf8)
+            throw APIError.httpError(
+                statusCode: (response as? HTTPURLResponse)?.statusCode ?? 0,
+                message: msg
+            )
+        }
+
+        return try decoder.decode(RedeemResponse.self, from: data)
+    }
+
+    func redeemInviteAsExistingUser(inviteToken: String) async throws -> RedeemResponse {
+        guard let baseURL = authRepository.serverURL,
+              let token = authRepository.token else {
+            throw APIError.notAuthenticated
+        }
+
+        let url = baseURL.appendingPathComponent("/api/invites/redeem")
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpBody = try JSONEncoder().encode(["invite_token": inviteToken])
+
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, 200..<300 ~= http.statusCode else {
+            let msg = String(data: data, encoding: .utf8)
+            throw APIError.httpError(
+                statusCode: (response as? HTTPURLResponse)?.statusCode ?? 0,
+                message: msg
+            )
+        }
+
+        return try decoder.decode(RedeemResponse.self, from: data)
+    }
+
+    // MARK: - Contacts
+
+    func deleteContact(_ contactID: String) async throws {
+        try await requestVoid("/api/contacts/\(contactID)", method: "DELETE")
+    }
 }
 
 // MARK: - Multipart Helpers

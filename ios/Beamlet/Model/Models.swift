@@ -52,3 +52,36 @@ struct BeamletFile: Codable, Identifiable, Hashable {
         return "File"
     }
 }
+
+struct InviteResponse: Codable {
+    let inviteToken: String
+    let expiresAt: String
+
+    enum CodingKeys: String, CodingKey {
+        case inviteToken = "invite_token"
+        case expiresAt = "expires_at"
+    }
+}
+
+struct RedeemResponse: Codable {
+    let userID: String?
+    let name: String?
+    let token: String?
+    let contact: RedeemContact?
+
+    enum CodingKeys: String, CodingKey {
+        case userID = "user_id"
+        case name, token, contact
+    }
+}
+
+struct RedeemContact: Codable {
+    let id: String
+    let name: String
+}
+
+struct QRPayload: Codable, Identifiable {
+    var id: String { invite }
+    let url: String
+    let invite: String
+}

@@ -43,5 +43,7 @@
     <array>
         <string>com.beamlet.app.cleanup</string>
     </array>
+    <key>NSCameraUsageDescription</key>
+    <string>Beamlet uses the camera to scan QR codes for connecting with other users.</string>
 </dict>
 </plist>

@@ -8,8 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		0EF157F732724B1851E91CFF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 278215F1257F5E2BC5625437 /* Assets.xcassets */; };
+		3A53BFA30432C7981046E227 /* AddContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C357896EA48AFE5244B6FFC4 /* AddContactView.swift */; };
+		3E0B5D283CA14FCD1C9F1635 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98741F30C4CC511161FC0C6 /* QRScannerView.swift */; };
 		5F9FC085B129882222A56E20 /* SendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05CA723CA51D1EC531549C2 /* SendViewModel.swift */; };
 		7507B94CCEC1F3164DC549C8 /* SendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA922F7885C336DBF950AB0 /* SendView.swift */; };
+		7B4E88C05AF6ADDCEF52D616 /* ScanInviteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C271E9830537D6EF5AD28BF7 /* ScanInviteView.swift */; };
 		A1B4B7D82B3C26A0884D1AED /* InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FE3585B1C9C679534BD2E4 /* InboxView.swift */; };
 		A303E014B4F45035C1C28F61 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9D15525B63466E88FE254B /* ShareView.swift */; };
 		A68E8DA8058705D9CE6661B4 /* BeamletShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B739DCAC2AF9851C8AEF0FB8 /* BeamletShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -29,6 +32,7 @@
 		E423A5EF103BDEFF301BE58D /* FileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6F10A61E27CFFF7E9988006 /* FileDetailView.swift */; };
 		E77A35A590A8D353FF3E7EAF /* BeamletApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C6EE27FC8312321F6EFCCA /* BeamletApp.swift */; };
 		ED34BA6B097762D77C82E978 /* InboxViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B5FCF0EA472D2EAF32B46CB /* InboxViewModel.swift */; };
+		EF094D975E9E13EF6174ECE6 /* NameEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7262AE1FF951D5B44582C3 /* NameEntryView.swift */; };
 		F0E934A479CD8E668D477270 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8E50AA0707D07B908E35EB /* MainTabView.swift */; };
 /* End PBXBuildFile section */
 
@@ -67,6 +71,7 @@
 		0FDD43800533A4CF4957CF71 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		11668AF57EEF73440BD2DBF1 /* FileRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileRowView.swift; sourceTree = "<group>"; };
 		278215F1257F5E2BC5625437 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4B7262AE1FF951D5B44582C3 /* NameEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameEntryView.swift; sourceTree = "<group>"; };
 		5E0D3990B57D715D887347F1 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		5F01C9962E9948A9ABC8E471 /* Beamlet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Beamlet.entitlements; sourceTree = "<group>"; };
 		650249C9F9976C21982E6D33 /* BeamletShare.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BeamletShare.entitlements; sourceTree = "<group>"; };
@@ -78,12 +83,15 @@
 		9D79409532332E446859A82A /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
 		A540DA2E1EDABC2D29CB8B61 /* BeamletTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamletTests.swift; sourceTree = "<group>"; };
 		A6F10A61E27CFFF7E9988006 /* FileDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDetailView.swift; sourceTree = "<group>"; };
+		A98741F30C4CC511161FC0C6 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
 		ACDBABB6512D7711A3364D9E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamletAPI.swift; sourceTree = "<group>"; };
 		B6FE3585B1C9C679534BD2E4 /* InboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxView.swift; sourceTree = "<group>"; };
 		B739DCAC2AF9851C8AEF0FB8 /* BeamletShare.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = BeamletShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD9D15525B63466E88FE254B /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		BF8E50AA0707D07B908E35EB /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		C271E9830537D6EF5AD28BF7 /* ScanInviteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanInviteView.swift; sourceTree = "<group>"; };
+		C357896EA48AFE5244B6FFC4 /* AddContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddContactView.swift; sourceTree = "<group>"; };
 		C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRepository.swift; sourceTree = "<group>"; };
 		CB00183BD0B3A6402565DEE3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		D61FA11B6D57DBAD461351EF /* StateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateViews.swift; sourceTree = "<group>"; };
@@ -190,6 +198,14 @@
 			path = Beamlet/Model;
 			sourceTree = "<group>";
 		};
+		869F18974DF8BC7350663B6F /* Scanner */ = {
+			isa = PBXGroup;
+			children = (
+				A98741F30C4CC511161FC0C6 /* QRScannerView.swift */,
+			);
+			path = Scanner;
+			sourceTree = "<group>";
+		};
 		8B5929FCEF9E857A08279468 /* Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -215,6 +231,7 @@
 				8E3BC6EDFAE75EEDC5BD8900 /* Components */,
 				66F091FDD9D53B66B384181A /* Detail */,
 				C6BCD81BFE77B2A3B66DE12D /* Inbox */,
+				869F18974DF8BC7350663B6F /* Scanner */,
 				F57D8D33626BCFEE79C5EC4C /* Send */,
 				B3AEC1C1E5FD4C9F89BFC1AE /* Settings */,
 				A71500C3597DEFCA334766D1 /* Setup */,
@@ -225,6 +242,7 @@
 		A71500C3597DEFCA334766D1 /* Setup */ = {
 			isa = PBXGroup;
 			children = (
+				4B7262AE1FF951D5B44582C3 /* NameEntryView.swift */,
 				9D79409532332E446859A82A /* SetupView.swift */,
 			);
 			path = Setup;
@@ -233,6 +251,8 @@
 		B3AEC1C1E5FD4C9F89BFC1AE /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				C357896EA48AFE5244B6FFC4 /* AddContactView.swift */,
+				C271E9830537D6EF5AD28BF7 /* ScanInviteView.swift */,
 				CB00183BD0B3A6402565DEE3 /* SettingsView.swift */,
 			);
 			path = Settings;
@@ -395,6 +415,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3A53BFA30432C7981046E227 /* AddContactView.swift in Sources */,
 				D7648B6CF4D20EC10287FE72 /* AuthRepository.swift in Sources */,
 				CD2A6373E73A7873C8436BD0 /* BeamletAPI.swift in Sources */,
 				E77A35A590A8D353FF3E7EAF /* BeamletApp.swift in Sources */,
@@ -404,7 +425,10 @@
 				ED34BA6B097762D77C82E978 /* InboxViewModel.swift in Sources */,
 				F0E934A479CD8E668D477270 /* MainTabView.swift in Sources */,
 				AC6A8C4B87482D81075016BE /* Models.swift in Sources */,
+				EF094D975E9E13EF6174ECE6 /* NameEntryView.swift in Sources */,
+				3E0B5D283CA14FCD1C9F1635 /* QRScannerView.swift in Sources */,
 				E29D10014DC036F9AA997C96 /* RootView.swift in Sources */,
+				7B4E88C05AF6ADDCEF52D616 /* ScanInviteView.swift in Sources */,
 				7507B94CCEC1F3164DC549C8 /* SendView.swift in Sources */,
 				5F9FC085B129882222A56E20 /* SendViewModel.swift in Sources */,
 				C26DBCA38BCBA7C7D6D88A1F /* SettingsView.swift in Sources */,
