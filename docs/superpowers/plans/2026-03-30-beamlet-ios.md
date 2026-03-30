@@ -4,7 +4,7 @@
 
 **Goal:** Build a native iOS app with share extension that lets users send and receive files through the Beamlet server, with push notifications for incoming files.
 
-**Architecture:** SwiftUI app using `@Observable` pattern (iOS 17+), following the sapphoios project conventions. Single API client, Keychain-based auth, XcodeGen for project generation. Share extension uses App Groups to share auth credentials with the main app.
+**Architecture:** SwiftUI app using `@Observable` pattern (iOS 17+). Lightweight ViewModels (`@Observable` classes) for views with async work (Inbox, Send). API and AuthRepository injected as direct `@Environment` objects (not custom EnvironmentKeys). XcodeGen for project generation. Share extension uses App Groups to share auth credentials with the main app.
 
 **Tech Stack:** Swift 5.9, SwiftUI, iOS 17+, XcodeGen, UserNotifications, App Groups
 
@@ -31,11 +31,13 @@ ios/
 │   │   │   └── SetupView.swift          # Server URL + token entry / QR scan
 │   │   ├── Inbox/
 │   │   │   ├── InboxView.swift          # List of received files
+│   │   │   ├── InboxViewModel.swift     # Async loading, pagination, state
 │   │   │   └── FileRowView.swift        # Single file row in inbox
 │   │   ├── Detail/
 │   │   │   └── FileDetailView.swift     # View/download a received file
 │   │   ├── Send/
-│   │   │   └── SendView.swift           # Pick recipient + file, send
+│   │   │   ├── SendView.swift           # Pick recipient + file, send
+│   │   │   └── SendViewModel.swift      # Upload logic, user loading, state
 │   │   ├── Settings/
 │   │   │   └── SettingsView.swift       # Server info, logout
 │   │   └── Components/
@@ -919,7 +921,7 @@ struct BeamletApp: App {
         WindowGroup {
             RootView()
                 .environment(authRepository)
-                .environment(\.beamletAPI, api)
+                .environment(api)
                 .preferredColorScheme(.dark)
                 .task {
                     if authRepository.isAuthenticated {
@@ -945,7 +947,6 @@ struct BeamletApp: App {
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
-        // Store for later registration with server
         UserDefaults(suiteName: "group.com.beamlet.shared")?.set(token, forKey: "apnsDeviceToken")
         NotificationCenter.default.post(name: .didReceiveAPNsToken, object: token)
     }
@@ -957,19 +958,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 extension Notification.Name {
     static let didReceiveAPNsToken = Notification.Name("didReceiveAPNsToken")
-}
-
-// MARK: - Environment Key
-
-private struct BeamletAPIKey: EnvironmentKey {
-    static let defaultValue: BeamletAPI? = nil
-}
-
-extension EnvironmentValues {
-    var beamletAPI: BeamletAPI? {
-        get { self[BeamletAPIKey.self] }
-        set { self[BeamletAPIKey.self] = newValue }
-    }
 }
 ```
 
@@ -1100,7 +1088,7 @@ import SwiftUI
 
 struct SetupView: View {
     @Environment(AuthRepository.self) private var authRepository
-    @Environment(\.beamletAPI) private var api
+    @Environment(BeamletAPI.self) private var api
 
     @State private var serverURL = ""
     @State private var token = ""
@@ -1190,7 +1178,7 @@ struct SetupView: View {
 
             do {
                 // Verify by fetching user list
-                let _ = try await api?.listUsers()
+                let _ = try await api.listUsers()
 
                 // Register for push notifications
                 let center = UNUserNotificationCenter.current()
@@ -1204,7 +1192,7 @@ struct SetupView: View {
                 // Register device token if we already have one
                 if let deviceToken = UserDefaults(suiteName: "group.com.beamlet.shared")?.string(forKey: "apnsDeviceToken") {
                     authRepository.storeDeviceToken(deviceToken)
-                    try? await api?.registerDevice(apnsToken: deviceToken)
+                    try? await api.registerDevice(apnsToken: deviceToken)
                 }
             } catch {
                 // Connection failed — clear credentials
@@ -1228,9 +1216,10 @@ git commit -m "feat(ios): add setup view for server connection"
 
 ---
 
-### Task 6: Inbox and File Detail Views
+### Task 6: Inbox ViewModel, Views, and File Detail
 
 **Files:**
+- Create: `ios/Beamlet/Presentation/Inbox/InboxViewModel.swift`
 - Create: `ios/Beamlet/Presentation/Inbox/InboxView.swift`
 - Create: `ios/Beamlet/Presentation/Inbox/FileRowView.swift`
 - Create: `ios/Beamlet/Presentation/Detail/FileDetailView.swift`
@@ -1318,7 +1307,58 @@ struct FileRowView: View {
 }
 ```
 
-- [ ] **Step 2: Create inbox view**
+- [ ] **Step 2: Create inbox view model**
+
+Create `ios/Beamlet/Presentation/Inbox/InboxViewModel.swift`:
+
+```swift
+import Foundation
+
+@Observable
+@MainActor
+class InboxViewModel {
+    private let api: BeamletAPI
+
+    var files: [BeamletFile] = []
+    var isLoading = true
+    var error: String?
+
+    init(api: BeamletAPI) {
+        self.api = api
+    }
+
+    func loadFiles() async {
+        do {
+            files = try await api.listFiles()
+            isLoading = false
+            error = nil
+        } catch {
+            self.error = error.localizedDescription
+            isLoading = false
+        }
+    }
+
+    func deleteFiles(at offsets: IndexSet) {
+        let toDelete = offsets.map { files[$0] }
+        files.remove(atOffsets: offsets)
+        Task {
+            for file in toDelete {
+                try? await api.deleteFile(file.id)
+            }
+        }
+    }
+
+    func thumbnailURL(for fileID: String) -> URL? {
+        api.thumbnailURL(for: fileID)
+    }
+
+    var authHeaders: [String: String] {
+        api.authHeaders
+    }
+}
+```
+
+- [ ] **Step 3: Create inbox view**
 
 Create `ios/Beamlet/Presentation/Inbox/InboxView.swift`:
 
@@ -1326,80 +1366,61 @@ Create `ios/Beamlet/Presentation/Inbox/InboxView.swift`:
 import SwiftUI
 
 struct InboxView: View {
-    @Environment(\.beamletAPI) private var api
-
-    @State private var files: [BeamletFile] = []
-    @State private var isLoading = true
-    @State private var error: String?
+    @Environment(BeamletAPI.self) private var api
+    @State private var viewModel: InboxViewModel?
 
     var body: some View {
         NavigationStack {
             Group {
-                if isLoading && files.isEmpty {
-                    LoadingView(message: "Loading inbox...")
-                } else if let error = error, files.isEmpty {
-                    ErrorView(message: error) { Task { await loadFiles() } }
-                } else if files.isEmpty {
-                    EmptyStateView(
-                        icon: "tray",
-                        title: "No Files",
-                        message: "Files sent to you will appear here"
-                    )
-                } else {
-                    List {
-                        ForEach(files) { file in
-                            NavigationLink(value: file) {
-                                FileRowView(
-                                    file: file,
-                                    thumbnailURL: api?.thumbnailURL(for: file.id),
-                                    authHeaders: api?.authHeaders ?? [:]
-                                )
+                if let vm = viewModel {
+                    if vm.isLoading && vm.files.isEmpty {
+                        LoadingView(message: "Loading inbox...")
+                    } else if let error = vm.error, vm.files.isEmpty {
+                        ErrorView(message: error) { Task { await vm.loadFiles() } }
+                    } else if vm.files.isEmpty {
+                        EmptyStateView(
+                            icon: "tray",
+                            title: "No Files",
+                            message: "Files sent to you will appear here"
+                        )
+                    } else {
+                        List {
+                            ForEach(vm.files) { file in
+                                NavigationLink(value: file) {
+                                    FileRowView(
+                                        file: file,
+                                        thumbnailURL: vm.thumbnailURL(for: file.id),
+                                        authHeaders: vm.authHeaders
+                                    )
+                                }
                             }
+                            .onDelete(perform: vm.deleteFiles)
                         }
-                        .onDelete(perform: deleteFiles)
+                        .listStyle(.plain)
                     }
-                    .listStyle(.plain)
+                } else {
+                    LoadingView()
                 }
             }
             .navigationTitle("Inbox")
             .navigationDestination(for: BeamletFile.self) { file in
                 FileDetailView(file: file)
             }
-            .refreshable { await loadFiles() }
-            .task { await loadFiles() }
-        }
-    }
-
-    private func loadFiles() async {
-        do {
-            let loaded = try await api?.listFiles() ?? []
-            await MainActor.run {
-                files = loaded
-                isLoading = false
-                error = nil
+            .refreshable {
+                await viewModel?.loadFiles()
             }
-        } catch {
-            await MainActor.run {
-                self.error = error.localizedDescription
-                isLoading = false
-            }
-        }
-    }
-
-    private func deleteFiles(at offsets: IndexSet) {
-        let filesToDelete = offsets.map { files[$0] }
-        files.remove(atOffsets: offsets)
-
-        Task {
-            for file in filesToDelete {
-                try? await api?.deleteFile(file.id)
+            .task {
+                if viewModel == nil {
+                    viewModel = InboxViewModel(api: api)
+                }
+                await viewModel?.loadFiles()
             }
         }
     }
 }
 ```
 
-- [ ] **Step 3: Create file detail view**
+- [ ] **Step 4: Create file detail view**
 
 Create `ios/Beamlet/Presentation/Detail/FileDetailView.swift`:
 
@@ -1408,7 +1429,7 @@ import SwiftUI
 import QuickLook
 
 struct FileDetailView: View {
-    @Environment(\.beamletAPI) private var api
+    @Environment(BeamletAPI.self) private var api
     let file: BeamletFile
 
     @State private var imageData: Data?
@@ -1506,13 +1527,13 @@ struct FileDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task {
             // Mark as read
-            try? await api?.markRead(file.id)
+            try? await api.markRead(file.id)
 
             // Download content for images
             if file.isImage {
                 isLoading = true
                 do {
-                    imageData = try await api?.downloadFile(file.id)
+                    imageData = try await api.downloadFile(file.id)
                 } catch {
                     self.error = error.localizedDescription
                 }
@@ -1529,147 +1550,91 @@ struct FileDetailView: View {
 }
 ```
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 cd ios
 git add .
-git commit -m "feat(ios): add inbox, file row, and file detail views"
+git commit -m "feat(ios): add inbox view model, inbox, file row, and file detail views"
 ```
 
 ---
 
-### Task 7: Send View and Settings View
+### Task 7: Send ViewModel, Send View, and Settings View
 
 **Files:**
+- Create: `ios/Beamlet/Presentation/Send/SendViewModel.swift`
 - Create: `ios/Beamlet/Presentation/Send/SendView.swift`
 - Create: `ios/Beamlet/Presentation/Settings/SettingsView.swift`
 
-- [ ] **Step 1: Create send view**
+- [ ] **Step 1: Create send view model**
 
-Create `ios/Beamlet/Presentation/Send/SendView.swift`:
+Create `ios/Beamlet/Presentation/Send/SendViewModel.swift`:
 
 ```swift
-import SwiftUI
+import Foundation
 import PhotosUI
+import SwiftUI
 
-struct SendView: View {
-    @Environment(\.beamletAPI) private var api
+@Observable
+@MainActor
+class SendViewModel {
+    private let api: BeamletAPI
 
-    @State private var users: [BeamletUser] = []
-    @State private var selectedUser: BeamletUser?
-    @State private var message = ""
-    @State private var selectedPhoto: PhotosPickerItem?
-    @State private var selectedPhotoData: Data?
-    @State private var isSending = false
-    @State private var error: String?
-    @State private var showSuccess = false
+    var users: [BeamletUser] = []
+    var selectedUser: BeamletUser?
+    var message = ""
+    var selectedPhoto: PhotosPickerItem?
+    var selectedPhotoData: Data?
+    var isSending = false
+    var error: String?
+    var showSuccess = false
 
-    var body: some View {
-        NavigationStack {
-            Form {
-                // Recipient
-                Section("Recipient") {
-                    if users.isEmpty {
-                        ProgressView("Loading users...")
-                    } else {
-                        Picker("Send to", selection: $selectedUser) {
-                            Text("Select recipient").tag(nil as BeamletUser?)
-                            ForEach(users) { user in
-                                Text(user.name).tag(user as BeamletUser?)
-                            }
-                        }
-                    }
-                }
-
-                // Content
-                Section("Content") {
-                    PhotosPicker(selection: $selectedPhoto, matching: .any(of: [.images, .videos])) {
-                        HStack {
-                            Image(systemName: selectedPhotoData != nil ? "checkmark.circle.fill" : "photo")
-                                .foregroundStyle(selectedPhotoData != nil ? .green : .secondary)
-                            Text(selectedPhotoData != nil ? "Photo selected" : "Choose photo or video")
-                        }
-                    }
-                    .onChange(of: selectedPhoto) { _, newItem in
-                        Task {
-                            if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                                selectedPhotoData = data
-                            }
-                        }
-                    }
-
-                    TextField("Message (optional)", text: $message, axis: .vertical)
-                        .lineLimit(3...6)
-                }
-
-                if let error = error {
-                    Section {
-                        Text(error)
-                            .foregroundStyle(.red)
-                    }
-                }
-
-                // Send
-                Section {
-                    Button(action: send) {
-                        if isSending {
-                            HStack {
-                                ProgressView()
-                                Text("Sending...")
-                            }
-                        } else {
-                            Label("Send", systemImage: "paperplane.fill")
-                        }
-                    }
-                    .disabled(selectedUser == nil || (selectedPhotoData == nil && message.isEmpty) || isSending)
-                }
-            }
-            .navigationTitle("Send")
-            .alert("Sent!", isPresented: $showSuccess) {
-                Button("OK") { resetForm() }
-            } message: {
-                Text("File sent successfully")
-            }
-            .task { await loadUsers() }
-        }
+    var canSend: Bool {
+        selectedUser != nil && (selectedPhotoData != nil || !message.isEmpty) && !isSending
     }
 
-    private func loadUsers() async {
-        users = (try? await api?.listUsers()) ?? []
+    init(api: BeamletAPI) {
+        self.api = api
     }
 
-    private func send() {
+    func loadUsers() async {
+        users = (try? await api.listUsers()) ?? []
+    }
+
+    func loadPhotoData() async {
+        guard let item = selectedPhoto else { return }
+        selectedPhotoData = try? await item.loadTransferable(type: Data.self)
+    }
+
+    func send() async {
         guard let user = selectedUser else { return }
-
         isSending = true
         error = nil
 
-        Task {
-            do {
-                if let photoData = selectedPhotoData {
-                    let _ = try await api?.uploadFile(
-                        recipientID: user.id,
-                        fileData: photoData,
-                        filename: "photo.jpg",
-                        mimeType: "image/jpeg",
-                        message: message.isEmpty ? nil : message
-                    )
-                } else if !message.isEmpty {
-                    let _ = try await api?.uploadText(
-                        recipientID: user.id,
-                        text: message
-                    )
-                }
-                showSuccess = true
-            } catch {
-                self.error = error.localizedDescription
+        do {
+            if let photoData = selectedPhotoData {
+                let _ = try await api.uploadFile(
+                    recipientID: user.id,
+                    fileData: photoData,
+                    filename: "photo.jpg",
+                    mimeType: "image/jpeg",
+                    message: message.isEmpty ? nil : message
+                )
+            } else if !message.isEmpty {
+                let _ = try await api.uploadText(
+                    recipientID: user.id,
+                    text: message
+                )
             }
-            isSending = false
+            showSuccess = true
+        } catch {
+            self.error = error.localizedDescription
         }
+        isSending = false
     }
 
-    private func resetForm() {
+    func reset() {
         selectedUser = nil
         selectedPhoto = nil
         selectedPhotoData = nil
@@ -1678,7 +1643,87 @@ struct SendView: View {
 }
 ```
 
-- [ ] **Step 2: Create settings view**
+- [ ] **Step 2: Create send view**
+
+Create `ios/Beamlet/Presentation/Send/SendView.swift`:
+
+```swift
+import SwiftUI
+import PhotosUI
+
+struct SendView: View {
+    @Environment(BeamletAPI.self) private var api
+    @State private var viewModel: SendViewModel?
+
+    var body: some View {
+        NavigationStack {
+            if let vm = viewModel {
+                Form {
+                    Section("Recipient") {
+                        if vm.users.isEmpty {
+                            ProgressView("Loading users...")
+                        } else {
+                            Picker("Send to", selection: Bindable(vm).selectedUser) {
+                                Text("Select recipient").tag(nil as BeamletUser?)
+                                ForEach(vm.users) { user in
+                                    Text(user.name).tag(user as BeamletUser?)
+                                }
+                            }
+                        }
+                    }
+
+                    Section("Content") {
+                        PhotosPicker(selection: Bindable(vm).selectedPhoto, matching: .any(of: [.images, .videos])) {
+                            HStack {
+                                Image(systemName: vm.selectedPhotoData != nil ? "checkmark.circle.fill" : "photo")
+                                    .foregroundStyle(vm.selectedPhotoData != nil ? .green : .secondary)
+                                Text(vm.selectedPhotoData != nil ? "Photo selected" : "Choose photo or video")
+                            }
+                        }
+                        .onChange(of: vm.selectedPhoto) {
+                            Task { await vm.loadPhotoData() }
+                        }
+
+                        TextField("Message (optional)", text: Bindable(vm).message, axis: .vertical)
+                            .lineLimit(3...6)
+                    }
+
+                    if let error = vm.error {
+                        Section {
+                            Text(error).foregroundStyle(.red)
+                        }
+                    }
+
+                    Section {
+                        Button {
+                            Task { await vm.send() }
+                        } label: {
+                            if vm.isSending {
+                                HStack { ProgressView(); Text("Sending...") }
+                            } else {
+                                Label("Send", systemImage: "paperplane.fill")
+                            }
+                        }
+                        .disabled(!vm.canSend)
+                    }
+                }
+                .navigationTitle("Send")
+                .alert("Sent!", isPresented: Bindable(vm).showSuccess) {
+                    Button("OK") { vm.reset() }
+                } message: {
+                    Text("File sent successfully")
+                }
+                .task { await vm.loadUsers() }
+            } else {
+                LoadingView()
+                    .task { viewModel = SendViewModel(api: api) }
+            }
+        }
+    }
+}
+```
+
+- [ ] **Step 3: Create settings view**
 
 Create `ios/Beamlet/Presentation/Settings/SettingsView.swift`:
 
@@ -1687,7 +1732,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(AuthRepository.self) private var authRepository
-    @Environment(\.beamletAPI) private var api
+    @Environment(BeamletAPI.self) private var api
 
     @State private var showLogoutConfirmation = false
 
@@ -1749,12 +1794,12 @@ struct SettingsView: View {
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
 cd ios
 git add .
-git commit -m "feat(ios): add send view with photo picker and settings view"
+git commit -m "feat(ios): add send view model, send view, and settings view"
 ```
 
 ---
@@ -2074,7 +2119,7 @@ Add notification observer to `BeamletApp.swift`. Replace the existing `body` com
         WindowGroup {
             RootView()
                 .environment(authRepository)
-                .environment(\.beamletAPI, api)
+                .environment(api)
                 .preferredColorScheme(.dark)
                 .task {
                     if authRepository.isAuthenticated {
