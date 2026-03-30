@@ -83,6 +83,7 @@ targets:
       base:
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: S6WU9SVVDW
+        GENERATE_INFOPLIST_FILE: YES
     dependencies:
       - target: Beamlet
 
