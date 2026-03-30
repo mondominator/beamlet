@@ -1,0 +1,16 @@
+# Go
+server/beamlet
+server/vendor/
+
+# APNs key
+*.p8
+
+# Data
+/data/
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
