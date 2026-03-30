@@ -2097,8 +2097,11 @@ func (s *Server) UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send push notification (non-blocking)
+	// Pass sender's device token so we can exclude it from notifications
+	// (handles send-to-self case: phone→iPad without notifying the sending phone)
+	senderDeviceToken := r.Header.Get("X-Device-Token")
 	if s.Pusher != nil {
-		go s.Pusher.Notify(recipientID, user.Name, created)
+		go s.Pusher.Notify(recipientID, user.Name, created, senderDeviceToken)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -2367,7 +2370,7 @@ func NewAPNsPusher(keyPath, keyID, teamID, bundleID string, userStore *store.Use
 	}, nil
 }
 
-func (p *APNsPusher) Notify(recipientID, senderName string, file *model.File) {
+func (p *APNsPusher) Notify(recipientID, senderName string, file *model.File, excludeDeviceToken string) {
 	devices, err := p.userStore.GetActiveDevices(recipientID)
 	if err != nil {
 		log.Printf("failed to get devices for %s: %v", recipientID, err)
@@ -2388,6 +2391,10 @@ func (p *APNsPusher) Notify(recipientID, senderName string, file *model.File) {
 	}
 
 	for _, device := range devices {
+		// Skip the device that sent the file (send-to-self case)
+		if device.APNsToken == excludeDeviceToken {
+			continue
+		}
 		notification.DeviceToken = device.APNsToken
 		res, err := p.client.Push(notification)
 		if err != nil {
