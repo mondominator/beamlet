@@ -33,6 +33,8 @@ func ServeCmd() *cobra.Command {
 
 			userStore := store.NewUserStore(database.SQL())
 			fileStore := store.NewFileStore(database.SQL())
+			contactStore := store.NewContactStore(database.SQL())
+			inviteStore := store.NewInviteStore(database.SQL())
 			diskStorage := storage.NewDiskStorage(cfg.DataDir)
 
 			var pusher *push.APNsPusher
@@ -46,11 +48,13 @@ func ServeCmd() *cobra.Command {
 			}
 
 			srv := &api.Server{
-				UserStore: userStore,
-				FileStore: fileStore,
-				Storage:   diskStorage,
-				Pusher:    pusher,
-				Config:    cfg,
+				UserStore:    userStore,
+				FileStore:    fileStore,
+				ContactStore: contactStore,
+				InviteStore:  inviteStore,
+				Storage:      diskStorage,
+				Pusher:       pusher,
+				Config:       cfg,
 			}
 
 			stopCleanup := make(chan struct{})

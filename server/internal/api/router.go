@@ -11,11 +11,13 @@ import (
 )
 
 type Server struct {
-	UserStore *store.UserStore
-	FileStore *store.FileStore
-	Storage   *storage.DiskStorage
-	Pusher    *push.APNsPusher
-	Config    config.Config
+	UserStore    *store.UserStore
+	FileStore    *store.FileStore
+	ContactStore *store.ContactStore
+	InviteStore  *store.InviteStore
+	Storage      *storage.DiskStorage
+	Pusher       *push.APNsPusher
+	Config       config.Config
 }
 
 func NewRouter(s *Server) *chi.Mux {
@@ -24,16 +26,26 @@ func NewRouter(s *Server) *chi.Mux {
 	r.Use(middleware.Recoverer)
 
 	r.Route("/api", func(r chi.Router) {
-		r.Use(auth.Middleware(s.UserStore))
+		// Public routes (no auth)
+		r.Post("/invites/redeem", s.RedeemInvite)
 
-		r.Get("/users", s.ListUsers)
-		r.Post("/auth/register-device", s.RegisterDevice)
-		r.Post("/files", s.UploadFile)
-		r.Get("/files", s.ListFiles)
-		r.Get("/files/{id}", s.DownloadFile)
-		r.Get("/files/{id}/thumbnail", s.DownloadThumbnail)
-		r.Delete("/files/{id}", s.DeleteFile)
-		r.Put("/files/{id}/read", s.MarkFileRead)
+		// Authenticated routes
+		r.Group(func(r chi.Router) {
+			r.Use(auth.Middleware(s.UserStore))
+
+			r.Get("/users", s.ListUsers)
+			r.Post("/auth/register-device", s.RegisterDevice)
+			r.Post("/files", s.UploadFile)
+			r.Get("/files", s.ListFiles)
+			r.Get("/files/{id}", s.DownloadFile)
+			r.Get("/files/{id}/thumbnail", s.DownloadThumbnail)
+			r.Delete("/files/{id}", s.DeleteFile)
+			r.Put("/files/{id}/read", s.MarkFileRead)
+
+			r.Get("/contacts", s.ListContacts)
+			r.Delete("/contacts/{id}", s.DeleteContact)
+			r.Post("/invites", s.CreateInvite)
+		})
 	})
 
 	return r
