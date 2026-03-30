@@ -115,6 +115,45 @@ func (s *UserStore) RevokeToken(userID string) (string, error) {
 	return token, nil
 }
 
+func (s *UserStore) RegisterDevice(userID, apnsToken, platform string) error {
+	id := uuid.New().String()
+	now := time.Now().UTC()
+
+	_, err := s.db.Exec(
+		`INSERT INTO devices (id, user_id, apns_token, platform, active, created_at, updated_at)
+		 VALUES (?, ?, ?, ?, 1, ?, ?)
+		 ON CONFLICT(user_id, apns_token) DO UPDATE SET active = 1, updated_at = ?`,
+		id, userID, apnsToken, platform, now, now, now,
+	)
+	return err
+}
+
+func (s *UserStore) GetActiveDevices(userID string) ([]model.Device, error) {
+	rows, err := s.db.Query(
+		"SELECT id, user_id, apns_token, platform, active, created_at, updated_at FROM devices WHERE user_id = ? AND active = 1",
+		userID,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("query devices: %w", err)
+	}
+	defer rows.Close()
+
+	var devices []model.Device
+	for rows.Next() {
+		var d model.Device
+		if err := rows.Scan(&d.ID, &d.UserID, &d.APNsToken, &d.Platform, &d.Active, &d.CreatedAt, &d.UpdatedAt); err != nil {
+			return nil, fmt.Errorf("scan device: %w", err)
+		}
+		devices = append(devices, d)
+	}
+	return devices, nil
+}
+
+func (s *UserStore) DeactivateDevice(apnsToken string) error {
+	_, err := s.db.Exec("UPDATE devices SET active = 0, updated_at = ? WHERE apns_token = ?", time.Now().UTC(), apnsToken)
+	return err
+}
+
 func generateToken() string {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
