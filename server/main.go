@@ -3,14 +3,24 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/mondominator/beamlet/server/cmd"
+	"github.com/spf13/cobra"
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: beamlet <command>")
-		fmt.Fprintln(os.Stderr, "commands: serve, add-user, list-users, revoke-token")
+	root := &cobra.Command{
+		Use:   "beamlet",
+		Short: "Beamlet file sharing server",
+	}
+
+	root.AddCommand(cmd.ServeCmd())
+	root.AddCommand(cmd.AddUserCmd())
+	root.AddCommand(cmd.ListUsersCmd())
+	root.AddCommand(cmd.RevokeTokenCmd())
+
+	if err := root.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	fmt.Fprintln(os.Stderr, "command not yet implemented:", os.Args[1])
-	os.Exit(1)
 }
