@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 	"strconv"
 )
@@ -18,8 +19,16 @@ type Config struct {
 }
 
 func Load() Config {
-	maxSize, _ := strconv.ParseInt(getEnv("BEAMLET_MAX_FILE_SIZE", "524288000"), 10, 64)
-	expiryDays, _ := strconv.Atoi(getEnv("BEAMLET_EXPIRY_DAYS", "30"))
+	maxSize, err := strconv.ParseInt(getEnv("BEAMLET_MAX_FILE_SIZE", "524288000"), 10, 64)
+	if err != nil {
+		log.Printf("invalid BEAMLET_MAX_FILE_SIZE, using default 500MB")
+		maxSize = 524288000
+	}
+	expiryDays, err := strconv.Atoi(getEnv("BEAMLET_EXPIRY_DAYS", "30"))
+	if err != nil {
+		log.Printf("invalid BEAMLET_EXPIRY_DAYS, using default 30")
+		expiryDays = 30
+	}
 
 	return Config{
 		DBPath:       getEnv("BEAMLET_DB_PATH", "/data/beamlet.db"),
