@@ -23,6 +23,14 @@ struct BeamletApp: App {
                 .task {
                     if authRepository.isAuthenticated {
                         await requestNotificationPermission()
+                        await registerExistingDeviceToken()
+                    }
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .didReceiveAPNsToken)) { notification in
+                    guard let token = notification.object as? String else { return }
+                    authRepository.storeDeviceToken(token)
+                    Task {
+                        try? await api.registerDevice(apnsToken: token)
                     }
                 }
         }
@@ -35,6 +43,13 @@ struct BeamletApp: App {
             await MainActor.run {
                 UIApplication.shared.registerForRemoteNotifications()
             }
+        }
+    }
+
+    private func registerExistingDeviceToken() async {
+        if let token = UserDefaults(suiteName: "group.com.beamlet.shared")?.string(forKey: "apnsDeviceToken") {
+            authRepository.storeDeviceToken(token)
+            try? await api.registerDevice(apnsToken: token)
         }
     }
 }
