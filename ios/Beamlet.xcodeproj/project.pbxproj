@@ -1,0 +1,737 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0EF157F732724B1851E91CFF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 278215F1257F5E2BC5625437 /* Assets.xcassets */; };
+		3A53BFA30432C7981046E227 /* AddContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C357896EA48AFE5244B6FFC4 /* AddContactView.swift */; };
+		3E0B5D283CA14FCD1C9F1635 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98741F30C4CC511161FC0C6 /* QRScannerView.swift */; };
+		5F9FC085B129882222A56E20 /* SendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05CA723CA51D1EC531549C2 /* SendViewModel.swift */; };
+		7507B94CCEC1F3164DC549C8 /* SendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA922F7885C336DBF950AB0 /* SendView.swift */; };
+		7B4E88C05AF6ADDCEF52D616 /* ScanInviteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C271E9830537D6EF5AD28BF7 /* ScanInviteView.swift */; };
+		A1B4B7D82B3C26A0884D1AED /* InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FE3585B1C9C679534BD2E4 /* InboxView.swift */; };
+		A303E014B4F45035C1C28F61 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9D15525B63466E88FE254B /* ShareView.swift */; };
+		A68E8DA8058705D9CE6661B4 /* BeamletShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B739DCAC2AF9851C8AEF0FB8 /* BeamletShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A70393E986A1D5F6FB50B0F5 /* BeamletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A540DA2E1EDABC2D29CB8B61 /* BeamletTests.swift */; };
+		A8742F65B77465B7905CD609 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDD43800533A4CF4957CF71 /* ShareViewController.swift */; };
+		AC6A8C4B87482D81075016BE /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0D3990B57D715D887347F1 /* Models.swift */; };
+		B102E3403D93CF420FA7466B /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0D3990B57D715D887347F1 /* Models.swift */; };
+		C26DBCA38BCBA7C7D6D88A1F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB00183BD0B3A6402565DEE3 /* SettingsView.swift */; };
+		C3B63E7B752C04E115099EF0 /* StateViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D61FA11B6D57DBAD461351EF /* StateViews.swift */; };
+		C82FD9EB3E98F18325A17301 /* FileRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11668AF57EEF73440BD2DBF1 /* FileRowView.swift */; };
+		C9A581007C062E451A770AA5 /* AuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */; };
+		CB5591F6A50F1CEFA7E1BFD2 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D79409532332E446859A82A /* SetupView.swift */; };
+		CD2A6373E73A7873C8436BD0 /* BeamletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */; };
+		D27EB68E0EB08FD46499A040 /* BeamletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */; };
+		D7648B6CF4D20EC10287FE72 /* AuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */; };
+		E29D10014DC036F9AA997C96 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BF633582A97070F4311DC2 /* RootView.swift */; };
+		E423A5EF103BDEFF301BE58D /* FileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6F10A61E27CFFF7E9988006 /* FileDetailView.swift */; };
+		E77A35A590A8D353FF3E7EAF /* BeamletApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C6EE27FC8312321F6EFCCA /* BeamletApp.swift */; };
+		ED34BA6B097762D77C82E978 /* InboxViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B5FCF0EA472D2EAF32B46CB /* InboxViewModel.swift */; };
+		EF094D975E9E13EF6174ECE6 /* NameEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7262AE1FF951D5B44582C3 /* NameEntryView.swift */; };
+		F0E934A479CD8E668D477270 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8E50AA0707D07B908E35EB /* MainTabView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		0BD4FF0444C699FA1A880658 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5E6FA225D02DE2722AE69022 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 20A1F7C5DD3595D3FBDF64C2;
+			remoteInfo = Beamlet;
+		};
+		5365B9E3780E2DDD16AB00B0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5E6FA225D02DE2722AE69022 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 266A96D16C791BF95E3642C5;
+			remoteInfo = BeamletShare;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		EC0317FF3C91C7DD5C925DCC /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A68E8DA8058705D9CE6661B4 /* BeamletShare.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0FDD43800533A4CF4957CF71 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		11668AF57EEF73440BD2DBF1 /* FileRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileRowView.swift; sourceTree = "<group>"; };
+		278215F1257F5E2BC5625437 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4B7262AE1FF951D5B44582C3 /* NameEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameEntryView.swift; sourceTree = "<group>"; };
+		5E0D3990B57D715D887347F1 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		5F01C9962E9948A9ABC8E471 /* Beamlet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Beamlet.entitlements; sourceTree = "<group>"; };
+		650249C9F9976C21982E6D33 /* BeamletShare.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BeamletShare.entitlements; sourceTree = "<group>"; };
+		6B5FCF0EA472D2EAF32B46CB /* InboxViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxViewModel.swift; sourceTree = "<group>"; };
+		6FA922F7885C336DBF950AB0 /* SendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendView.swift; sourceTree = "<group>"; };
+		84BF633582A97070F4311DC2 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		903D2C509F8CCACDDB8AE9AF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		97C6EE27FC8312321F6EFCCA /* BeamletApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamletApp.swift; sourceTree = "<group>"; };
+		9D79409532332E446859A82A /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
+		A540DA2E1EDABC2D29CB8B61 /* BeamletTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamletTests.swift; sourceTree = "<group>"; };
+		A6F10A61E27CFFF7E9988006 /* FileDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDetailView.swift; sourceTree = "<group>"; };
+		A98741F30C4CC511161FC0C6 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
+		ACDBABB6512D7711A3364D9E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamletAPI.swift; sourceTree = "<group>"; };
+		B6FE3585B1C9C679534BD2E4 /* InboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxView.swift; sourceTree = "<group>"; };
+		B739DCAC2AF9851C8AEF0FB8 /* BeamletShare.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = BeamletShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		BD9D15525B63466E88FE254B /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
+		BF8E50AA0707D07B908E35EB /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		C271E9830537D6EF5AD28BF7 /* ScanInviteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanInviteView.swift; sourceTree = "<group>"; };
+		C357896EA48AFE5244B6FFC4 /* AddContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddContactView.swift; sourceTree = "<group>"; };
+		C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRepository.swift; sourceTree = "<group>"; };
+		CB00183BD0B3A6402565DEE3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		D61FA11B6D57DBAD461351EF /* StateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateViews.swift; sourceTree = "<group>"; };
+		DEC8545F83DC9BD4E0C80EDD /* BeamletTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BeamletTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E12E47C9B5F582AD6DA59E6D /* Beamlet.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Beamlet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F05CA723CA51D1EC531549C2 /* SendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewModel.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		01C359BF67286C391718EE38 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				8B5929FCEF9E857A08279468 /* Data */,
+				6B5CE3A3D20BA555969E0914 /* Model */,
+			);
+			name = Shared;
+			sourceTree = "<group>";
+		};
+		19F24B47247E584E7E1D8D95 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E12E47C9B5F582AD6DA59E6D /* Beamlet.app */,
+				B739DCAC2AF9851C8AEF0FB8 /* BeamletShare.appex */,
+				DEC8545F83DC9BD4E0C80EDD /* BeamletTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2923C90894E2F8E7CD1F745B /* App */ = {
+			isa = PBXGroup;
+			children = (
+				97C6EE27FC8312321F6EFCCA /* BeamletApp.swift */,
+				84BF633582A97070F4311DC2 /* RootView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		29972B4D6097BE09ACADE24A /* BeamletTests */ = {
+			isa = PBXGroup;
+			children = (
+				A540DA2E1EDABC2D29CB8B61 /* BeamletTests.swift */,
+			);
+			path = BeamletTests;
+			sourceTree = "<group>";
+		};
+		2F57B10CBB40766B8A12C7DF = {
+			isa = PBXGroup;
+			children = (
+				52EC7F6B66ADE530796ADA7F /* Beamlet */,
+				6255627E2170A5D7184F256A /* BeamletShare */,
+				29972B4D6097BE09ACADE24A /* BeamletTests */,
+				01C359BF67286C391718EE38 /* Shared */,
+				19F24B47247E584E7E1D8D95 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		52EC7F6B66ADE530796ADA7F /* Beamlet */ = {
+			isa = PBXGroup;
+			children = (
+				2923C90894E2F8E7CD1F745B /* App */,
+				8B5929FCEF9E857A08279468 /* Data */,
+				6B5CE3A3D20BA555969E0914 /* Model */,
+				98F272DAE0F92ED9FD859CBE /* Presentation */,
+				61F61D262E4AEAC4C4EEB68F /* Resources */,
+			);
+			path = Beamlet;
+			sourceTree = "<group>";
+		};
+		61F61D262E4AEAC4C4EEB68F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				278215F1257F5E2BC5625437 /* Assets.xcassets */,
+				5F01C9962E9948A9ABC8E471 /* Beamlet.entitlements */,
+				ACDBABB6512D7711A3364D9E /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		6255627E2170A5D7184F256A /* BeamletShare */ = {
+			isa = PBXGroup;
+			children = (
+				650249C9F9976C21982E6D33 /* BeamletShare.entitlements */,
+				903D2C509F8CCACDDB8AE9AF /* Info.plist */,
+				BD9D15525B63466E88FE254B /* ShareView.swift */,
+				0FDD43800533A4CF4957CF71 /* ShareViewController.swift */,
+			);
+			path = BeamletShare;
+			sourceTree = "<group>";
+		};
+		66F091FDD9D53B66B384181A /* Detail */ = {
+			isa = PBXGroup;
+			children = (
+				A6F10A61E27CFFF7E9988006 /* FileDetailView.swift */,
+			);
+			path = Detail;
+			sourceTree = "<group>";
+		};
+		6B5CE3A3D20BA555969E0914 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				5E0D3990B57D715D887347F1 /* Models.swift */,
+			);
+			name = Model;
+			path = Beamlet/Model;
+			sourceTree = "<group>";
+		};
+		869F18974DF8BC7350663B6F /* Scanner */ = {
+			isa = PBXGroup;
+			children = (
+				A98741F30C4CC511161FC0C6 /* QRScannerView.swift */,
+			);
+			path = Scanner;
+			sourceTree = "<group>";
+		};
+		8B5929FCEF9E857A08279468 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */,
+				B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */,
+			);
+			name = Data;
+			path = Beamlet/Data;
+			sourceTree = "<group>";
+		};
+		8E3BC6EDFAE75EEDC5BD8900 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				BF8E50AA0707D07B908E35EB /* MainTabView.swift */,
+				D61FA11B6D57DBAD461351EF /* StateViews.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		98F272DAE0F92ED9FD859CBE /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				8E3BC6EDFAE75EEDC5BD8900 /* Components */,
+				66F091FDD9D53B66B384181A /* Detail */,
+				C6BCD81BFE77B2A3B66DE12D /* Inbox */,
+				869F18974DF8BC7350663B6F /* Scanner */,
+				F57D8D33626BCFEE79C5EC4C /* Send */,
+				B3AEC1C1E5FD4C9F89BFC1AE /* Settings */,
+				A71500C3597DEFCA334766D1 /* Setup */,
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		A71500C3597DEFCA334766D1 /* Setup */ = {
+			isa = PBXGroup;
+			children = (
+				4B7262AE1FF951D5B44582C3 /* NameEntryView.swift */,
+				9D79409532332E446859A82A /* SetupView.swift */,
+			);
+			path = Setup;
+			sourceTree = "<group>";
+		};
+		B3AEC1C1E5FD4C9F89BFC1AE /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				C357896EA48AFE5244B6FFC4 /* AddContactView.swift */,
+				C271E9830537D6EF5AD28BF7 /* ScanInviteView.swift */,
+				CB00183BD0B3A6402565DEE3 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		C6BCD81BFE77B2A3B66DE12D /* Inbox */ = {
+			isa = PBXGroup;
+			children = (
+				11668AF57EEF73440BD2DBF1 /* FileRowView.swift */,
+				B6FE3585B1C9C679534BD2E4 /* InboxView.swift */,
+				6B5FCF0EA472D2EAF32B46CB /* InboxViewModel.swift */,
+			);
+			path = Inbox;
+			sourceTree = "<group>";
+		};
+		F57D8D33626BCFEE79C5EC4C /* Send */ = {
+			isa = PBXGroup;
+			children = (
+				6FA922F7885C336DBF950AB0 /* SendView.swift */,
+				F05CA723CA51D1EC531549C2 /* SendViewModel.swift */,
+			);
+			path = Send;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		20A1F7C5DD3595D3FBDF64C2 /* Beamlet */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 55EBFA7A0697193D137252E7 /* Build configuration list for PBXNativeTarget "Beamlet" */;
+			buildPhases = (
+				DD27C0E08188BA6C19EA8314 /* Sources */,
+				6EE5830C4BE537CC3BF51618 /* Resources */,
+				EC0317FF3C91C7DD5C925DCC /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3BFF1BC161F4BA5A87F39066 /* PBXTargetDependency */,
+			);
+			name = Beamlet;
+			packageProductDependencies = (
+			);
+			productName = Beamlet;
+			productReference = E12E47C9B5F582AD6DA59E6D /* Beamlet.app */;
+			productType = "com.apple.product-type.application";
+		};
+		266A96D16C791BF95E3642C5 /* BeamletShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E7BB149154F0CDBFA70CF87E /* Build configuration list for PBXNativeTarget "BeamletShare" */;
+			buildPhases = (
+				37CCCA5F22DB3C239588F50B /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BeamletShare;
+			packageProductDependencies = (
+			);
+			productName = BeamletShare;
+			productReference = B739DCAC2AF9851C8AEF0FB8 /* BeamletShare.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		C92D35EF0646BB98C97C4758 /* BeamletTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4235937AE29ADF27B8BE6F0B /* Build configuration list for PBXNativeTarget "BeamletTests" */;
+			buildPhases = (
+				D902B12B2F1B9EDDE4B48932 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4F018556A9A9127AB46BCB83 /* PBXTargetDependency */,
+			);
+			name = BeamletTests;
+			packageProductDependencies = (
+			);
+			productName = BeamletTests;
+			productReference = DEC8545F83DC9BD4E0C80EDD /* BeamletTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5E6FA225D02DE2722AE69022 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					20A1F7C5DD3595D3FBDF64C2 = {
+						DevelopmentTeam = S6WU9SVVDW;
+						ProvisioningStyle = Automatic;
+					};
+					266A96D16C791BF95E3642C5 = {
+						DevelopmentTeam = S6WU9SVVDW;
+						ProvisioningStyle = Automatic;
+					};
+					C92D35EF0646BB98C97C4758 = {
+						DevelopmentTeam = S6WU9SVVDW;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 0C09CA65C57749E6A510D621 /* Build configuration list for PBXProject "Beamlet" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 2F57B10CBB40766B8A12C7DF;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				20A1F7C5DD3595D3FBDF64C2 /* Beamlet */,
+				266A96D16C791BF95E3642C5 /* BeamletShare */,
+				C92D35EF0646BB98C97C4758 /* BeamletTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6EE5830C4BE537CC3BF51618 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0EF157F732724B1851E91CFF /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		37CCCA5F22DB3C239588F50B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C9A581007C062E451A770AA5 /* AuthRepository.swift in Sources */,
+				D27EB68E0EB08FD46499A040 /* BeamletAPI.swift in Sources */,
+				B102E3403D93CF420FA7466B /* Models.swift in Sources */,
+				A303E014B4F45035C1C28F61 /* ShareView.swift in Sources */,
+				A8742F65B77465B7905CD609 /* ShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D902B12B2F1B9EDDE4B48932 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A70393E986A1D5F6FB50B0F5 /* BeamletTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DD27C0E08188BA6C19EA8314 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A53BFA30432C7981046E227 /* AddContactView.swift in Sources */,
+				D7648B6CF4D20EC10287FE72 /* AuthRepository.swift in Sources */,
+				CD2A6373E73A7873C8436BD0 /* BeamletAPI.swift in Sources */,
+				E77A35A590A8D353FF3E7EAF /* BeamletApp.swift in Sources */,
+				E423A5EF103BDEFF301BE58D /* FileDetailView.swift in Sources */,
+				C82FD9EB3E98F18325A17301 /* FileRowView.swift in Sources */,
+				A1B4B7D82B3C26A0884D1AED /* InboxView.swift in Sources */,
+				ED34BA6B097762D77C82E978 /* InboxViewModel.swift in Sources */,
+				F0E934A479CD8E668D477270 /* MainTabView.swift in Sources */,
+				AC6A8C4B87482D81075016BE /* Models.swift in Sources */,
+				EF094D975E9E13EF6174ECE6 /* NameEntryView.swift in Sources */,
+				3E0B5D283CA14FCD1C9F1635 /* QRScannerView.swift in Sources */,
+				E29D10014DC036F9AA997C96 /* RootView.swift in Sources */,
+				7B4E88C05AF6ADDCEF52D616 /* ScanInviteView.swift in Sources */,
+				7507B94CCEC1F3164DC549C8 /* SendView.swift in Sources */,
+				5F9FC085B129882222A56E20 /* SendViewModel.swift in Sources */,
+				C26DBCA38BCBA7C7D6D88A1F /* SettingsView.swift in Sources */,
+				CB5591F6A50F1CEFA7E1BFD2 /* SetupView.swift in Sources */,
+				C3B63E7B752C04E115099EF0 /* StateViews.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3BFF1BC161F4BA5A87F39066 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 266A96D16C791BF95E3642C5 /* BeamletShare */;
+			targetProxy = 5365B9E3780E2DDD16AB00B0 /* PBXContainerItemProxy */;
+		};
+		4F018556A9A9127AB46BCB83 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 20A1F7C5DD3595D3FBDF64C2 /* Beamlet */;
+			targetProxy = 0BD4FF0444C699FA1A880658 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		63FFEC31542EAF1D6A82AA15 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S6WU9SVVDW;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.beamlet.BeamletTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Beamlet.app/Beamlet";
+			};
+			name = Debug;
+		};
+		715AE5D16942AA2FB19168C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S6WU9SVVDW;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.beamlet.BeamletTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Beamlet.app/Beamlet";
+			};
+			name = Release;
+		};
+		8A6DC1EE3CA6BB80227DFF2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = S6WU9SVVDW;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		8E937DC124F6376FE5254D6C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Beamlet/Resources/Beamlet.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S6WU9SVVDW;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = Beamlet/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.beamlet.app;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8F77D8ADBC01A052AD78B93B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = S6WU9SVVDW;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		A777C8E65277B76608361AC0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = BeamletShare/BeamletShare.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S6WU9SVVDW;
+				INFOPLIST_FILE = BeamletShare/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.beamlet.app.share;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BE86719C1730ACBA828B2CA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = BeamletShare/BeamletShare.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S6WU9SVVDW;
+				INFOPLIST_FILE = BeamletShare/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.beamlet.app.share;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CB0BC821261BEE3A629911F0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Beamlet/Resources/Beamlet.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = S6WU9SVVDW;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = Beamlet/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.beamlet.app;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0C09CA65C57749E6A510D621 /* Build configuration list for PBXProject "Beamlet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8F77D8ADBC01A052AD78B93B /* Debug */,
+				8A6DC1EE3CA6BB80227DFF2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4235937AE29ADF27B8BE6F0B /* Build configuration list for PBXNativeTarget "BeamletTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				63FFEC31542EAF1D6A82AA15 /* Debug */,
+				715AE5D16942AA2FB19168C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		55EBFA7A0697193D137252E7 /* Build configuration list for PBXNativeTarget "Beamlet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8E937DC124F6376FE5254D6C /* Debug */,
+				CB0BC821261BEE3A629911F0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E7BB149154F0CDBFA70CF87E /* Build configuration list for PBXNativeTarget "BeamletShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BE86719C1730ACBA828B2CA5 /* Debug */,
+				A777C8E65277B76608361AC0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5E6FA225D02DE2722AE69022 /* Project object */;
+}
