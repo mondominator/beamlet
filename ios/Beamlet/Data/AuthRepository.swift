@@ -9,6 +9,7 @@ class AuthRepository {
     private(set) var serverURL: URL?
     private(set) var token: String?
     private(set) var deviceToken: String?
+    private(set) var userID: String?
 
     var isAuthenticated: Bool {
         token != nil && serverURL != nil
@@ -24,7 +25,8 @@ class AuthRepository {
            let url = URL(string: urlString) {
             serverURL = url
         }
-        token = keychain.get("authToken")
+        token = defaults?.string(forKey: "authToken")
+        userID = defaults?.string(forKey: "userID")
     }
 
     func store(serverURL: URL, token: String) {
@@ -33,21 +35,29 @@ class AuthRepository {
 
         let defaults = UserDefaults(suiteName: suiteName)
         defaults?.set(serverURL.absoluteString, forKey: "serverURL")
-        keychain.set(token, forKey: "authToken")
+        defaults?.set(token, forKey: "authToken")
     }
 
     func storeDeviceToken(_ token: String) {
         self.deviceToken = token
     }
 
+    func storeUserID(_ id: String) {
+        self.userID = id
+        let defaults = UserDefaults(suiteName: suiteName)
+        defaults?.set(id, forKey: "userID")
+    }
+
     func clear() {
         serverURL = nil
         token = nil
         deviceToken = nil
+        userID = nil
 
         let defaults = UserDefaults(suiteName: suiteName)
         defaults?.removeObject(forKey: "serverURL")
-        keychain.delete("authToken")
+        defaults?.removeObject(forKey: "authToken")
+        defaults?.removeObject(forKey: "userID")
     }
 }
 

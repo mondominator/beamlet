@@ -106,6 +106,10 @@ func (s *Server) ListFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if files == nil {
+		files = []model.File{}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(files)
 }

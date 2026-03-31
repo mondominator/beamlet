@@ -3,12 +3,29 @@ import SwiftUI
 struct SettingsView: View {
     @Environment(AuthRepository.self) private var authRepository
     @Environment(BeamletAPI.self) private var api
+    @Environment(NearbyService.self) private var nearbyService: NearbyService?
 
     @State private var showLogoutConfirmation = false
+    @State private var discoverability: DiscoverabilityMode = .load()
 
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    Picker("Discoverability", selection: $discoverability) {
+                        ForEach(DiscoverabilityMode.allCases, id: \.self) { mode in
+                            Text(mode.displayName).tag(mode)
+                        }
+                    }
+                    .onChange(of: discoverability) {
+                        nearbyService?.mode = discoverability
+                    }
+                } header: {
+                    Text("Discoverability")
+                } footer: {
+                    Text(discoverability.description)
+                }
+
                 Section("Contacts") {
                     NavigationLink {
                         AddContactView()

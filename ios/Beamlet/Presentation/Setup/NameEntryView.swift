@@ -71,6 +71,9 @@ struct NameEntryView: View {
                 }
 
                 authRepository.store(serverURL: serverURL, token: token)
+                if let userID = response.userID {
+                    authRepository.storeUserID(userID)
+                }
                 onComplete()
             } catch {
                 self.error = error.localizedDescription

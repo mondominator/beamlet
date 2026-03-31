@@ -45,5 +45,12 @@
     </array>
     <key>NSCameraUsageDescription</key>
     <string>Beamlet uses the camera to scan QR codes for connecting with other users.</string>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>Beamlet uses Bluetooth to discover nearby users for sharing.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>bluetooth-peripheral</string>
+        <string>bluetooth-central</string>
+    </array>
 </dict>
 </plist>
