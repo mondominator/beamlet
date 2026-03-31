@@ -6,6 +6,7 @@ struct BeamletApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var authRepository: AuthRepository
     @State private var api: BeamletAPI
+    @State private var nearbyService: NearbyService?
 
     init() {
         let repo = AuthRepository()
@@ -19,11 +20,13 @@ struct BeamletApp: App {
             RootView()
                 .environment(authRepository)
                 .environment(api)
+                .environment(nearbyService)
                 .preferredColorScheme(.dark)
                 .task {
                     if authRepository.isAuthenticated {
                         await requestNotificationPermission()
                         await registerExistingDeviceToken()
+                        startNearbyService()
                     }
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .didReceiveAPNsToken)) { notification in
@@ -34,6 +37,15 @@ struct BeamletApp: App {
                     }
                 }
         }
+    }
+
+    private func startNearbyService() {
+        guard let userID = authRepository.userID else { return }
+        if nearbyService == nil {
+            let service = NearbyService(userID: userID, api: api)
+            nearbyService = service
+        }
+        nearbyService?.start()
     }
 
     private func requestNotificationPermission() async {

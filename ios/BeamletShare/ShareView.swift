@@ -1,80 +1,120 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import CoreBluetooth
+import CryptoKit
 
 struct ShareView: View {
     let api: BeamletAPI
     let extensionContext: NSExtensionContext?
 
-    @State private var users: [BeamletUser] = []
-    @State private var selectedUser: BeamletUser?
-    @State private var message = ""
-    @State private var isSending = false
+    @State private var contacts: [BeamletUser] = []
     @State private var isLoading = true
+    @State private var sendingTo: String?
+    @State private var sent = false
     @State private var error: String?
     @State private var sharedItems: [SharedItem] = []
+    @State private var nearbyService: NearbyService?
+    @State private var nearbyUsers: [NearbyUser] = []
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                if isLoading {
-                    ProgressView("Loading...")
-                } else {
-                    Form {
-                        Section("Send to") {
-                            Picker("Recipient", selection: $selectedUser) {
-                                Text("Select").tag(nil as BeamletUser?)
-                                ForEach(users) { user in
-                                    Text(user.name).tag(user as BeamletUser?)
-                                }
-                            }
-                            .pickerStyle(.menu)
+        VStack(spacing: 0) {
+            // Header bar
+            HStack {
+                Button("Cancel") {
+                    extensionContext?.completeRequest(returningItems: nil)
+                }
+                Spacer()
+                Text("Beamlet")
+                    .font(.headline)
+                Spacer()
+                // Balance the cancel button
+                Button("Cancel") {}.hidden()
+            }
+            .padding()
+
+            Divider()
+
+            if sent {
+                Spacer()
+                VStack(spacing: 12) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 50))
+                        .foregroundStyle(.green)
+                    Text("Sent!")
+                        .font(.title3.bold())
+                }
+                Spacer()
+            } else if isLoading {
+                Spacer()
+                ProgressView()
+                Spacer()
+            } else if contacts.isEmpty && nearbyUsers.isEmpty {
+                Spacer()
+                VStack(spacing: 8) {
+                    Image(systemName: "person.slash")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.secondary)
+                    Text("No contacts yet")
+                        .font(.headline)
+                    Text("Add contacts in the Beamlet app")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+            } else {
+                // Contact grid — AirDrop style
+                ScrollView {
+                    LazyVGrid(columns: [
+                        GridItem(.adaptive(minimum: 80), spacing: 16)
+                    ], spacing: 20) {
+                        // Nearby non-contacts first
+                        ForEach(nearbyUsers.filter { !$0.isContact }) { user in
+                            contactButton(
+                                id: user.id,
+                                name: user.name,
+                                isNearby: true,
+                                isContact: false
+                            )
                         }
 
-                        if !sharedItems.isEmpty {
-                            Section("Sharing") {
-                                ForEach(sharedItems) { item in
-                                    Label(item.description, systemImage: item.icon)
-                                }
-                            }
-                        }
-
-                        Section {
-                            TextField("Message (optional)", text: $message)
-                        }
-
-                        if let error = error {
-                            Section {
-                                Text(error).foregroundStyle(.red).font(.callout)
-                            }
+                        // Then all contacts (nearby ones marked)
+                        ForEach(contacts) { contact in
+                            contactButton(
+                                id: contact.id,
+                                name: contact.name,
+                                isNearby: nearbyUsers.contains(where: { $0.id == contact.id }),
+                                isContact: true
+                            )
                         }
                     }
+                    .padding(24)
+                }
+
+                if let error = error {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
                 }
             }
-            .navigationTitle("Beamlet")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        extensionContext?.completeRequest(returningItems: nil)
-                    }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Send") { send() }
-                        .disabled(selectedUser == nil || isSending)
-                        .bold()
-                }
-            }
-            .task {
-                await loadData()
-            }
+        }
+        .task {
+            await loadData()
         }
     }
 
     private func loadData() async {
-        // Load users
-        users = (try? await api.listUsers()) ?? []
+        contacts = (try? await api.listUsers()) ?? []
 
-        // Extract shared items from extension context
+        // Start BLE scanning
+        if let userID = UserDefaults(suiteName: "group.com.beamlet.shared")?.string(forKey: "userID") {
+            let service = NearbyService(userID: userID, api: api)
+            service.updateContacts(contacts)
+            service.start()
+            nearbyService = service
+        }
+
         guard let items = extensionContext?.inputItems as? [NSExtensionItem] else {
             isLoading = false
             return
@@ -90,53 +130,88 @@ struct ShareView: View {
         }
 
         isLoading = false
+
+        // Poll for nearby users
+        Task {
+            for _ in 0..<10 {
+                try? await Task.sleep(for: .milliseconds(500))
+                if let service = nearbyService {
+                    nearbyUsers = service.nearbyUsers
+                }
+            }
+        }
     }
 
     private func extractItem(from provider: NSItemProvider) async -> SharedItem? {
-        // Try URL first
         if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
             if let url = try? await provider.loadItem(forTypeIdentifier: UTType.url.identifier) as? URL {
                 return SharedItem(type: .link, text: url.absoluteString)
             }
         }
-
-        // Try text
         if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
             if let text = try? await provider.loadItem(forTypeIdentifier: UTType.plainText.identifier) as? String {
                 return SharedItem(type: .text, text: text)
             }
         }
-
-        // Try image
         if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
             if let url = try? await provider.loadItem(forTypeIdentifier: UTType.image.identifier) as? URL,
                let data = try? Data(contentsOf: url) {
                 return SharedItem(type: .image, data: data, filename: url.lastPathComponent)
             }
         }
-
-        // Try video
         if provider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
             if let url = try? await provider.loadItem(forTypeIdentifier: UTType.movie.identifier) as? URL,
                let data = try? Data(contentsOf: url) {
                 return SharedItem(type: .video, data: data, filename: url.lastPathComponent)
             }
         }
-
-        // Try any file
         if provider.hasItemConformingToTypeIdentifier(UTType.data.identifier) {
             if let url = try? await provider.loadItem(forTypeIdentifier: UTType.data.identifier) as? URL,
                let data = try? Data(contentsOf: url) {
                 return SharedItem(type: .file, data: data, filename: url.lastPathComponent)
             }
         }
-
         return nil
     }
 
-    private func send() {
-        guard let user = selectedUser else { return }
-        isSending = true
+    @ViewBuilder
+    private func contactButton(id: String, name: String, isNearby: Bool, isContact: Bool) -> some View {
+        Button {
+            sendTo(BeamletUser(id: id, name: name, createdAt: nil))
+        } label: {
+            VStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(isContact ? Color.blue.opacity(0.15) : Color.gray.opacity(0.15))
+                        .frame(width: 60, height: 60)
+                        .overlay {
+                            if isNearby {
+                                Circle()
+                                    .stroke(Color.blue, lineWidth: 2)
+                                    .frame(width: 66, height: 66)
+                            }
+                        }
+
+                    if sendingTo == id {
+                        ProgressView()
+                    } else {
+                        Text(name.prefix(1).uppercased())
+                            .font(.title2.bold())
+                            .foregroundStyle(isContact ? .blue : .secondary)
+                    }
+                }
+
+                Text(name)
+                    .font(.caption)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+            }
+        }
+        .disabled(sendingTo != nil)
+    }
+
+    private func sendTo(_ contact: BeamletUser) {
+        sendingTo = contact.id
         error = nil
 
         Task {
@@ -144,51 +219,39 @@ struct ShareView: View {
                 for item in sharedItems {
                     switch item.type {
                     case .text:
-                        let _ = try await api.uploadText(recipientID: user.id, text: item.text ?? "")
+                        let _ = try await api.uploadText(recipientID: contact.id, text: item.text ?? "")
                     case .link:
-                        let _ = try await api.uploadText(recipientID: user.id, text: item.text ?? "", contentType: "link")
+                        let _ = try await api.uploadText(recipientID: contact.id, text: item.text ?? "", contentType: "link")
                     case .image:
                         if let data = item.data {
                             let _ = try await api.uploadFile(
-                                recipientID: user.id,
-                                fileData: data,
-                                filename: item.filename ?? "image.jpg",
-                                mimeType: "image/jpeg",
-                                message: message.isEmpty ? nil : message
+                                recipientID: contact.id, fileData: data,
+                                filename: item.filename ?? "image.jpg", mimeType: "image/jpeg"
                             )
                         }
                     case .video:
                         if let data = item.data {
                             let _ = try await api.uploadFile(
-                                recipientID: user.id,
-                                fileData: data,
-                                filename: item.filename ?? "video.mp4",
-                                mimeType: "video/mp4",
-                                message: message.isEmpty ? nil : message
+                                recipientID: contact.id, fileData: data,
+                                filename: item.filename ?? "video.mp4", mimeType: "video/mp4"
                             )
                         }
                     case .file:
                         if let data = item.data {
                             let _ = try await api.uploadFile(
-                                recipientID: user.id,
-                                fileData: data,
-                                filename: item.filename ?? "file",
-                                mimeType: "application/octet-stream",
-                                message: message.isEmpty ? nil : message
+                                recipientID: contact.id, fileData: data,
+                                filename: item.filename ?? "file", mimeType: "application/octet-stream"
                             )
                         }
                     }
                 }
 
-                // If only a text message (no shared items)
-                if sharedItems.isEmpty && !message.isEmpty {
-                    let _ = try await api.uploadText(recipientID: user.id, text: message)
-                }
-
+                sent = true
+                try? await Task.sleep(for: .seconds(1))
                 extensionContext?.completeRequest(returningItems: nil)
             } catch {
                 self.error = error.localizedDescription
-                isSending = false
+                sendingTo = nil
             }
         }
     }
@@ -202,26 +265,6 @@ struct SharedItem: Identifiable {
     var text: String?
     var data: Data?
     var filename: String?
-
-    var description: String {
-        switch type {
-        case .text: return text?.prefix(50).description ?? "Text"
-        case .link: return text ?? "Link"
-        case .image: return filename ?? "Photo"
-        case .video: return filename ?? "Video"
-        case .file: return filename ?? "File"
-        }
-    }
-
-    var icon: String {
-        switch type {
-        case .text: return "text.bubble"
-        case .link: return "link"
-        case .image: return "photo"
-        case .video: return "video"
-        case .file: return "doc"
-        }
-    }
 }
 
 enum SharedItemType {

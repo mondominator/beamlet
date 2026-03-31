@@ -53,16 +53,16 @@ func AddUserCmd() *cobra.Command {
 
 			// Generate QR code
 			qrPayload, _ := json.Marshal(map[string]string{
-				"url":    serverURL,
-				"invite": inviteToken,
+				"u": serverURL,
+				"i": inviteToken,
 			})
 
 			fmt.Println("\nScan this QR code with the Beamlet iOS app:")
 			qrterminal.GenerateWithConfig(string(qrPayload), qrterminal.Config{
-				Level:     qrterminal.L,
-				Writer:    os.Stdout,
-				BlackChar: qrterminal.BLACK,
-				WhiteChar: qrterminal.WHITE,
+				Level:      qrterminal.L,
+				Writer:     os.Stdout,
+				HalfBlocks: true,
+				QuietZone:  1,
 			})
 
 			return nil
