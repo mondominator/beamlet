@@ -1,5 +1,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import CoreBluetooth
+import CryptoKit
 
 struct ShareView: View {
     let api: BeamletAPI
@@ -11,6 +13,8 @@ struct ShareView: View {
     @State private var sent = false
     @State private var error: String?
     @State private var sharedItems: [SharedItem] = []
+    @State private var nearbyService: NearbyService?
+    @State private var nearbyUsers: [NearbyUser] = []
 
     var body: some View {
         VStack(spacing: 0) {
@@ -44,7 +48,7 @@ struct ShareView: View {
                 Spacer()
                 ProgressView()
                 Spacer()
-            } else if contacts.isEmpty {
+            } else if contacts.isEmpty && nearbyUsers.isEmpty {
                 Spacer()
                 VStack(spacing: 8) {
                     Image(systemName: "person.slash")
@@ -63,32 +67,24 @@ struct ShareView: View {
                     LazyVGrid(columns: [
                         GridItem(.adaptive(minimum: 80), spacing: 16)
                     ], spacing: 20) {
+                        // Nearby non-contacts first
+                        ForEach(nearbyUsers.filter { !$0.isContact }) { user in
+                            contactButton(
+                                id: user.id,
+                                name: user.name,
+                                isNearby: true,
+                                isContact: false
+                            )
+                        }
+
+                        // Then all contacts (nearby ones marked)
                         ForEach(contacts) { contact in
-                            Button {
-                                sendTo(contact)
-                            } label: {
-                                VStack(spacing: 8) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.blue.opacity(0.15))
-                                            .frame(width: 60, height: 60)
-
-                                        if sendingTo == contact.id {
-                                            ProgressView()
-                                        } else {
-                                            Text(contact.name.prefix(1).uppercased())
-                                                .font(.title2.bold())
-                                                .foregroundStyle(.blue)
-                                        }
-                                    }
-
-                                    Text(contact.name)
-                                        .font(.caption)
-                                        .foregroundStyle(.primary)
-                                        .lineLimit(1)
-                                }
-                            }
-                            .disabled(sendingTo != nil)
+                            contactButton(
+                                id: contact.id,
+                                name: contact.name,
+                                isNearby: nearbyUsers.contains(where: { $0.id == contact.id }),
+                                isContact: true
+                            )
                         }
                     }
                     .padding(24)
@@ -111,6 +107,14 @@ struct ShareView: View {
     private func loadData() async {
         contacts = (try? await api.listUsers()) ?? []
 
+        // Start BLE scanning
+        if let userID = UserDefaults(suiteName: "group.com.beamlet.shared")?.string(forKey: "userID") {
+            let service = NearbyService(userID: userID, api: api)
+            service.updateContacts(contacts)
+            service.start()
+            nearbyService = service
+        }
+
         guard let items = extensionContext?.inputItems as? [NSExtensionItem] else {
             isLoading = false
             return
@@ -126,6 +130,16 @@ struct ShareView: View {
         }
 
         isLoading = false
+
+        // Poll for nearby users
+        Task {
+            for _ in 0..<10 {
+                try? await Task.sleep(for: .milliseconds(500))
+                if let service = nearbyService {
+                    nearbyUsers = service.nearbyUsers
+                }
+            }
+        }
     }
 
     private func extractItem(from provider: NSItemProvider) async -> SharedItem? {
@@ -158,6 +172,42 @@ struct ShareView: View {
             }
         }
         return nil
+    }
+
+    @ViewBuilder
+    private func contactButton(id: String, name: String, isNearby: Bool, isContact: Bool) -> some View {
+        Button {
+            sendTo(BeamletUser(id: id, name: name, createdAt: nil))
+        } label: {
+            VStack(spacing: 8) {
+                ZStack {
+                    Circle()
+                        .fill(isContact ? Color.blue.opacity(0.15) : Color.gray.opacity(0.15))
+                        .frame(width: 60, height: 60)
+                        .overlay {
+                            if isNearby {
+                                Circle()
+                                    .stroke(Color.blue, lineWidth: 2)
+                                    .frame(width: 66, height: 66)
+                            }
+                        }
+
+                    if sendingTo == id {
+                        ProgressView()
+                    } else {
+                        Text(name.prefix(1).uppercased())
+                            .font(.title2.bold())
+                            .foregroundStyle(isContact ? .blue : .secondary)
+                    }
+                }
+
+                Text(name)
+                    .font(.caption)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+            }
+        }
+        .disabled(sendingTo != nil)
     }
 
     private func sendTo(_ contact: BeamletUser) {
