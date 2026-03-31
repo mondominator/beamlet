@@ -152,6 +152,11 @@ struct SetupView: View {
             do {
                 let _ = try await api.listUsers()
 
+                // Fetch and store user ID
+                if let me = try? await api.getMe() {
+                    authRepository.storeUserID(me.id)
+                }
+
                 let center = UNUserNotificationCenter.current()
                 let granted = try? await center.requestAuthorization(options: [.alert, .badge, .sound])
                 if granted == true {

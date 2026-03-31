@@ -370,6 +370,34 @@ class BeamletAPI {
     func deleteContact(_ contactID: String) async throws {
         try await requestVoid("/api/contacts/\(contactID)", method: "DELETE")
     }
+
+    // MARK: - Profile
+
+    struct MeResponse: Codable {
+        let id: String
+        let name: String
+    }
+
+    func getMe() async throws -> MeResponse {
+        try await request("/api/me")
+    }
+
+    func getProfile(userID: String) async throws -> MeResponse {
+        guard let baseURL = authRepository.serverURL else {
+            throw APIError.notAuthenticated
+        }
+
+        let url = baseURL.appendingPathComponent("/api/users/\(userID)/profile")
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+
+        let (data, response) = try await session.data(for: request)
+        guard let http = response as? HTTPURLResponse, 200..<300 ~= http.statusCode else {
+            throw APIError.invalidResponse
+        }
+
+        return try decoder.decode(MeResponse.self, from: data)
+    }
 }
 
 // MARK: - Multipart Helpers
