@@ -42,6 +42,7 @@ func NewRouter(s *Server) *chi.Mux {
 			r.Post("/auth/register-device", s.RegisterDevice)
 			r.Post("/files", s.UploadFile)
 			r.Get("/files", s.ListFiles)
+			r.Get("/files/sent", s.ListSentFiles)
 			r.Get("/files/{id}", s.DownloadFile)
 			r.Get("/files/{id}/thumbnail", s.DownloadThumbnail)
 			r.Delete("/files/{id}", s.DeleteFile)

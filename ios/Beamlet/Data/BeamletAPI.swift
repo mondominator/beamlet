@@ -185,6 +185,13 @@ class BeamletAPI {
         ])
     }
 
+    func listSentFiles(limit: Int = 20, offset: Int = 0) async throws -> [BeamletFile] {
+        try await request("/api/files/sent", queryItems: [
+            URLQueryItem(name: "limit", value: "\(limit)"),
+            URLQueryItem(name: "offset", value: "\(offset)")
+        ])
+    }
+
     func markRead(_ fileID: String) async throws {
         try await requestVoid("/api/files/\(fileID)/read", method: "PUT")
     }

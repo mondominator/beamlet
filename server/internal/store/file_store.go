@@ -92,6 +92,43 @@ func (s *FileStore) ListForRecipient(recipientID string, limit, offset int) ([]m
 	return files, nil
 }
 
+func (s *FileStore) ListForSender(senderID string, limit, offset int) ([]model.File, error) {
+	rows, err := s.db.Query(
+		`SELECT f.id, f.sender_id, f.recipient_id, f.filename, f.file_path, f.thumbnail_path,
+			f.file_type, f.file_size, f.content_type, f.text_content, f.message, f.read, f.expires_at, f.created_at,
+			u.name AS recipient_name
+		FROM files f
+		JOIN users u ON u.id = f.recipient_id
+		WHERE f.sender_id = ?
+		ORDER BY f.created_at DESC
+		LIMIT ? OFFSET ?`,
+		senderID, limit, offset,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("query sent files: %w", err)
+	}
+	defer rows.Close()
+
+	var files []model.File
+	for rows.Next() {
+		var f model.File
+		var filePath, thumbnailPath, textContent, message sql.NullString
+
+		if err := rows.Scan(&f.ID, &f.SenderID, &f.RecipientID, &f.Filename, &filePath, &thumbnailPath,
+			&f.FileType, &f.FileSize, &f.ContentType, &textContent, &message, &f.Read, &f.ExpiresAt, &f.CreatedAt,
+			&f.SenderName); err != nil {
+			return nil, fmt.Errorf("scan sent file: %w", err)
+		}
+
+		f.FilePath = filePath.String
+		f.ThumbnailPath = thumbnailPath.String
+		f.TextContent = textContent.String
+		f.Message = message.String
+		files = append(files, f)
+	}
+	return files, nil
+}
+
 func (s *FileStore) MarkRead(id string) error {
 	result, err := s.db.Exec("UPDATE files SET read = 1 WHERE id = ?", id)
 	if err != nil {
