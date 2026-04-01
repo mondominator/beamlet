@@ -11,6 +11,15 @@ struct SetupView: View {
     @State private var showScanner = false
     @State private var scannedPayload: QRPayload?
 
+    // Check for pending invite from URL scheme
+    private var pendingInvite: QRPayload? {
+        guard let urlStr = UserDefaults.standard.string(forKey: "pendingInviteURL"),
+              let inviteToken = UserDefaults.standard.string(forKey: "pendingInviteToken") else {
+            return nil
+        }
+        return QRPayload(url: urlStr, invite: inviteToken)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -116,12 +125,23 @@ struct SetupView: View {
                     NameEntryView(
                         serverURL: URL(string: payload.url)!,
                         inviteToken: payload.invite,
-                        onComplete: { scannedPayload = nil }
+                        onComplete: {
+                            scannedPayload = nil
+                            // Clear pending invite
+                            UserDefaults.standard.removeObject(forKey: "pendingInviteURL")
+                            UserDefaults.standard.removeObject(forKey: "pendingInviteToken")
+                        }
                     )
                     .environment(authRepository)
                     .environment(api)
                     .navigationTitle("Setup")
                     .navigationBarTitleDisplayMode(.inline)
+                }
+            }
+            .onAppear {
+                // Auto-open name entry if we have a pending invite from URL
+                if scannedPayload == nil, let pending = pendingInvite {
+                    scannedPayload = pending
                 }
             }
         }
