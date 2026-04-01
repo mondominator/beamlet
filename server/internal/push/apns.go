@@ -72,11 +72,15 @@ func NewAPNsPusher(keyPath, keyID, teamID, bundleID string, sandbox bool, userSt
 }
 
 func (p *APNsPusher) Notify(recipientID, senderName string, file *model.File, excludeDeviceToken string) {
+	log.Printf("push: notifying recipient %s from %s", recipientID, senderName)
+
 	devices, err := p.userStore.GetActiveDevices(recipientID)
 	if err != nil {
-		log.Printf("failed to get devices for %s: %v", recipientID, err)
+		log.Printf("push: failed to get devices for %s: %v", recipientID, err)
 		return
 	}
+
+	log.Printf("push: found %d active devices for %s", len(devices), recipientID)
 
 	pl := BuildPayload(senderName, file.FileType, file.ID)
 
@@ -93,16 +97,19 @@ func (p *APNsPusher) Notify(recipientID, senderName string, file *model.File, ex
 
 	for _, device := range devices {
 		if device.APNsToken == excludeDeviceToken {
+			log.Printf("push: skipping sender device %s...", device.APNsToken[:16])
 			continue
 		}
 		notification.DeviceToken = device.APNsToken
+		log.Printf("push: sending to device %s...", device.APNsToken[:16])
 		res, err := p.client.Push(notification)
 		if err != nil {
-			log.Printf("push failed for device %s: %v", device.APNsToken, err)
+			log.Printf("push: failed for device %s: %v", device.APNsToken[:16], err)
 			continue
 		}
+		log.Printf("push: result for device %s: status=%d reason=%s", device.APNsToken[:16], res.StatusCode, res.Reason)
 		if res.StatusCode == 410 || res.Reason == "Unregistered" {
-			log.Printf("deactivating device %s: %s", device.APNsToken, res.Reason)
+			log.Printf("push: deactivating device %s: %s", device.APNsToken[:16], res.Reason)
 			p.userStore.DeactivateDevice(device.APNsToken)
 		}
 	}
