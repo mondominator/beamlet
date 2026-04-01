@@ -18,32 +18,32 @@ struct PulsingAvatarView: View {
 
     var body: some View {
         ZStack {
-            // Outer pulse rings
+            // Outer pulse rings — big, bold, visible
             Circle()
-                .stroke(color.opacity(0.15), lineWidth: 1.5)
+                .stroke(color.opacity(0.5), lineWidth: 3)
                 .frame(width: size + pulse1, height: size + pulse1)
-                .opacity(1 - Double(pulse1 / 30))
+                .opacity(1 - Double(pulse1 / 50))
 
             Circle()
-                .stroke(color.opacity(0.1), lineWidth: 1)
+                .stroke(color.opacity(0.35), lineWidth: 2.5)
                 .frame(width: size + pulse2, height: size + pulse2)
-                .opacity(1 - Double(pulse2 / 36))
+                .opacity(1 - Double(pulse2 / 60))
 
             Circle()
-                .stroke(color.opacity(0.06), lineWidth: 0.8)
+                .stroke(color.opacity(0.2), lineWidth: 2)
                 .frame(width: size + pulse3, height: size + pulse3)
-                .opacity(1 - Double(pulse3 / 42))
+                .opacity(1 - Double(pulse3 / 70))
 
-            // Glow
+            // Glow halo
             Circle()
-                .fill(color.opacity(glowOpacity * 0.15))
-                .frame(width: size + 8, height: size + 8)
-                .blur(radius: 4)
+                .fill(color.opacity(glowOpacity * 0.25))
+                .frame(width: size + 16, height: size + 16)
+                .blur(radius: 8)
 
             // Main avatar
             if isSelected {
                 Circle()
-                    .fill(color.opacity(0.2))
+                    .fill(color.opacity(0.25))
                     .frame(width: size, height: size)
                     .overlay(
                         Image(systemName: "checkmark")
@@ -54,23 +54,24 @@ struct PulsingAvatarView: View {
                 AvatarView(name: name, size: size)
                     .overlay(
                         Circle()
-                            .stroke(color.opacity(0.3), lineWidth: 2)
+                            .stroke(color, lineWidth: 2.5)
                     )
+                    .shadow(color: color.opacity(0.4), radius: 6)
             }
         }
-        .frame(width: size + 44, height: size + 44)
+        .frame(width: size + 72, height: size + 72)
         .onAppear {
-            withAnimation(.easeOut(duration: 2.5).repeatForever(autoreverses: false)) {
-                pulse1 = 30
+            withAnimation(.easeOut(duration: 2.0).repeatForever(autoreverses: false)) {
+                pulse1 = 50
             }
-            withAnimation(.easeOut(duration: 2.5).repeatForever(autoreverses: false).delay(0.8)) {
-                pulse2 = 36
+            withAnimation(.easeOut(duration: 2.0).repeatForever(autoreverses: false).delay(0.6)) {
+                pulse2 = 60
             }
-            withAnimation(.easeOut(duration: 2.5).repeatForever(autoreverses: false).delay(1.6)) {
-                pulse3 = 42
+            withAnimation(.easeOut(duration: 2.0).repeatForever(autoreverses: false).delay(1.2)) {
+                pulse3 = 70
             }
-            withAnimation(.easeInOut(duration: 1.5).repeatForever()) {
-                glowOpacity = 0.8
+            withAnimation(.easeInOut(duration: 1.0).repeatForever()) {
+                glowOpacity = 1.0
             }
         }
     }
