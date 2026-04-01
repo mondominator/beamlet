@@ -23,6 +23,20 @@ class SendViewModel {
         !selectedUsers.isEmpty && (selectedPhotoData != nil || selectedFileURL != nil || !message.isEmpty) && !isSending
     }
 
+    var attachmentDisplayName: String? {
+        if selectedPhotoData != nil { return "Photo selected" }
+        if let name = selectedFileName { return name }
+        return nil
+    }
+
+    func clearAttachment() {
+        selectedPhoto = nil
+        selectedPhotoData = nil
+        selectedFileURL = nil
+        selectedFileName = nil
+        selectedFileMimeType = nil
+    }
+
     func toggleUser(_ user: BeamletUser) {
         if selectedUsers.contains(user.id) {
             selectedUsers.remove(user.id)

@@ -33,6 +33,7 @@ struct InboxView: View {
     @State private var sentFiles: [BeamletFile] = []
     @State private var isLoadingSent = false
     @State private var replyFile: BeamletFile?
+    @State private var refreshTimer: Timer?
 
     var body: some View {
         NavigationStack {
@@ -175,14 +176,16 @@ struct InboxView: View {
                     viewModel = InboxViewModel(api: api)
                 }
                 await viewModel?.loadFiles()
-
-                // Auto-refresh every 15 seconds
-                while !Task.isCancelled {
-                    try? await Task.sleep(nanoseconds: 15_000_000_000)
-                    if !Task.isCancelled {
-                        await viewModel?.loadFiles()
-                    }
+            }
+            .onAppear {
+                refreshTimer?.invalidate()
+                refreshTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { _ in
+                    Task { await viewModel?.loadFiles() }
                 }
+            }
+            .onDisappear {
+                refreshTimer?.invalidate()
+                refreshTimer = nil
             }
             .onChange(of: selectedTab) { _, tab in
                 if tab == .sent && sentFiles.isEmpty {
