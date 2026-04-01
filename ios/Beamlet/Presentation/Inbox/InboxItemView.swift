@@ -75,9 +75,9 @@ struct InboxItemView: View {
     private var imageContent: some View {
         if let url = thumbnailURL {
             AuthenticatedImage(url: url, authHeaders: authHeaders)
-                .aspectRatio(contentMode: .fill)
+                .aspectRatio(contentMode: .fit)
                 .frame(maxWidth: .infinity)
-                .frame(maxHeight: 280)
+                .frame(maxHeight: 200)
                 .clipShape(RoundedRectangle(cornerRadius: 14))
         }
     }
@@ -89,9 +89,9 @@ struct InboxItemView: View {
         if let url = thumbnailURL {
             ZStack {
                 AuthenticatedImage(url: url, authHeaders: authHeaders)
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: .infinity)
-                    .frame(maxHeight: 280)
+                    .frame(maxHeight: 200)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
 
                 Image(systemName: "play.circle.fill")

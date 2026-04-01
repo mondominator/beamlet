@@ -243,7 +243,8 @@ class BeamletAPI {
         fileData: Data,
         filename: String,
         mimeType: String,
-        message: String? = nil
+        message: String? = nil,
+        expiryDays: Int? = nil
     ) async throws -> BeamletFile {
         guard let baseURL = authRepository.serverURL,
               let token = authRepository.token else {
@@ -266,6 +267,9 @@ class BeamletAPI {
         body.appendMultipart(boundary: boundary, name: "recipient_id", value: recipientID)
         if let message = message, !message.isEmpty {
             body.appendMultipart(boundary: boundary, name: "message", value: message)
+        }
+        if let expiryDays {
+            body.appendMultipart(boundary: boundary, name: "expiry_days", value: "\(expiryDays)")
         }
         body.appendMultipartFile(boundary: boundary, name: "file", filename: filename, mimeType: mimeType, data: fileData)
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)

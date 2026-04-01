@@ -66,6 +66,9 @@ class SendViewModel {
         isSending = true
         error = nil
 
+        let expiry = UserDefaults.standard.integer(forKey: "fileExpiryDays")
+        let expiryDays = expiry > 0 ? expiry : 1
+
         do {
             for userID in selectedUsers {
                 if let photoData = selectedPhotoData {
@@ -74,7 +77,8 @@ class SendViewModel {
                         fileData: photoData,
                         filename: "photo.jpg",
                         mimeType: "image/jpeg",
-                        message: nil
+                        message: nil,
+                        expiryDays: expiryDays
                     )
                 } else if let fileURL = selectedFileURL {
                     let fileData = try Data(contentsOf: fileURL)
@@ -83,7 +87,8 @@ class SendViewModel {
                         fileData: fileData,
                         filename: selectedFileName ?? fileURL.lastPathComponent,
                         mimeType: selectedFileMimeType ?? "application/octet-stream",
-                        message: nil
+                        message: nil,
+                        expiryDays: expiryDays
                     )
                 }
             }
