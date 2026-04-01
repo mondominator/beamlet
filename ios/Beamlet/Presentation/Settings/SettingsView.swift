@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var filesSent: Int?
     @State private var filesReceived: Int?
     @State private var storageUsed: Int64?
+    @AppStorage("appTheme") private var appTheme: String = "system"
 
     var body: some View {
         NavigationStack {
@@ -83,6 +84,14 @@ struct SettingsView: View {
                     LabeledContent("Files Sent", value: filesSent.map { "\($0)" } ?? "—")
                     LabeledContent("Files Received", value: filesReceived.map { "\($0)" } ?? "—")
                     LabeledContent("Storage Used", value: storageUsed.map { formatBytes($0) } ?? "—")
+                }
+
+                Section("Appearance") {
+                    Picker("Theme", selection: $appTheme) {
+                        Text("System").tag("system")
+                        Text("Light").tag("light")
+                        Text("Dark").tag("dark")
+                    }
                 }
 
                 Section("About") {

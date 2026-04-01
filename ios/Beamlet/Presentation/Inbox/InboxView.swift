@@ -167,6 +167,14 @@ struct InboxView: View {
                     viewModel = InboxViewModel(api: api)
                 }
                 await viewModel?.loadFiles()
+
+                // Auto-refresh every 15 seconds
+                while !Task.isCancelled {
+                    try? await Task.sleep(nanoseconds: 15_000_000_000)
+                    if !Task.isCancelled {
+                        await viewModel?.loadFiles()
+                    }
+                }
             }
             .onChange(of: selectedTab) { _, tab in
                 if tab == .sent && sentFiles.isEmpty {
