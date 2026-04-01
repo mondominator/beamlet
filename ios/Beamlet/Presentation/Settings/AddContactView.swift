@@ -4,10 +4,13 @@ import CoreImage.CIFilterBuiltins
 struct AddContactView: View {
     @Environment(BeamletAPI.self) private var api
     @Environment(AuthRepository.self) private var authRepository
+    @Environment(\.dismiss) private var dismiss
 
     @State private var inviteToken: String?
     @State private var isLoading = true
     @State private var error: String?
+    @State private var initialContactCount = 0
+    @State private var contactAdded = false
 
     var body: some View {
         VStack(spacing: 24) {
@@ -53,8 +56,26 @@ struct AddContactView: View {
         }
         .padding()
         .navigationTitle("Add Contact")
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Done") { dismiss() }
+            }
+        }
         .task {
+            initialContactCount = (try? await api.listUsers())?.count ?? 0
             await createInvite()
+            // Poll for new contact every 3 seconds
+            while !Task.isCancelled && !contactAdded {
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                let currentCount = (try? await api.listUsers())?.count ?? 0
+                if currentCount > initialContactCount {
+                    contactAdded = true
+                    let generator = UINotificationFeedbackGenerator()
+                    generator.notificationOccurred(.success)
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                    dismiss()
+                }
+            }
         }
     }
 

@@ -55,6 +55,10 @@ targets:
         group: Shared
       - path: Beamlet/Model
         group: Shared
+      - path: Beamlet/Presentation/Components/AvatarView.swift
+        group: Shared
+      - path: Beamlet/Presentation/Components/PulsingAvatarView.swift
+        group: Shared
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.beamlet.app.share

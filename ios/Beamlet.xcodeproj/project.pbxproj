@@ -14,6 +14,8 @@
 		32AEDBDCACD734003169D107 /* InAppBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2792346F4D3F591B5BD027BC /* InAppBanner.swift */; };
 		3A53BFA30432C7981046E227 /* AddContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C357896EA48AFE5244B6FFC4 /* AddContactView.swift */; };
 		3E0B5D283CA14FCD1C9F1635 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98741F30C4CC511161FC0C6 /* QRScannerView.swift */; };
+		41B18AD8AA45844E5CB38B72 /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F5B18949D9B86291426A6F /* AvatarView.swift */; };
+		4C945886A940D5C46362083C /* PulsingAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E83FB65A45712EA9456F0A78 /* PulsingAvatarView.swift */; };
 		5F9FC085B129882222A56E20 /* SendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05CA723CA51D1EC531549C2 /* SendViewModel.swift */; };
 		6B1B14DC2BF9C175C9EB678B /* PulsingAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E83FB65A45712EA9456F0A78 /* PulsingAvatarView.swift */; };
 		7507B94CCEC1F3164DC549C8 /* SendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA922F7885C336DBF950AB0 /* SendView.swift */; };
@@ -102,7 +104,7 @@
 		A6F10A61E27CFFF7E9988006 /* FileDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDetailView.swift; sourceTree = "<group>"; };
 		A98741F30C4CC511161FC0C6 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
 		ACDBABB6512D7711A3364D9E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		B1F5B18949D9B86291426A6F /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarView.swift; sourceTree = "<group>"; };
+		B1F5B18949D9B86291426A6F /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AvatarView.swift; path = Beamlet/Presentation/Components/AvatarView.swift; sourceTree = "<group>"; };
 		B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamletAPI.swift; sourceTree = "<group>"; };
 		B6FE3585B1C9C679534BD2E4 /* InboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxView.swift; sourceTree = "<group>"; };
 		B739DCAC2AF9851C8AEF0FB8 /* BeamletShare.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = BeamletShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -116,7 +118,7 @@
 		D61FA11B6D57DBAD461351EF /* StateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateViews.swift; sourceTree = "<group>"; };
 		DEC8545F83DC9BD4E0C80EDD /* BeamletTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BeamletTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E12E47C9B5F582AD6DA59E6D /* Beamlet.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Beamlet.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		E83FB65A45712EA9456F0A78 /* PulsingAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulsingAvatarView.swift; sourceTree = "<group>"; };
+		E83FB65A45712EA9456F0A78 /* PulsingAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PulsingAvatarView.swift; path = Beamlet/Presentation/Components/PulsingAvatarView.swift; sourceTree = "<group>"; };
 		F05CA723CA51D1EC531549C2 /* SendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -124,6 +126,8 @@
 		01C359BF67286C391718EE38 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				B1F5B18949D9B86291426A6F /* AvatarView.swift */,
+				E83FB65A45712EA9456F0A78 /* PulsingAvatarView.swift */,
 				8B5929FCEF9E857A08279468 /* Data */,
 				6B5CE3A3D20BA555969E0914 /* Model */,
 			);
@@ -425,10 +429,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				C9A581007C062E451A770AA5 /* AuthRepository.swift in Sources */,
+				41B18AD8AA45844E5CB38B72 /* AvatarView.swift in Sources */,
 				D27EB68E0EB08FD46499A040 /* BeamletAPI.swift in Sources */,
 				B102E3403D93CF420FA7466B /* Models.swift in Sources */,
 				1BA669D7C449C17BD117FA83 /* NearbyService.swift in Sources */,
 				D6C916148B91636BD533B86D /* NearbyUser.swift in Sources */,
+				4C945886A940D5C46362083C /* PulsingAvatarView.swift in Sources */,
 				A303E014B4F45035C1C28F61 /* ShareView.swift in Sources */,
 				A8742F65B77465B7905CD609 /* ShareViewController.swift in Sources */,
 			);

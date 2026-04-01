@@ -181,23 +181,21 @@ struct ShareView: View {
         } label: {
             VStack(spacing: 8) {
                 ZStack {
-                    Circle()
-                        .fill(isContact ? Color.blue.opacity(0.15) : Color.gray.opacity(0.15))
-                        .frame(width: 60, height: 60)
-                        .overlay {
-                            if isNearby {
-                                Circle()
-                                    .stroke(Color.blue, lineWidth: 2)
-                                    .frame(width: 66, height: 66)
-                            }
+                    if isNearby {
+                        PulsingAvatarView(
+                            name: name,
+                            isContact: isContact,
+                            isSelected: sendingTo == id,
+                            size: 56
+                        )
+                    } else if sendingTo == id {
+                        ZStack {
+                            AvatarView(name: name, size: 56)
+                                .opacity(0.4)
+                            ProgressView()
                         }
-
-                    if sendingTo == id {
-                        ProgressView()
                     } else {
-                        Text(name.prefix(1).uppercased())
-                            .font(.title2.bold())
-                            .foregroundStyle(isContact ? .blue : .secondary)
+                        AvatarView(name: name, size: 56)
                     }
                 }
 
@@ -206,6 +204,7 @@ struct ShareView: View {
                     .foregroundStyle(.primary)
                     .lineLimit(1)
             }
+            .frame(width: 88)
         }
         .disabled(sendingTo != nil)
     }
