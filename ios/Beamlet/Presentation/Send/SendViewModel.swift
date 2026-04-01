@@ -8,7 +8,7 @@ class SendViewModel {
     private let api: BeamletAPI
 
     var users: [BeamletUser] = []
-    var selectedUser: BeamletUser?
+    var selectedUsers: Set<String> = []  // Set of user IDs
     var message = ""
     var selectedPhoto: PhotosPickerItem?
     var selectedPhotoData: Data?
@@ -17,7 +17,19 @@ class SendViewModel {
     var showSuccess = false
 
     var canSend: Bool {
-        selectedUser != nil && (selectedPhotoData != nil || !message.isEmpty) && !isSending
+        !selectedUsers.isEmpty && (selectedPhotoData != nil || !message.isEmpty) && !isSending
+    }
+
+    func toggleUser(_ user: BeamletUser) {
+        if selectedUsers.contains(user.id) {
+            selectedUsers.remove(user.id)
+        } else {
+            selectedUsers.insert(user.id)
+        }
+    }
+
+    func isSelected(_ user: BeamletUser) -> Bool {
+        selectedUsers.contains(user.id)
     }
 
     init(api: BeamletAPI) {
@@ -34,24 +46,26 @@ class SendViewModel {
     }
 
     func send() async {
-        guard let user = selectedUser else { return }
+        guard !selectedUsers.isEmpty else { return }
         isSending = true
         error = nil
 
         do {
-            if let photoData = selectedPhotoData {
-                let _ = try await api.uploadFile(
-                    recipientID: user.id,
-                    fileData: photoData,
-                    filename: "photo.jpg",
-                    mimeType: "image/jpeg",
-                    message: message.isEmpty ? nil : message
-                )
-            } else if !message.isEmpty {
-                let _ = try await api.uploadText(
-                    recipientID: user.id,
-                    text: message
-                )
+            for userID in selectedUsers {
+                if let photoData = selectedPhotoData {
+                    let _ = try await api.uploadFile(
+                        recipientID: userID,
+                        fileData: photoData,
+                        filename: "photo.jpg",
+                        mimeType: "image/jpeg",
+                        message: message.isEmpty ? nil : message
+                    )
+                } else if !message.isEmpty {
+                    let _ = try await api.uploadText(
+                        recipientID: userID,
+                        text: message
+                    )
+                }
             }
             showSuccess = true
         } catch {
@@ -61,7 +75,7 @@ class SendViewModel {
     }
 
     func reset() {
-        selectedUser = nil
+        selectedUsers.removeAll()
         selectedPhoto = nil
         selectedPhotoData = nil
         message = ""
