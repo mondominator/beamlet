@@ -53,6 +53,9 @@ struct BeamletApp: App {
                         }
                     }
                 }
+                .onOpenURL { url in
+                    handleIncomingURL(url)
+                }
                 .onReceive(NotificationCenter.default.publisher(for: .didReceiveAPNsToken)) { notification in
                     guard let token = notification.object as? String else { return }
                     authRepository.storeDeviceToken(token)
@@ -100,6 +103,33 @@ struct BeamletApp: App {
             authRepository.storeDeviceToken(token)
             try? await api.registerDevice(apnsToken: token)
         }
+    }
+
+    private func handleIncomingURL(_ url: URL) {
+        // Handle beamlet://invite?payload={"url":"...","invite":"..."}
+        guard url.scheme == "beamlet",
+              url.host == "invite",
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              let payloadString = components.queryItems?.first(where: { $0.name == "payload" })?.value,
+              let data = payloadString.data(using: .utf8),
+              let payload = try? JSONDecoder().decode(QRPayload.self, from: data) else {
+            return
+        }
+
+        if authRepository.isAuthenticated {
+            // Already set up — redeem as existing user (add contact)
+            Task {
+                let response = try? await api.redeemInviteAsExistingUser(inviteToken: payload.invite)
+                if response?.contact != nil {
+                    let generator = UINotificationFeedbackGenerator()
+                    generator.notificationOccurred(.success)
+                }
+            }
+        }
+        // If not authenticated, the user needs to set up first
+        // Store the invite for the setup flow to pick up
+        UserDefaults.standard.set(payload.url, forKey: "pendingInviteURL")
+        UserDefaults.standard.set(payload.invite, forKey: "pendingInviteToken")
     }
 }
 

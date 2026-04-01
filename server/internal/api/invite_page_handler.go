@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -35,10 +36,11 @@ func (s *Server) InviteWebPage(w http.ResponseWriter, r *http.Request) {
 	if serverURL == "" {
 		serverURL = fmt.Sprintf("%s://%s", scheme(r), r.Host)
 	}
-	qrPayload := fmt.Sprintf(`{"url":"%s","invite":"%s"}`, serverURL, token)
+	qrPayload := fmt.Sprintf(`{"u":"%s","i":"%s"}`, serverURL, token)
+	encodedPayload := url.QueryEscape(qrPayload)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprintf(w, invitePage, creatorName, creatorName, qrPayload, serverURL, token)
+	fmt.Fprintf(w, invitePage, creatorName, creatorName, encodedPayload, serverURL, token)
 }
 
 func scheme(r *http.Request) string {
