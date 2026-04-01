@@ -15,6 +15,7 @@
 		3A53BFA30432C7981046E227 /* AddContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C357896EA48AFE5244B6FFC4 /* AddContactView.swift */; };
 		3E0B5D283CA14FCD1C9F1635 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98741F30C4CC511161FC0C6 /* QRScannerView.swift */; };
 		5F9FC085B129882222A56E20 /* SendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05CA723CA51D1EC531549C2 /* SendViewModel.swift */; };
+		6B1B14DC2BF9C175C9EB678B /* PulsingAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E83FB65A45712EA9456F0A78 /* PulsingAvatarView.swift */; };
 		7507B94CCEC1F3164DC549C8 /* SendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA922F7885C336DBF950AB0 /* SendView.swift */; };
 		7B4E88C05AF6ADDCEF52D616 /* ScanInviteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C271E9830537D6EF5AD28BF7 /* ScanInviteView.swift */; };
 		A1B4B7D82B3C26A0884D1AED /* InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FE3585B1C9C679534BD2E4 /* InboxView.swift */; };
@@ -115,6 +116,7 @@
 		D61FA11B6D57DBAD461351EF /* StateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateViews.swift; sourceTree = "<group>"; };
 		DEC8545F83DC9BD4E0C80EDD /* BeamletTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BeamletTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E12E47C9B5F582AD6DA59E6D /* Beamlet.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Beamlet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E83FB65A45712EA9456F0A78 /* PulsingAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulsingAvatarView.swift; sourceTree = "<group>"; };
 		F05CA723CA51D1EC531549C2 /* SendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -243,6 +245,7 @@
 				B1F5B18949D9B86291426A6F /* AvatarView.swift */,
 				2792346F4D3F591B5BD027BC /* InAppBanner.swift */,
 				BF8E50AA0707D07B908E35EB /* MainTabView.swift */,
+				E83FB65A45712EA9456F0A78 /* PulsingAvatarView.swift */,
 				D61FA11B6D57DBAD461351EF /* StateViews.swift */,
 			);
 			path = Components;
@@ -460,6 +463,7 @@
 				EF094D975E9E13EF6174ECE6 /* NameEntryView.swift in Sources */,
 				07D08518CD88834985A61C4B /* NearbyService.swift in Sources */,
 				C9216E428A880CB19658B872 /* NearbyUser.swift in Sources */,
+				6B1B14DC2BF9C175C9EB678B /* PulsingAvatarView.swift in Sources */,
 				3E0B5D283CA14FCD1C9F1635 /* QRScannerView.swift in Sources */,
 				A727DD4BD7FB36A1BE1AB1D5 /* QuickReplySheet.swift in Sources */,
 				E29D10014DC036F9AA997C96 /* RootView.swift in Sources */,

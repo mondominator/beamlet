@@ -16,42 +16,40 @@ struct SendView: View {
             if let vm = viewModel {
                 Form {
                     if let nearby = nearbyService?.nearbyUsers, !nearby.isEmpty {
-                        Section("Nearby") {
-                            ForEach(nearby) { user in
-                                let beamletUser = vm.users.first(where: { $0.id == user.id })
-                                    ?? BeamletUser(id: user.id, name: user.name, createdAt: nil)
-                                Button {
-                                    vm.toggleUser(beamletUser)
-                                } label: {
-                                    HStack(spacing: 12) {
-                                        ZStack {
-                                            Circle()
-                                                .fill(vm.isSelected(beamletUser) ? Color.blue.opacity(0.2) : (user.isContact ? Color.blue.opacity(0.08) : Color.gray.opacity(0.1)))
-                                                .frame(width: 40, height: 40)
-                                            if vm.isSelected(beamletUser) {
-                                                Image(systemName: "checkmark")
-                                                    .font(.caption.bold())
-                                                    .foregroundStyle(.blue)
-                                            } else {
-                                                Text(user.name.prefix(1).uppercased())
-                                                    .font(.headline)
-                                                    .foregroundStyle(user.isContact ? .blue : .secondary)
+                        Section {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 4) {
+                                    ForEach(nearby) { user in
+                                        let beamletUser = vm.users.first(where: { $0.id == user.id })
+                                            ?? BeamletUser(id: user.id, name: user.name, createdAt: nil)
+                                        Button {
+                                            vm.toggleUser(beamletUser)
+                                            let generator = UIImpactFeedbackGenerator(style: .light)
+                                            generator.impactOccurred()
+                                        } label: {
+                                            VStack(spacing: 4) {
+                                                PulsingAvatarView(
+                                                    name: user.name,
+                                                    isContact: user.isContact,
+                                                    isSelected: vm.isSelected(beamletUser)
+                                                )
+                                                Text(user.name)
+                                                    .font(.caption2)
+                                                    .foregroundStyle(.primary)
+                                                    .lineLimit(1)
                                             }
+                                            .frame(width: 80)
                                         }
-                                        VStack(alignment: .leading) {
-                                            Text(user.name)
-                                                .foregroundStyle(.primary)
-                                            Text(user.isContact ? "Contact" : "Nearby")
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                        Spacer()
-                                        if vm.isSelected(beamletUser) {
-                                            Image(systemName: "checkmark.circle.fill")
-                                                .foregroundStyle(.blue)
-                                        }
+                                        .buttonStyle(.plain)
                                     }
                                 }
+                                .padding(.vertical, 8)
+                            }
+                        } header: {
+                            HStack {
+                                Image(systemName: "antenna.radiowaves.left.and.right")
+                                    .foregroundStyle(.teal)
+                                Text("Nearby")
                             }
                         }
                     }
