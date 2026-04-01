@@ -47,6 +47,7 @@ func NewRouter(s *Server) *chi.Mux {
 			r.Get("/files/{id}/thumbnail", s.DownloadThumbnail)
 			r.Delete("/files/{id}", s.DeleteFile)
 			r.Put("/files/{id}/read", s.MarkFileRead)
+			r.Put("/files/{id}/pin", s.TogglePin)
 
 			r.Get("/contacts", s.ListContacts)
 			r.Delete("/contacts/{id}", s.DeleteContact)

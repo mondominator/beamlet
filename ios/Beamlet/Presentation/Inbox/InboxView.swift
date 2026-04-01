@@ -95,11 +95,32 @@ struct InboxView: View {
                                 List {
                                     ForEach(filtered) { file in
                                         NavigationLink(value: file) {
-                                            FileRowView(
-                                                file: file,
-                                                thumbnailURL: vm.thumbnailURL(for: file.id),
-                                                authHeaders: vm.authHeaders
-                                            )
+                                            HStack {
+                                                if file.pinned == true {
+                                                    Image(systemName: "pin.fill")
+                                                        .font(.caption2)
+                                                        .foregroundStyle(.orange)
+                                                }
+                                                FileRowView(
+                                                    file: file,
+                                                    thumbnailURL: vm.thumbnailURL(for: file.id),
+                                                    authHeaders: vm.authHeaders
+                                                )
+                                            }
+                                        }
+                                        .swipeActions(edge: .leading) {
+                                            Button {
+                                                Task {
+                                                    let _ = try? await api.togglePin(file.id)
+                                                    await vm.loadFiles()
+                                                }
+                                            } label: {
+                                                Label(
+                                                    file.pinned == true ? "Unpin" : "Pin",
+                                                    systemImage: file.pinned == true ? "pin.slash" : "pin"
+                                                )
+                                            }
+                                            .tint(.orange)
                                         }
                                     }
                                     .onDelete { offsets in

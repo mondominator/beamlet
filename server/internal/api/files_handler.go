@@ -225,3 +225,16 @@ func (s *Server) MarkFileRead(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }
+
+func (s *Server) TogglePin(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	pinned, err := s.FileStore.TogglePin(id)
+	if err != nil {
+		http.Error(w, "failed to toggle pin", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{"pinned": pinned})
+}

@@ -22,12 +22,13 @@ struct BeamletFile: Codable, Identifiable, Hashable {
     let textContent: String?
     let message: String?
     let read: Bool
+    let pinned: Bool?
     let expiresAt: Date?
     let createdAt: Date?
     let senderName: String?
 
     enum CodingKeys: String, CodingKey {
-        case id, filename, message, read
+        case id, filename, message, read, pinned
         case senderID = "sender_id"
         case recipientID = "recipient_id"
         case fileType = "file_type"
