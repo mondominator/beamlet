@@ -163,7 +163,15 @@ class NearbyService: NSObject {
     }
 
     private func addNearbyUser(_ user: NearbyUser) {
-        discoveredPeers[user.id] = user
+        var updated = user
+        updated.lastSeen = Date()
+        discoveredPeers[user.id] = updated
+        pruneStaleUsers()
+    }
+
+    private func pruneStaleUsers() {
+        let cutoff = Date().addingTimeInterval(-15)
+        discoveredPeers = discoveredPeers.filter { $0.value.lastSeen > cutoff }
         nearbyUsers = Array(discoveredPeers.values).sorted { a, b in
             if a.isContact != b.isContact { return a.isContact }
             return a.name < b.name

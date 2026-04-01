@@ -4,6 +4,10 @@ struct NearbyUser: Identifiable, Hashable {
     let id: String
     let name: String
     let isContact: Bool
+    var lastSeen: Date = Date()
+
+    static func == (lhs: NearbyUser, rhs: NearbyUser) -> Bool { lhs.id == rhs.id }
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
 enum DiscoverabilityMode: String, CaseIterable {
