@@ -1,0 +1,4 @@
+Target dependency graph (2 targets)
+Target 'Beamlet' in project 'Beamlet'
+➜ Explicit dependency on target 'BeamletShare' in project 'Beamlet'
+Target 'BeamletShare' in project 'Beamlet' (no dependencies)
