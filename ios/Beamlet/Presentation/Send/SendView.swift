@@ -9,6 +9,7 @@ struct SendView: View {
     @State private var viewModel: SendViewModel?
     @State private var showSendAnimation = false
     @State private var showFilePicker = false
+    @State private var showPhotoPicker = false
 
     var body: some View {
         NavigationStack {
@@ -101,30 +102,51 @@ struct SendView: View {
                     }
 
                     Section("Content") {
-                        PhotosPicker(selection: Bindable(vm).selectedPhoto, matching: .any(of: [.images, .videos])) {
+                        // Unified attachment button
+                        if let name = vm.attachmentDisplayName {
                             HStack {
-                                Image(systemName: vm.selectedPhotoData != nil ? "checkmark.circle.fill" : "photo")
-                                    .foregroundStyle(vm.selectedPhotoData != nil ? .green : .secondary)
-                                Text(vm.selectedPhotoData != nil ? "Photo selected" : "Choose photo or video")
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                                Text(name)
+                                    .lineLimit(1)
+                                Spacer()
+                                Button {
+                                    vm.clearAttachment()
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundStyle(.secondary)
+                                }
+                                .buttonStyle(.plain)
                             }
-                        }
-                        .onChange(of: vm.selectedPhoto) {
-                            vm.selectedFileURL = nil // Clear file if photo selected
-                            Task { await vm.loadPhotoData() }
-                        }
-
-                        Button {
-                            showFilePicker = true
-                        } label: {
-                            HStack {
-                                Image(systemName: vm.selectedFileURL != nil ? "checkmark.circle.fill" : "doc")
-                                    .foregroundStyle(vm.selectedFileURL != nil ? .green : .secondary)
-                                Text(vm.selectedFileName ?? "Choose file")
+                        } else {
+                            Menu {
+                                Button {
+                                    showPhotoPicker = true
+                                } label: {
+                                    Label("Photo or Video", systemImage: "photo")
+                                }
+                                Button {
+                                    showFilePicker = true
+                                } label: {
+                                    Label("File or Document", systemImage: "doc")
+                                }
+                            } label: {
+                                HStack {
+                                    Image(systemName: "paperclip")
+                                        .foregroundStyle(.secondary)
+                                    Text("Add attachment")
+                                        .foregroundStyle(.primary)
+                                }
                             }
                         }
 
                         TextField("Message (optional)", text: Bindable(vm).message, axis: .vertical)
                             .lineLimit(3...6)
+                    }
+                    .photosPicker(isPresented: $showPhotoPicker, selection: Bindable(vm).selectedPhoto, matching: .any(of: [.images, .videos]))
+                    .onChange(of: vm.selectedPhoto) {
+                        vm.selectedFileURL = nil
+                        Task { await vm.loadPhotoData() }
                     }
                     .fileImporter(
                         isPresented: $showFilePicker,
