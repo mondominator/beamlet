@@ -12,12 +12,15 @@ class SendViewModel {
     var message = ""
     var selectedPhoto: PhotosPickerItem?
     var selectedPhotoData: Data?
+    var selectedFileURL: URL?
+    var selectedFileName: String?
+    var selectedFileMimeType: String?
     var isSending = false
     var error: String?
     var showSuccess = false
 
     var canSend: Bool {
-        !selectedUsers.isEmpty && (selectedPhotoData != nil || !message.isEmpty) && !isSending
+        !selectedUsers.isEmpty && (selectedPhotoData != nil || selectedFileURL != nil || !message.isEmpty) && !isSending
     }
 
     func toggleUser(_ user: BeamletUser) {
@@ -60,6 +63,15 @@ class SendViewModel {
                         mimeType: "image/jpeg",
                         message: message.isEmpty ? nil : message
                     )
+                } else if let fileURL = selectedFileURL {
+                    let fileData = try Data(contentsOf: fileURL)
+                    let _ = try await api.uploadFile(
+                        recipientID: userID,
+                        fileData: fileData,
+                        filename: selectedFileName ?? fileURL.lastPathComponent,
+                        mimeType: selectedFileMimeType ?? "application/octet-stream",
+                        message: message.isEmpty ? nil : message
+                    )
                 } else if !message.isEmpty {
                     let _ = try await api.uploadText(
                         recipientID: userID,
@@ -78,6 +90,9 @@ class SendViewModel {
         selectedUsers.removeAll()
         selectedPhoto = nil
         selectedPhotoData = nil
+        selectedFileURL = nil
+        selectedFileName = nil
+        selectedFileMimeType = nil
         message = ""
     }
 }
