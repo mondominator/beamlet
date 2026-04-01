@@ -106,30 +106,45 @@ struct BeamletApp: App {
     }
 
     private func handleIncomingURL(_ url: URL) {
-        // Handle beamlet://invite?payload={"url":"...","invite":"..."}
-        guard url.scheme == "beamlet",
-              url.host == "invite",
-              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              let payloadString = components.queryItems?.first(where: { $0.name == "payload" })?.value,
-              let data = payloadString.data(using: .utf8),
-              let payload = try? JSONDecoder().decode(QRPayload.self, from: data) else {
-            return
+        var serverURL: String?
+        var inviteToken: String?
+
+        if url.scheme == "beamlet" {
+            // beamlet://invite?payload={"u":"...","i":"..."}
+            if let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+               let payloadString = components.queryItems?.first(where: { $0.name == "payload" })?.value,
+               let data = payloadString.data(using: .utf8),
+               let payload = try? JSONDecoder().decode(QRPayload.self, from: data) {
+                serverURL = payload.url
+                inviteToken = payload.invite
+            }
+        } else if url.scheme == "https" || url.scheme == "http" {
+            // Universal Link: https://beam.bitstorm.ca/invite/TOKEN
+            let path = url.path  // "/invite/TOKEN"
+            if path.hasPrefix("/invite/") {
+                inviteToken = String(path.dropFirst("/invite/".count))
+                // Server URL is the base of this URL
+                var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
+                components.path = ""
+                components.query = nil
+                serverURL = components.url?.absoluteString
+            }
         }
 
+        guard let serverURL, let inviteToken, !inviteToken.isEmpty else { return }
+
         if authRepository.isAuthenticated {
-            // Already set up — redeem as existing user (add contact)
             Task {
-                let response = try? await api.redeemInviteAsExistingUser(inviteToken: payload.invite)
+                let response = try? await api.redeemInviteAsExistingUser(inviteToken: inviteToken)
                 if response?.contact != nil {
                     let generator = UINotificationFeedbackGenerator()
                     generator.notificationOccurred(.success)
                 }
             }
         }
-        // If not authenticated, the user needs to set up first
-        // Store the invite for the setup flow to pick up
-        UserDefaults.standard.set(payload.url, forKey: "pendingInviteURL")
-        UserDefaults.standard.set(payload.invite, forKey: "pendingInviteToken")
+        // Store for setup flow
+        UserDefaults.standard.set(serverURL, forKey: "pendingInviteURL")
+        UserDefaults.standard.set(inviteToken, forKey: "pendingInviteToken")
     }
 }
 
