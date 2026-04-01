@@ -14,18 +14,25 @@ struct SendView: View {
                     if let nearby = nearbyService?.nearbyUsers, !nearby.isEmpty {
                         Section("Nearby") {
                             ForEach(nearby) { user in
+                                let beamletUser = vm.users.first(where: { $0.id == user.id })
+                                    ?? BeamletUser(id: user.id, name: user.name, createdAt: nil)
                                 Button {
-                                    vm.selectedUser = vm.users.first(where: { $0.id == user.id })
-                                        ?? BeamletUser(id: user.id, name: user.name, createdAt: nil)
+                                    vm.toggleUser(beamletUser)
                                 } label: {
                                     HStack(spacing: 12) {
                                         ZStack {
                                             Circle()
-                                                .fill(user.isContact ? Color.blue.opacity(0.15) : Color.gray.opacity(0.15))
+                                                .fill(vm.isSelected(beamletUser) ? Color.blue.opacity(0.2) : (user.isContact ? Color.blue.opacity(0.08) : Color.gray.opacity(0.1)))
                                                 .frame(width: 40, height: 40)
-                                            Text(user.name.prefix(1).uppercased())
-                                                .font(.headline)
-                                                .foregroundStyle(user.isContact ? .blue : .secondary)
+                                            if vm.isSelected(beamletUser) {
+                                                Image(systemName: "checkmark")
+                                                    .font(.caption.bold())
+                                                    .foregroundStyle(.blue)
+                                            } else {
+                                                Text(user.name.prefix(1).uppercased())
+                                                    .font(.headline)
+                                                    .foregroundStyle(user.isContact ? .blue : .secondary)
+                                            }
                                         }
                                         VStack(alignment: .leading) {
                                             Text(user.name)
@@ -34,21 +41,58 @@ struct SendView: View {
                                                 .font(.caption)
                                                 .foregroundStyle(.secondary)
                                         }
+                                        Spacer()
+                                        if vm.isSelected(beamletUser) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .foregroundStyle(.blue)
+                                        }
                                     }
                                 }
                             }
                         }
                     }
 
-                    Section("Recipient") {
+                    Section {
                         if vm.users.isEmpty {
-                            ProgressView("Loading users...")
+                            ProgressView("Loading contacts...")
                         } else {
-                            Picker("Send to", selection: Bindable(vm).selectedUser) {
-                                Text("Select recipient").tag(nil as BeamletUser?)
-                                ForEach(vm.users) { user in
-                                    Text(user.name).tag(user as BeamletUser?)
+                            ForEach(vm.users) { user in
+                                Button {
+                                    vm.toggleUser(user)
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(vm.isSelected(user) ? Color.blue.opacity(0.2) : Color.gray.opacity(0.1))
+                                                .frame(width: 36, height: 36)
+                                            if vm.isSelected(user) {
+                                                Image(systemName: "checkmark")
+                                                    .font(.caption.bold())
+                                                    .foregroundStyle(.blue)
+                                            } else {
+                                                Text(user.name.prefix(1).uppercased())
+                                                    .font(.subheadline.bold())
+                                                    .foregroundStyle(.secondary)
+                                            }
+                                        }
+                                        Text(user.name)
+                                            .foregroundStyle(.primary)
+                                        Spacer()
+                                        if vm.isSelected(user) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .foregroundStyle(.blue)
+                                        }
+                                    }
                                 }
+                            }
+                        }
+                    } header: {
+                        HStack {
+                            Text("Recipients")
+                            Spacer()
+                            if !vm.selectedUsers.isEmpty {
+                                Text("\(vm.selectedUsers.count) selected")
+                                    .foregroundStyle(.blue)
                             }
                         }
                     }
