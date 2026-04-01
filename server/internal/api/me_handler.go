@@ -16,11 +16,11 @@ func (s *Server) GetMe(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"id":              user.ID,
-		"name":            user.Name,
-		"files_sent":      stats.FilesSent,
-		"files_received":  stats.FilesReceived,
-		"storage_used":    stats.StorageUsed,
+		"id":             user.ID,
+		"name":           user.Name,
+		"files_sent":     stats.FilesSent,
+		"files_received": stats.FilesReceived,
+		"storage_used":   stats.StorageUsed,
 	})
 }
 
