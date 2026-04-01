@@ -43,6 +43,8 @@ targets:
     dependencies:
       - target: BeamletShare
         embed: true
+      # - target: BeamletWidget  # TODO: add via Xcode — XcodeGen has issues with widget extensions
+      #   embed: true
 
   BeamletShare:
     type: app-extension
@@ -73,6 +75,9 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.com.beamlet.shared
+
+  # BeamletWidget: TODO - add via Xcode File → New → Target → Widget Extension
+  # Widget code is in BeamletWidget/ directory, ready to wire up
 
   BeamletTests:
     type: bundle.unit-test
