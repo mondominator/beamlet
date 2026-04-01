@@ -32,6 +32,7 @@ struct InboxView: View {
     @State private var selectedTab: InboxTab = .received
     @State private var sentFiles: [BeamletFile] = []
     @State private var isLoadingSent = false
+    @State private var replyFile: BeamletFile?
 
     var body: some View {
         NavigationStack {
@@ -121,6 +122,13 @@ struct InboxView: View {
                                                 )
                                             }
                                             .tint(.orange)
+
+                                            Button {
+                                                replyFile = file
+                                            } label: {
+                                                Label("Reply", systemImage: "arrowshape.turn.up.left")
+                                            }
+                                            .tint(.blue)
                                         }
                                     }
                                     .onDelete { offsets in
@@ -180,6 +188,13 @@ struct InboxView: View {
                 if tab == .sent && sentFiles.isEmpty {
                     Task { await loadSentFiles() }
                 }
+            }
+            .sheet(item: $replyFile) { file in
+                QuickReplySheet(
+                    recipientID: file.senderID,
+                    recipientName: file.senderName ?? "Unknown",
+                    replyToMessage: file.isText ? file.textContent : file.message
+                )
             }
         }
     }
