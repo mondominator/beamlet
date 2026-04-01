@@ -21,6 +21,7 @@
 		A303E014B4F45035C1C28F61 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9D15525B63466E88FE254B /* ShareView.swift */; };
 		A68E8DA8058705D9CE6661B4 /* BeamletShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B739DCAC2AF9851C8AEF0FB8 /* BeamletShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A70393E986A1D5F6FB50B0F5 /* BeamletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A540DA2E1EDABC2D29CB8B61 /* BeamletTests.swift */; };
+		A727DD4BD7FB36A1BE1AB1D5 /* QuickReplySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E937F9D3DA778DED96E92A /* QuickReplySheet.swift */; };
 		A8742F65B77465B7905CD609 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDD43800533A4CF4957CF71 /* ShareViewController.swift */; };
 		AC6A8C4B87482D81075016BE /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0D3990B57D715D887347F1 /* Models.swift */; };
 		B102E3403D93CF420FA7466B /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0D3990B57D715D887347F1 /* Models.swift */; };
@@ -88,6 +89,7 @@
 		4B7262AE1FF951D5B44582C3 /* NameEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameEntryView.swift; sourceTree = "<group>"; };
 		5E0D3990B57D715D887347F1 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		5F01C9962E9948A9ABC8E471 /* Beamlet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Beamlet.entitlements; sourceTree = "<group>"; };
+		64E937F9D3DA778DED96E92A /* QuickReplySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReplySheet.swift; sourceTree = "<group>"; };
 		650249C9F9976C21982E6D33 /* BeamletShare.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BeamletShare.entitlements; sourceTree = "<group>"; };
 		6B5FCF0EA472D2EAF32B46CB /* InboxViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxViewModel.swift; sourceTree = "<group>"; };
 		6FA922F7885C336DBF950AB0 /* SendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendView.swift; sourceTree = "<group>"; };
@@ -286,6 +288,7 @@
 				11668AF57EEF73440BD2DBF1 /* FileRowView.swift */,
 				B6FE3585B1C9C679534BD2E4 /* InboxView.swift */,
 				6B5FCF0EA472D2EAF32B46CB /* InboxViewModel.swift */,
+				64E937F9D3DA778DED96E92A /* QuickReplySheet.swift */,
 			);
 			path = Inbox;
 			sourceTree = "<group>";
@@ -458,6 +461,7 @@
 				07D08518CD88834985A61C4B /* NearbyService.swift in Sources */,
 				C9216E428A880CB19658B872 /* NearbyUser.swift in Sources */,
 				3E0B5D283CA14FCD1C9F1635 /* QRScannerView.swift in Sources */,
+				A727DD4BD7FB36A1BE1AB1D5 /* QuickReplySheet.swift in Sources */,
 				E29D10014DC036F9AA997C96 /* RootView.swift in Sources */,
 				7B4E88C05AF6ADDCEF52D616 /* ScanInviteView.swift in Sources */,
 				D403F32CE1A88E5BAB9F1942 /* SendSuccessOverlay.swift in Sources */,
