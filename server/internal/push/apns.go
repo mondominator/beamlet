@@ -43,7 +43,7 @@ type APNsPusher struct {
 	userStore *store.UserStore
 }
 
-func NewAPNsPusher(keyPath, keyID, teamID, bundleID string, userStore *store.UserStore) (*APNsPusher, error) {
+func NewAPNsPusher(keyPath, keyID, teamID, bundleID string, sandbox bool, userStore *store.UserStore) (*APNsPusher, error) {
 	authKey, err := token.AuthKeyFromFile(keyPath)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,14 @@ func NewAPNsPusher(keyPath, keyID, teamID, bundleID string, userStore *store.Use
 		TeamID:  teamID,
 	}
 
-	client := apns2.NewTokenClient(tok).Production()
+	var client *apns2.Client
+	if sandbox {
+		client = apns2.NewTokenClient(tok).Development()
+		log.Println("APNs configured in SANDBOX (development) mode")
+	} else {
+		client = apns2.NewTokenClient(tok).Production()
+		log.Println("APNs configured in PRODUCTION mode")
+	}
 
 	return &APNsPusher{
 		client:    client,

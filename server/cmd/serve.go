@@ -39,7 +39,7 @@ func ServeCmd() *cobra.Command {
 
 			var pusher *push.APNsPusher
 			if cfg.APNsKeyPath != "" {
-				p, err := push.NewAPNsPusher(cfg.APNsKeyPath, cfg.APNsKeyID, cfg.APNsTeamID, cfg.APNsBundleID, userStore)
+				p, err := push.NewAPNsPusher(cfg.APNsKeyPath, cfg.APNsKeyID, cfg.APNsTeamID, cfg.APNsBundleID, cfg.APNsSandbox, userStore)
 				if err != nil {
 					log.Printf("warning: APNs setup failed: %v (push notifications disabled)", err)
 				} else {
