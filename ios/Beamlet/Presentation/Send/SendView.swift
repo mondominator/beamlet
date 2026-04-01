@@ -1,12 +1,14 @@
 import SwiftUI
 import PhotosUI
 import AudioToolbox
+import UniformTypeIdentifiers
 
 struct SendView: View {
     @Environment(BeamletAPI.self) private var api
     @Environment(NearbyService.self) private var nearbyService: NearbyService?
     @State private var viewModel: SendViewModel?
     @State private var showSendAnimation = false
+    @State private var showFilePicker = false
 
     var body: some View {
         NavigationStack {
@@ -107,11 +109,36 @@ struct SendView: View {
                             }
                         }
                         .onChange(of: vm.selectedPhoto) {
+                            vm.selectedFileURL = nil // Clear file if photo selected
                             Task { await vm.loadPhotoData() }
+                        }
+
+                        Button {
+                            showFilePicker = true
+                        } label: {
+                            HStack {
+                                Image(systemName: vm.selectedFileURL != nil ? "checkmark.circle.fill" : "doc")
+                                    .foregroundStyle(vm.selectedFileURL != nil ? .green : .secondary)
+                                Text(vm.selectedFileName ?? "Choose file")
+                            }
                         }
 
                         TextField("Message (optional)", text: Bindable(vm).message, axis: .vertical)
                             .lineLimit(3...6)
+                    }
+                    .fileImporter(
+                        isPresented: $showFilePicker,
+                        allowedContentTypes: [.item],
+                        allowsMultipleSelection: false
+                    ) { result in
+                        if case .success(let urls) = result, let url = urls.first {
+                            _ = url.startAccessingSecurityScopedResource()
+                            vm.selectedFileURL = url
+                            vm.selectedFileName = url.lastPathComponent
+                            vm.selectedFileMimeType = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType
+                            vm.selectedPhoto = nil
+                            vm.selectedPhotoData = nil
+                        }
                     }
 
                     if let error = vm.error {
