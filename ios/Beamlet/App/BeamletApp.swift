@@ -26,7 +26,7 @@ struct BeamletApp: App {
                     if authRepository.isAuthenticated {
                         await requestNotificationPermission()
                         await registerExistingDeviceToken()
-                        startNearbyService()
+                        await startNearbyService()
                     }
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .didReceiveAPNsToken)) { notification in
@@ -39,12 +39,25 @@ struct BeamletApp: App {
         }
     }
 
-    private func startNearbyService() {
+    private func startNearbyService() async {
+        // Fetch userID if not stored yet
+        if authRepository.userID == nil {
+            if let me = try? await api.getMe() {
+                authRepository.storeUserID(me.id)
+            }
+        }
+
         guard let userID = authRepository.userID else { return }
         if nearbyService == nil {
             let service = NearbyService(userID: userID, api: api)
             nearbyService = service
         }
+
+        // Load contacts so BLE can match hashes
+        if let contacts = try? await api.listUsers() {
+            nearbyService?.updateContacts(contacts)
+        }
+
         nearbyService?.start()
     }
 
