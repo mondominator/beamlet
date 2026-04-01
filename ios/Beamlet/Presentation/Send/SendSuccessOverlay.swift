@@ -3,7 +3,7 @@ import SwiftUI
 struct SendSuccessOverlay: View {
     @State private var scale: CGFloat = 0.3
     @State private var opacity: Double = 0
-    @State private var checkmarkTrim: CGFloat = 0
+    @State private var iconOffset: CGFloat = 20
     @State private var particles: [Particle] = []
 
     struct Particle: Identifiable {
@@ -18,11 +18,9 @@ struct SendSuccessOverlay: View {
 
     var body: some View {
         ZStack {
-            // Dim background
             Color.black.opacity(0.3 * opacity)
                 .ignoresSafeArea()
 
-            // Particles
             GeometryReader { geo in
                 ForEach(particles) { particle in
                     Circle()
@@ -36,34 +34,29 @@ struct SendSuccessOverlay: View {
                 }
             }
 
-            // Success circle + checkmark
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color(red: 0.55, green: 0.36, blue: 0.96), Color(red: 0.23, green: 0.51, blue: 0.96)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+            VStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color(red: 0.55, green: 0.36, blue: 0.96), Color(red: 0.23, green: 0.51, blue: 0.96)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 100, height: 100)
-                    .shadow(color: Color(red: 0.23, green: 0.51, blue: 0.96).opacity(0.5), radius: 20)
+                        .frame(width: 100, height: 100)
+                        .shadow(color: Color(red: 0.23, green: 0.51, blue: 0.96).opacity(0.5), radius: 20)
 
-                // Checkmark
-                Path { path in
-                    path.move(to: CGPoint(x: -15, y: 0))
-                    path.addLine(to: CGPoint(x: -3, y: 12))
-                    path.addLine(to: CGPoint(x: 18, y: -12))
+                    Image(systemName: "paperplane.fill")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.white)
+                        .offset(x: 2, y: iconOffset)
                 }
-                .trim(from: 0, to: checkmarkTrim)
-                .stroke(.white, style: StrokeStyle(lineWidth: 5, lineCap: .round, lineJoin: .round))
-                .frame(width: 40, height: 30)
 
                 Text("Sent!")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(.white)
-                    .offset(y: 65)
-                    .opacity(checkmarkTrim > 0.5 ? 1 : 0)
+                    .opacity(opacity)
             }
             .scaleEffect(scale)
             .opacity(opacity)
@@ -74,8 +67,8 @@ struct SendSuccessOverlay: View {
                 scale = 1.0
                 opacity = 1.0
             }
-            withAnimation(.easeOut(duration: 0.5).delay(0.2)) {
-                checkmarkTrim = 1.0
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.5).delay(0.1)) {
+                iconOffset = 0
             }
             animateParticles()
         }

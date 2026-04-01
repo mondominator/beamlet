@@ -9,7 +9,6 @@ class SendViewModel {
 
     var users: [BeamletUser] = []
     var selectedUsers: Set<String> = []  // Set of user IDs
-    var message = ""
     var selectedPhoto: PhotosPickerItem?
     var selectedPhotoData: Data?
     var selectedFileURL: URL?
@@ -20,7 +19,7 @@ class SendViewModel {
     var showSuccess = false
 
     var canSend: Bool {
-        !selectedUsers.isEmpty && (selectedPhotoData != nil || selectedFileURL != nil || !message.isEmpty) && !isSending
+        !selectedUsers.isEmpty && (selectedPhotoData != nil || selectedFileURL != nil) && !isSending
     }
 
     var attachmentDisplayName: String? {
@@ -75,7 +74,7 @@ class SendViewModel {
                         fileData: photoData,
                         filename: "photo.jpg",
                         mimeType: "image/jpeg",
-                        message: message.isEmpty ? nil : message
+                        message: nil
                     )
                 } else if let fileURL = selectedFileURL {
                     let fileData = try Data(contentsOf: fileURL)
@@ -84,12 +83,7 @@ class SendViewModel {
                         fileData: fileData,
                         filename: selectedFileName ?? fileURL.lastPathComponent,
                         mimeType: selectedFileMimeType ?? "application/octet-stream",
-                        message: message.isEmpty ? nil : message
-                    )
-                } else if !message.isEmpty {
-                    let _ = try await api.uploadText(
-                        recipientID: userID,
-                        text: message
+                        message: nil
                     )
                 }
             }
@@ -107,6 +101,5 @@ class SendViewModel {
         selectedFileURL = nil
         selectedFileName = nil
         selectedFileMimeType = nil
-        message = ""
     }
 }

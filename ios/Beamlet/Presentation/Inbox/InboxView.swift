@@ -184,7 +184,10 @@ struct InboxView: View {
 
                 refreshTimer?.invalidate()
                 refreshTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { _ in
-                    Task { await viewModel?.loadFiles() }
+                    Task {
+                        await viewModel?.loadFiles()
+                        await loadSentFiles()
+                    }
                 }
             }
             .onDisappear {
