@@ -31,6 +31,12 @@ struct SettingsView: View {
 
                 Section("Contacts") {
                     NavigationLink {
+                        ContactsView()
+                    } label: {
+                        Label("My Contacts", systemImage: "person.2")
+                    }
+
+                    NavigationLink {
                         AddContactView()
                     } label: {
                         Label("Add Contact", systemImage: "person.badge.plus")

@@ -13,13 +13,8 @@ struct FileRowView: View {
             // Thumbnail or icon
             Group {
                 if file.isImage || file.isVideo, let url = thumbnailURL {
-                    AsyncImage(url: url) { image in
-                        image.resizable().aspectRatio(contentMode: .fill)
-                    } placeholder: {
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.gray.opacity(0.15))
-                            .overlay(ProgressView().scaleEffect(0.7))
-                    }
+                    AuthenticatedImage(url: url, authHeaders: authHeaders)
+                        .aspectRatio(contentMode: .fill)
                 } else {
                     ZStack {
                         RoundedRectangle(cornerRadius: 10)

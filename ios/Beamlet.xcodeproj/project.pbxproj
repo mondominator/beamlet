@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		07D08518CD88834985A61C4B /* NearbyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23B6D2DABDCC187F0F2EAE2E /* NearbyService.swift */; };
 		0EF157F732724B1851E91CFF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 278215F1257F5E2BC5625437 /* Assets.xcassets */; };
+		1A0987A4E06C83169400BD66 /* AuthenticatedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5518293A4E032BC5BFAB5 /* AuthenticatedImage.swift */; };
 		1BA669D7C449C17BD117FA83 /* NearbyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23B6D2DABDCC187F0F2EAE2E /* NearbyService.swift */; };
 		3A53BFA30432C7981046E227 /* AddContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C357896EA48AFE5244B6FFC4 /* AddContactView.swift */; };
 		3E0B5D283CA14FCD1C9F1635 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98741F30C4CC511161FC0C6 /* QRScannerView.swift */; };
@@ -38,6 +39,7 @@
 		E77A35A590A8D353FF3E7EAF /* BeamletApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C6EE27FC8312321F6EFCCA /* BeamletApp.swift */; };
 		ED34BA6B097762D77C82E978 /* InboxViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B5FCF0EA472D2EAF32B46CB /* InboxViewModel.swift */; };
 		EF094D975E9E13EF6174ECE6 /* NameEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7262AE1FF951D5B44582C3 /* NameEntryView.swift */; };
+		EFB4B64B23062D06523E0E77 /* ContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E1E42538FB2D86F630429B /* ContactsView.swift */; };
 		F0E934A479CD8E668D477270 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8E50AA0707D07B908E35EB /* MainTabView.swift */; };
 		F61AEA47D9607E703185E04B /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F5B18949D9B86291426A6F /* AvatarView.swift */; };
 /* End PBXBuildFile section */
@@ -80,6 +82,7 @@
 		23B6D2DABDCC187F0F2EAE2E /* NearbyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyService.swift; sourceTree = "<group>"; };
 		23EDCBE8041A965911D7A9B1 /* NearbyUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyUser.swift; sourceTree = "<group>"; };
 		278215F1257F5E2BC5625437 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2BE5518293A4E032BC5BFAB5 /* AuthenticatedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatedImage.swift; sourceTree = "<group>"; };
 		4B7262AE1FF951D5B44582C3 /* NameEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameEntryView.swift; sourceTree = "<group>"; };
 		5E0D3990B57D715D887347F1 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		5F01C9962E9948A9ABC8E471 /* Beamlet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Beamlet.entitlements; sourceTree = "<group>"; };
@@ -104,6 +107,7 @@
 		C357896EA48AFE5244B6FFC4 /* AddContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddContactView.swift; sourceTree = "<group>"; };
 		C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRepository.swift; sourceTree = "<group>"; };
 		CB00183BD0B3A6402565DEE3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		D0E1E42538FB2D86F630429B /* ContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsView.swift; sourceTree = "<group>"; };
 		D61FA11B6D57DBAD461351EF /* StateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateViews.swift; sourceTree = "<group>"; };
 		DEC8545F83DC9BD4E0C80EDD /* BeamletTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BeamletTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E12E47C9B5F582AD6DA59E6D /* Beamlet.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Beamlet.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -231,6 +235,7 @@
 		8E3BC6EDFAE75EEDC5BD8900 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				2BE5518293A4E032BC5BFAB5 /* AuthenticatedImage.swift */,
 				B1F5B18949D9B86291426A6F /* AvatarView.swift */,
 				BF8E50AA0707D07B908E35EB /* MainTabView.swift */,
 				D61FA11B6D57DBAD461351EF /* StateViews.swift */,
@@ -265,6 +270,7 @@
 			isa = PBXGroup;
 			children = (
 				C357896EA48AFE5244B6FFC4 /* AddContactView.swift */,
+				D0E1E42538FB2D86F630429B /* ContactsView.swift */,
 				C271E9830537D6EF5AD28BF7 /* ScanInviteView.swift */,
 				CB00183BD0B3A6402565DEE3 /* SettingsView.swift */,
 			);
@@ -433,9 +439,11 @@
 			files = (
 				3A53BFA30432C7981046E227 /* AddContactView.swift in Sources */,
 				D7648B6CF4D20EC10287FE72 /* AuthRepository.swift in Sources */,
+				1A0987A4E06C83169400BD66 /* AuthenticatedImage.swift in Sources */,
 				F61AEA47D9607E703185E04B /* AvatarView.swift in Sources */,
 				CD2A6373E73A7873C8436BD0 /* BeamletAPI.swift in Sources */,
 				E77A35A590A8D353FF3E7EAF /* BeamletApp.swift in Sources */,
+				EFB4B64B23062D06523E0E77 /* ContactsView.swift in Sources */,
 				E423A5EF103BDEFF301BE58D /* FileDetailView.swift in Sources */,
 				C82FD9EB3E98F18325A17301 /* FileRowView.swift in Sources */,
 				A1B4B7D82B3C26A0884D1AED /* InboxView.swift in Sources */,
