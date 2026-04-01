@@ -11,10 +11,16 @@ import (
 func (s *Server) GetMe(w http.ResponseWriter, r *http.Request) {
 	user := auth.UserFromContext(r.Context())
 
+	// Get storage stats
+	stats, _ := s.FileStore.GetUserStats(user.ID)
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"id":   user.ID,
-		"name": user.Name,
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"id":              user.ID,
+		"name":            user.Name,
+		"files_sent":      stats.FilesSent,
+		"files_received":  stats.FilesReceived,
+		"storage_used":    stats.StorageUsed,
 	})
 }
 

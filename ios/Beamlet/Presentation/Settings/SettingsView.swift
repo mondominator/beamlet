@@ -7,6 +7,9 @@ struct SettingsView: View {
 
     @State private var showLogoutConfirmation = false
     @State private var discoverability: DiscoverabilityMode = .load()
+    @State private var filesSent: Int?
+    @State private var filesReceived: Int?
+    @State private var storageUsed: Int64?
 
     var body: some View {
         NavigationStack {
@@ -70,6 +73,12 @@ struct SettingsView: View {
                     }
                 }
 
+                Section("Usage") {
+                    LabeledContent("Files Sent", value: filesSent.map { "\($0)" } ?? "—")
+                    LabeledContent("Files Received", value: filesReceived.map { "\($0)" } ?? "—")
+                    LabeledContent("Storage Used", value: storageUsed.map { formatBytes($0) } ?? "—")
+                }
+
                 Section("About") {
                     LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
                     LabeledContent("Build", value: Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1")
@@ -82,6 +91,13 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .task {
+                if let me = try? await api.getMe() {
+                    filesSent = me.filesSent
+                    filesReceived = me.filesReceived
+                    storageUsed = me.storageUsed
+                }
+            }
             .alert("Disconnect?", isPresented: $showLogoutConfirmation) {
                 Button("Cancel", role: .cancel) {}
                 Button("Disconnect", role: .destructive) {
@@ -91,5 +107,11 @@ struct SettingsView: View {
                 Text("You'll need to re-enter your server details to reconnect.")
             }
         }
+    }
+
+    private func formatBytes(_ bytes: Int64) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: bytes)
     }
 }
