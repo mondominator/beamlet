@@ -9,6 +9,7 @@ enum InboxTab: String, CaseIterable {
 
 struct InboxView: View {
     @Environment(BeamletAPI.self) private var api
+    @Binding var openFileID: String?
     @State private var viewModel: InboxViewModel?
     @State private var selectedTab: InboxTab = .received
     @State private var sentFiles: [BeamletFile] = []
@@ -130,6 +131,18 @@ struct InboxView: View {
                 }
             }
             .quickLookPreview($quickLookURL)
+            .onChange(of: openFileID) { _, fileID in
+                guard let fileID, let vm = viewModel else { return }
+                selectedTab = .received
+                // Refresh to ensure we have the file, then open it
+                Task {
+                    await vm.loadFiles()
+                    if let file = vm.files.first(where: { $0.id == fileID }) {
+                        handleTap(file: file, vm: vm)
+                    }
+                    openFileID = nil
+                }
+            }
         }
     }
 

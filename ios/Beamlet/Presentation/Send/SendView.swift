@@ -18,194 +18,235 @@ struct SendView: View {
             if let vm = viewModel {
                 VStack(spacing: 0) {
                     ScrollView {
-                        VStack(spacing: 20) {
-                            // Nearby section
-                            if let nearby = nearbyService?.nearbyUsers, !nearby.isEmpty {
-                                VStack(alignment: .leading, spacing: 10) {
-                                    Label {
-                                        Text("Nearby")
-                                            .font(.subheadline.weight(.semibold))
-                                            .foregroundStyle(.secondary)
-                                    } icon: {
-                                        Image(systemName: "antenna.radiowaves.left.and.right")
-                                            .foregroundStyle(.teal)
-                                            .font(.caption)
+                        VStack(spacing: 24) {
+                            // MARK: - Step 1: Pick attachment
+                            VStack(spacing: 12) {
+                                if let name = vm.attachmentDisplayName {
+                                    // Attachment selected
+                                    HStack(spacing: 12) {
+                                        Image(systemName: vm.selectedPhotoData != nil ? "photo.fill" : "doc.fill")
+                                            .font(.title2)
+                                            .foregroundStyle(.blue)
+                                            .frame(width: 48, height: 48)
+                                            .background(.blue.opacity(0.1))
+                                            .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(name)
+                                                .font(.subheadline.weight(.medium))
+                                                .lineLimit(1)
+                                            Text("Ready to send")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+
+                                        Spacer()
+
+                                        Button {
+                                            vm.clearAttachment()
+                                        } label: {
+                                            Image(systemName: "xmark.circle.fill")
+                                                .font(.title3)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                    .padding(14)
+                                    .background(Color(.secondarySystemBackground))
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    .padding(.horizontal)
+                                } else {
+                                    // Picker buttons
+                                    HStack(spacing: 12) {
+                                        Button { showPhotoPicker = true } label: {
+                                            VStack(spacing: 8) {
+                                                Image(systemName: "photo.on.rectangle")
+                                                    .font(.title2)
+                                                Text("Photo or Video")
+                                                    .font(.caption)
+                                            }
+                                            .foregroundStyle(.blue)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 20)
+                                            .background(Color(.secondarySystemBackground))
+                                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                                        }
+                                        .buttonStyle(.plain)
+
+                                        Button { showFilePicker = true } label: {
+                                            VStack(spacing: 8) {
+                                                Image(systemName: "doc")
+                                                    .font(.title2)
+                                                Text("File")
+                                                    .font(.caption)
+                                            }
+                                            .foregroundStyle(.blue)
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 20)
+                                            .background(Color(.secondarySystemBackground))
+                                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                                        }
+                                        .buttonStyle(.plain)
                                     }
                                     .padding(.horizontal)
+                                }
+                            }
 
-                                    ScrollView(.horizontal, showsIndicators: false) {
-                                        HStack(spacing: 4) {
-                                            ForEach(nearby) { user in
-                                                let beamletUser = vm.users.first(where: { $0.id == user.id })
-                                                    ?? BeamletUser(id: user.id, name: user.name, createdAt: nil)
-                                                Button {
-                                                    vm.toggleUser(beamletUser)
-                                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                                } label: {
-                                                    VStack(spacing: 4) {
-                                                        PulsingAvatarView(
-                                                            name: user.name,
-                                                            isContact: user.isContact,
-                                                            isSelected: vm.isSelected(beamletUser)
-                                                        )
-                                                        Text(user.name)
-                                                            .font(.caption2)
-                                                            .foregroundStyle(.primary)
-                                                            .lineLimit(1)
+                            // MARK: - Step 2: Pick recipients
+                            if vm.attachmentDisplayName != nil {
+                                VStack(spacing: 16) {
+                                    // Nearby
+                                    if let nearby = nearbyService?.nearbyUsers, !nearby.isEmpty {
+                                        VStack(alignment: .leading, spacing: 10) {
+                                            Label {
+                                                Text("Nearby")
+                                                    .font(.subheadline.weight(.semibold))
+                                                    .foregroundStyle(.secondary)
+                                            } icon: {
+                                                Image(systemName: "antenna.radiowaves.left.and.right")
+                                                    .foregroundStyle(.teal)
+                                                    .font(.caption)
+                                            }
+                                            .padding(.horizontal)
+
+                                            ScrollView(.horizontal, showsIndicators: false) {
+                                                HStack(spacing: 4) {
+                                                    ForEach(nearby) { user in
+                                                        let beamletUser = vm.users.first(where: { $0.id == user.id })
+                                                            ?? BeamletUser(id: user.id, name: user.name, createdAt: nil)
+                                                        Button {
+                                                            vm.toggleUser(beamletUser)
+                                                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                                        } label: {
+                                                            VStack(spacing: 4) {
+                                                                PulsingAvatarView(
+                                                                    name: user.name,
+                                                                    isContact: user.isContact,
+                                                                    isSelected: vm.isSelected(beamletUser)
+                                                                )
+                                                                Text(user.name)
+                                                                    .font(.caption2)
+                                                                    .foregroundStyle(.primary)
+                                                                    .lineLimit(1)
+                                                            }
+                                                            .frame(width: 80)
+                                                        }
+                                                        .buttonStyle(.plain)
                                                     }
-                                                    .frame(width: 80)
                                                 }
-                                                .buttonStyle(.plain)
+                                                .padding(.horizontal)
+                                            }
+                                        }
+                                    }
+
+                                    // Contacts grid
+                                    VStack(alignment: .leading, spacing: 10) {
+                                        HStack {
+                                            Text("Send to")
+                                                .font(.subheadline.weight(.semibold))
+                                                .foregroundStyle(.secondary)
+                                            Spacer()
+                                            if !vm.selectedUsers.isEmpty {
+                                                Text("\(vm.selectedUsers.count) selected")
+                                                    .font(.caption)
+                                                    .foregroundStyle(.blue)
+                                                    .padding(.horizontal, 10)
+                                                    .padding(.vertical, 4)
+                                                    .background(.blue.opacity(0.1))
+                                                    .clipShape(Capsule())
                                             }
                                         }
                                         .padding(.horizontal)
-                                    }
-                                }
-                            }
 
-                            // Contacts grid
-                            VStack(alignment: .leading, spacing: 10) {
-                                HStack {
-                                    Text("Contacts")
-                                        .font(.subheadline.weight(.semibold))
-                                        .foregroundStyle(.secondary)
-                                    Spacer()
-                                    if !vm.selectedUsers.isEmpty {
-                                        Text("\(vm.selectedUsers.count) selected")
-                                            .font(.caption)
-                                            .foregroundStyle(.blue)
-                                            .padding(.horizontal, 10)
-                                            .padding(.vertical, 4)
-                                            .background(.blue.opacity(0.1))
-                                            .clipShape(Capsule())
-                                    }
-                                }
-                                .padding(.horizontal)
-
-                                if vm.users.isEmpty {
-                                    HStack {
-                                        Spacer()
-                                        ProgressView("Loading contacts...")
-                                            .padding(.vertical, 20)
-                                        Spacer()
-                                    }
-                                } else {
-                                    LazyVGrid(columns: columns, spacing: 16) {
-                                        ForEach(vm.users) { user in
-                                            Button {
-                                                vm.toggleUser(user)
-                                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                            } label: {
-                                                VStack(spacing: 6) {
-                                                    ZStack(alignment: .bottomTrailing) {
-                                                        AvatarView(name: user.name, size: 56)
-                                                        if vm.isSelected(user) {
-                                                            Image(systemName: "checkmark.circle.fill")
-                                                                .font(.system(size: 18))
-                                                                .foregroundStyle(.white, .blue)
-                                                                .offset(x: 2, y: 2)
+                                        if vm.users.isEmpty {
+                                            HStack {
+                                                Spacer()
+                                                ProgressView("Loading contacts...")
+                                                    .padding(.vertical, 20)
+                                                Spacer()
+                                            }
+                                        } else {
+                                            LazyVGrid(columns: columns, spacing: 16) {
+                                                ForEach(vm.users) { user in
+                                                    Button {
+                                                        vm.toggleUser(user)
+                                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                                    } label: {
+                                                        VStack(spacing: 6) {
+                                                            ZStack(alignment: .bottomTrailing) {
+                                                                AvatarView(name: user.name, size: 56)
+                                                                if vm.isSelected(user) {
+                                                                    Image(systemName: "checkmark.circle.fill")
+                                                                        .font(.system(size: 18))
+                                                                        .foregroundStyle(.white, .blue)
+                                                                        .offset(x: 2, y: 2)
+                                                                }
+                                                            }
+                                                            Text(user.name)
+                                                                .font(.caption)
+                                                                .foregroundStyle(.primary)
+                                                                .lineLimit(1)
                                                         }
                                                     }
-                                                    Text(user.name)
-                                                        .font(.caption)
-                                                        .foregroundStyle(.primary)
-                                                        .lineLimit(1)
+                                                    .buttonStyle(.plain)
                                                 }
                                             }
-                                            .buttonStyle(.plain)
+                                            .padding(.horizontal)
                                         }
                                     }
-                                    .padding(.horizontal)
                                 }
+                                .transition(.move(edge: .bottom).combined(with: .opacity))
                             }
                         }
                         .padding(.top, 16)
-                        .padding(.bottom, 100) // Space for bottom bar
+                        .padding(.bottom, 100)
+                        .animation(.easeInOut(duration: 0.3), value: vm.attachmentDisplayName != nil)
                     }
 
-                    // Bottom bar: attachment + send
-                    VStack(spacing: 12) {
-                        Divider()
-
-                        HStack(spacing: 12) {
-                            // Attachment
-                            if let name = vm.attachmentDisplayName {
-                                HStack(spacing: 8) {
-                                    Image(systemName: "paperclip")
-                                        .foregroundStyle(.blue)
-                                    Text(name)
-                                        .font(.subheadline)
-                                        .lineLimit(1)
-                                    Button {
-                                        vm.clearAttachment()
-                                    } label: {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(.ultraThinMaterial)
-                                .clipShape(Capsule())
-                            } else {
-                                Menu {
-                                    Button {
-                                        showPhotoPicker = true
-                                    } label: {
-                                        Label("Photo or Video", systemImage: "photo")
-                                    }
-                                    Button {
-                                        showFilePicker = true
-                                    } label: {
-                                        Label("File or Document", systemImage: "doc")
-                                    }
-                                } label: {
-                                    Image(systemName: "plus.circle.fill")
-                                        .font(.title2)
-                                        .foregroundStyle(.blue)
-                                }
-                            }
-
-                            Spacer()
+                    // MARK: - Send button
+                    if vm.attachmentDisplayName != nil {
+                        VStack(spacing: 0) {
+                            Divider()
 
                             if let error = vm.error {
                                 Text(error)
                                     .font(.caption)
                                     .foregroundStyle(.red)
-                                    .lineLimit(1)
+                                    .padding(.top, 8)
                             }
 
-                            // Send button
                             Button {
                                 Task { await vm.send() }
                             } label: {
                                 if vm.isSending {
                                     ProgressView()
-                                        .frame(width: 48, height: 48)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
                                 } else {
-                                    Image(systemName: "paperplane.fill")
-                                        .font(.title3)
+                                    Label("Send", systemImage: "paperplane.fill")
+                                        .font(.headline)
                                         .foregroundStyle(.white)
-                                        .frame(width: 48, height: 48)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
                                         .background(
                                             LinearGradient(
                                                 colors: vm.canSend
                                                     ? [Color(red: 0.55, green: 0.36, blue: 0.96), Color(red: 0.23, green: 0.51, blue: 0.96)]
                                                     : [.gray.opacity(0.3), .gray.opacity(0.3)],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
+                                                startPoint: .leading,
+                                                endPoint: .trailing
                                             )
                                         )
-                                        .clipShape(Circle())
+                                        .clipShape(RoundedRectangle(cornerRadius: 14))
                                 }
                             }
                             .disabled(!vm.canSend)
+                            .padding(.horizontal)
+                            .padding(.vertical, 10)
                         }
-                        .padding(.horizontal)
-                        .padding(.bottom, 8)
+                        .background(.bar)
+                        .transition(.move(edge: .bottom))
                     }
-                    .background(.bar)
                 }
                 .photosPicker(isPresented: $showPhotoPicker, selection: Bindable(vm).selectedPhoto, matching: .any(of: [.images, .videos]))
                 .onChange(of: vm.selectedPhoto) {
@@ -235,8 +276,7 @@ struct SendView: View {
                 }
                 .onChange(of: vm.showSuccess) { _, success in
                     if success {
-                        let generator = UINotificationFeedbackGenerator()
-                        generator.notificationOccurred(.success)
+                        UINotificationFeedbackGenerator().notificationOccurred(.success)
                         AudioServicesPlaySystemSound(1001)
                         withAnimation(.spring(response: 0.3)) {
                             showSendAnimation = true
