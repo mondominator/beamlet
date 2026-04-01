@@ -30,7 +30,11 @@ func (s *Server) InviteWebPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Build the QR payload URL for the app
-	serverURL := fmt.Sprintf("%s://%s", scheme(r), r.Host)
+	// Use external URL if configured, otherwise derive from request
+	serverURL := s.Config.ExternalURL
+	if serverURL == "" {
+		serverURL = fmt.Sprintf("%s://%s", scheme(r), r.Host)
+	}
 	qrPayload := fmt.Sprintf(`{"url":"%s","invite":"%s"}`, serverURL, token)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

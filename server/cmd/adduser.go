@@ -40,7 +40,10 @@ func AddUserCmd() *cobra.Command {
 				return fmt.Errorf("create invite: %w", err)
 			}
 
-			serverURL := os.Getenv("BEAMLET_URL")
+			serverURL := cfg.ExternalURL
+			if serverURL == "" {
+				serverURL = os.Getenv("BEAMLET_URL")
+			}
 			if serverURL == "" {
 				serverURL = fmt.Sprintf("http://localhost:%s", cfg.Port)
 			}
