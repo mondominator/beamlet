@@ -1,25 +1,6 @@
 import SwiftUI
 import UserNotifications
-
-enum InboxFilter: String, CaseIterable {
-    case all = "All"
-    case photos = "Photos"
-    case videos = "Videos"
-    case messages = "Messages"
-    case links = "Links"
-    case files = "Files"
-
-    func matches(_ file: BeamletFile) -> Bool {
-        switch self {
-        case .all: return true
-        case .photos: return file.isImage
-        case .videos: return file.isVideo
-        case .messages: return file.isText
-        case .links: return file.isLink
-        case .files: return !file.isImage && !file.isVideo && !file.isText && !file.isLink
-        }
-    }
-}
+import QuickLook
 
 enum InboxTab: String, CaseIterable {
     case received = "Received"
@@ -29,12 +10,19 @@ enum InboxTab: String, CaseIterable {
 struct InboxView: View {
     @Environment(BeamletAPI.self) private var api
     @State private var viewModel: InboxViewModel?
-    @State private var selectedFilter: InboxFilter = .all
     @State private var selectedTab: InboxTab = .received
     @State private var sentFiles: [BeamletFile] = []
     @State private var isLoadingSent = false
     @State private var replyFile: BeamletFile?
     @State private var refreshTimer: Timer?
+    @State private var fullScreenImage: FullScreenImage?
+    @State private var quickLookURL: URL?
+
+    struct FullScreenImage: Identifiable {
+        let id = UUID()
+        let image: UIImage
+        let file: BeamletFile
+    }
 
     var body: some View {
         NavigationStack {
@@ -53,97 +41,32 @@ struct InboxView: View {
                             message: "Files sent to you will appear here"
                         )
                     } else {
-                        let filtered = vm.files.filter { selectedFilter.matches($0) }
-
-                        VStack(spacing: 0) {
-                            // Filter chips
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 8) {
-                                    ForEach(InboxFilter.allCases, id: \.self) { filter in
-                                        let count = vm.files.filter { filter.matches($0) }.count
-                                        if filter == .all || count > 0 {
-                                            Button {
-                                                withAnimation(.easeInOut(duration: 0.2)) {
-                                                    selectedFilter = filter
-                                                }
-                                            } label: {
-                                                Text(filter == .all ? filter.rawValue : "\(filter.rawValue) (\(count))")
-                                                    .font(.subheadline)
-                                                    .fontWeight(selectedFilter == filter ? .semibold : .regular)
-                                                    .padding(.horizontal, 14)
-                                                    .padding(.vertical, 7)
-                                                    .background(selectedFilter == filter ? Color.blue : Color.gray.opacity(0.15))
-                                                    .foregroundStyle(selectedFilter == filter ? .white : .primary)
-                                                    .clipShape(Capsule())
+                        ScrollView {
+                            LazyVStack(spacing: 2) {
+                                ForEach(vm.files) { file in
+                                    InboxItemView(
+                                        file: file,
+                                        thumbnailURL: vm.thumbnailURL(for: file.id),
+                                        authHeaders: vm.authHeaders,
+                                        onTap: { handleTap(file: file, vm: vm) },
+                                        onSavePhoto: { image in saveToPhotos(image) },
+                                        onReply: { replyFile = file },
+                                        onPin: {
+                                            Task {
+                                                let _ = try? await api.togglePin(file.id)
+                                                await vm.loadFiles()
                                             }
-                                            .buttonStyle(.plain)
-                                        }
-                                    }
-                                }
-                                .padding(.horizontal)
-                                .padding(.vertical, 10)
-                            }
-
-                            if filtered.isEmpty {
-                                Spacer()
-                                VStack(spacing: 8) {
-                                    Image(systemName: "line.3.horizontal.decrease.circle")
-                                        .font(.largeTitle)
-                                        .foregroundStyle(.secondary)
-                                    Text("No \(selectedFilter.rawValue.lowercased())")
-                                        .foregroundStyle(.secondary)
-                                }
-                                Spacer()
-                            } else {
-                                List {
-                                    ForEach(filtered) { file in
-                                        NavigationLink(value: file) {
-                                            HStack {
-                                                if file.pinned == true {
-                                                    Image(systemName: "pin.fill")
-                                                        .font(.caption2)
-                                                        .foregroundStyle(.orange)
-                                                }
-                                                FileRowView(
-                                                    file: file,
-                                                    thumbnailURL: vm.thumbnailURL(for: file.id),
-                                                    authHeaders: vm.authHeaders
-                                                )
-                                            }
-                                        }
-                                        .swipeActions(edge: .leading) {
-                                            Button {
-                                                Task {
-                                                    let _ = try? await api.togglePin(file.id)
-                                                    await vm.loadFiles()
-                                                }
-                                            } label: {
-                                                Label(
-                                                    file.pinned == true ? "Unpin" : "Pin",
-                                                    systemImage: file.pinned == true ? "pin.slash" : "pin"
-                                                )
-                                            }
-                                            .tint(.orange)
-
-                                            Button {
-                                                replyFile = file
-                                            } label: {
-                                                Label("Reply", systemImage: "arrowshape.turn.up.left")
-                                            }
-                                            .tint(.blue)
-                                        }
-                                    }
-                                    .onDelete { offsets in
-                                        let filesToDelete = offsets.map { filtered[$0] }
-                                        for file in filesToDelete {
+                                        },
+                                        onDelete: {
                                             if let idx = vm.files.firstIndex(of: file) {
                                                 vm.deleteFiles(at: IndexSet(integer: idx))
                                             }
-                                        }
-                                    }
+                                        },
+                                        onShare: { data in shareFile(data: data, filename: file.filename) }
+                                    )
                                 }
-                                .listStyle(.plain)
                             }
+                            .padding(.vertical, 8)
                         }
                     }
                 } else {
@@ -162,9 +85,6 @@ struct InboxView: View {
                     .frame(width: 200)
                 }
             }
-            .navigationDestination(for: BeamletFile.self) { file in
-                FileDetailView(file: file)
-            }
             .refreshable {
                 if selectedTab == .received {
                     await viewModel?.loadFiles()
@@ -179,9 +99,7 @@ struct InboxView: View {
                 await viewModel?.loadFiles()
             }
             .onAppear {
-                // Clear notification badges when viewing inbox
                 UNUserNotificationCenter.current().setBadgeCount(0)
-
                 refreshTimer?.invalidate()
                 refreshTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { _ in
                     Task {
@@ -206,8 +124,63 @@ struct InboxView: View {
                     replyToMessage: file.isText ? file.textContent : file.message
                 )
             }
+            .fullScreenCover(item: $fullScreenImage) { item in
+                ImageViewerView(image: item.image, file: item.file) {
+                    fullScreenImage = nil
+                }
+            }
+            .quickLookPreview($quickLookURL)
         }
     }
+
+    private func handleTap(file: BeamletFile, vm: InboxViewModel) {
+        // Mark as read
+        Task { try? await api.markRead(file.id) }
+
+        if file.isImage {
+            // Download full image and show full-screen
+            Task {
+                if let data = try? await api.downloadFile(file.id),
+                   let image = UIImage(data: data) {
+                    fullScreenImage = FullScreenImage(image: image, file: file)
+                }
+            }
+        } else if file.isLink, let text = file.textContent, let url = URL(string: text) {
+            UIApplication.shared.open(url)
+        } else if file.isText {
+            // Text is shown inline, copy on tap
+            if let text = file.textContent {
+                UIPasteboard.general.string = text
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+            }
+        } else {
+            // Generic file — download and Quick Look
+            Task {
+                if let data = try? await api.downloadFile(file.id) {
+                    let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(file.filename)
+                    try? data.write(to: tempURL)
+                    quickLookURL = tempURL
+                }
+            }
+        }
+    }
+
+    private func saveToPhotos(_ image: UIImage) {
+        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+    }
+
+    private func shareFile(data: Data, filename: String) {
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+        try? data.write(to: tempURL)
+        let ac = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let root = scene.windows.first?.rootViewController {
+            root.present(ac, animated: true)
+        }
+    }
+
+    // MARK: - Sent Tab
 
     @ViewBuilder
     private var sentFilesView: some View {
@@ -222,56 +195,48 @@ struct InboxView: View {
         } else {
             List {
                 ForEach(sentFiles) { file in
-                    NavigationLink(value: file) {
-                        HStack(spacing: 14) {
-                            // Type icon
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.blue.opacity(0.12))
-                                Image(systemName: file.isImage ? "photo.fill" : file.isVideo ? "video.fill" : file.isText ? "text.bubble.fill" : "doc.fill")
-                                    .font(.title3)
-                                    .foregroundStyle(.blue)
-                            }
-                            .frame(width: 60, height: 60)
+                    HStack(spacing: 14) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.blue.opacity(0.12))
+                            Image(systemName: file.isImage ? "photo.fill" : file.isVideo ? "video.fill" : file.isText ? "text.bubble.fill" : "doc.fill")
+                                .font(.title3)
+                                .foregroundStyle(.blue)
+                        }
+                        .frame(width: 50, height: 50)
 
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Text("To: \(file.senderName ?? "Unknown")")
-                                        .font(.headline)
-                                    Spacer()
-                                    // Read receipt
-                                    if file.read {
-                                        HStack(spacing: 3) {
-                                            Image(systemName: "checkmark.circle.fill")
-                                                .font(.caption2)
-                                            Text("Read")
-                                                .font(.caption2)
-                                        }
-                                        .foregroundStyle(.green)
-                                    } else {
-                                        HStack(spacing: 3) {
-                                            Image(systemName: "circle")
-                                                .font(.caption2)
-                                            Text("Delivered")
-                                                .font(.caption2)
-                                        }
-                                        .foregroundStyle(.secondary)
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text("To: \(file.senderName ?? "Unknown")")
+                                    .font(.headline)
+                                Spacer()
+                                if file.read {
+                                    HStack(spacing: 3) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.caption2)
+                                        Text("Read")
+                                            .font(.caption2)
                                     }
-                                }
-
-                                Text(file.displayType)
-                                    .font(.subheadline)
+                                    .foregroundStyle(.green)
+                                } else {
+                                    HStack(spacing: 3) {
+                                        Image(systemName: "circle")
+                                            .font(.caption2)
+                                        Text("Delivered")
+                                            .font(.caption2)
+                                    }
                                     .foregroundStyle(.secondary)
-
-                                if let date = file.createdAt {
-                                    Text(date, style: .relative)
-                                        .font(.caption2)
-                                        .foregroundStyle(.tertiary)
                                 }
+                            }
+
+                            if let date = file.createdAt {
+                                Text(date, style: .relative)
+                                    .font(.caption2)
+                                    .foregroundStyle(.tertiary)
                             }
                         }
-                        .padding(.vertical, 4)
                     }
+                    .padding(.vertical, 4)
                 }
             }
             .listStyle(.plain)
