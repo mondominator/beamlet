@@ -39,6 +39,7 @@
 		ED34BA6B097762D77C82E978 /* InboxViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B5FCF0EA472D2EAF32B46CB /* InboxViewModel.swift */; };
 		EF094D975E9E13EF6174ECE6 /* NameEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7262AE1FF951D5B44582C3 /* NameEntryView.swift */; };
 		F0E934A479CD8E668D477270 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8E50AA0707D07B908E35EB /* MainTabView.swift */; };
+		F61AEA47D9607E703185E04B /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F5B18949D9B86291426A6F /* AvatarView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +94,7 @@
 		A6F10A61E27CFFF7E9988006 /* FileDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDetailView.swift; sourceTree = "<group>"; };
 		A98741F30C4CC511161FC0C6 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
 		ACDBABB6512D7711A3364D9E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B1F5B18949D9B86291426A6F /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarView.swift; sourceTree = "<group>"; };
 		B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamletAPI.swift; sourceTree = "<group>"; };
 		B6FE3585B1C9C679534BD2E4 /* InboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxView.swift; sourceTree = "<group>"; };
 		B739DCAC2AF9851C8AEF0FB8 /* BeamletShare.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = BeamletShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -229,6 +231,7 @@
 		8E3BC6EDFAE75EEDC5BD8900 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				B1F5B18949D9B86291426A6F /* AvatarView.swift */,
 				BF8E50AA0707D07B908E35EB /* MainTabView.swift */,
 				D61FA11B6D57DBAD461351EF /* StateViews.swift */,
 			);
@@ -430,6 +433,7 @@
 			files = (
 				3A53BFA30432C7981046E227 /* AddContactView.swift in Sources */,
 				D7648B6CF4D20EC10287FE72 /* AuthRepository.swift in Sources */,
+				F61AEA47D9607E703185E04B /* AvatarView.swift in Sources */,
 				CD2A6373E73A7873C8436BD0 /* BeamletAPI.swift in Sources */,
 				E77A35A590A8D353FF3E7EAF /* BeamletApp.swift in Sources */,
 				E423A5EF103BDEFF301BE58D /* FileDetailView.swift in Sources */,

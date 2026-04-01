@@ -6,7 +6,10 @@ struct FileRowView: View {
     let authHeaders: [String: String]
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(spacing: 12) {
+            // Sender avatar
+            AvatarView(name: file.senderName ?? "?", size: 36)
+
             // Thumbnail or icon
             Group {
                 if file.isImage || file.isVideo, let url = thumbnailURL {
