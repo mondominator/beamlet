@@ -62,29 +62,64 @@ struct ShareView: View {
                 }
                 Spacer()
             } else {
-                // Contact grid — AirDrop style
+                let nearbyIDs = Set(nearbyUsers.map(\.id))
+                let nearbyContacts = contacts.filter { nearbyIDs.contains($0.id) }
+                let nearbyNonContacts = nearbyUsers.filter { !$0.isContact }
+                let otherContacts = contacts.filter { !nearbyIDs.contains($0.id) }
+
                 ScrollView {
-                    LazyVGrid(columns: [
-                        GridItem(.adaptive(minimum: 80), spacing: 16)
-                    ], spacing: 20) {
-                        // Nearby non-contacts first
-                        ForEach(nearbyUsers.filter { !$0.isContact }) { user in
-                            contactButton(
-                                id: user.id,
-                                name: user.name,
-                                isNearby: true,
-                                isContact: false
-                            )
+                    VStack(spacing: 24) {
+                        // Nearby section (pulsing)
+                        if !nearbyContacts.isEmpty || !nearbyNonContacts.isEmpty {
+                            VStack(spacing: 12) {
+                                HStack {
+                                    Image(systemName: "antenna.radiowaves.left.and.right")
+                                        .foregroundStyle(.teal)
+                                        .font(.caption)
+                                    Text("Nearby")
+                                        .font(.caption.bold())
+                                        .foregroundStyle(.secondary)
+                                }
+
+                                LazyVGrid(columns: [
+                                    GridItem(.adaptive(minimum: 88), spacing: 8)
+                                ], spacing: 16) {
+                                    ForEach(nearbyNonContacts) { user in
+                                        contactButton(id: user.id, name: user.name, isNearby: true, isContact: false)
+                                    }
+                                    ForEach(nearbyContacts) { contact in
+                                        contactButton(id: contact.id, name: contact.name, isNearby: true, isContact: true)
+                                    }
+                                }
+                            }
+
+                            if !otherContacts.isEmpty {
+                                Divider().padding(.horizontal)
+                            }
                         }
 
-                        // Then all contacts (nearby ones marked)
-                        ForEach(contacts) { contact in
-                            contactButton(
-                                id: contact.id,
-                                name: contact.name,
-                                isNearby: nearbyUsers.contains(where: { $0.id == contact.id }),
-                                isContact: true
-                            )
+                        // Other contacts section
+                        if !otherContacts.isEmpty {
+                            VStack(spacing: 12) {
+                                if !nearbyContacts.isEmpty || !nearbyNonContacts.isEmpty {
+                                    HStack {
+                                        Image(systemName: "person.2")
+                                            .foregroundStyle(.secondary)
+                                            .font(.caption)
+                                        Text("Contacts")
+                                            .font(.caption.bold())
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+
+                                LazyVGrid(columns: [
+                                    GridItem(.adaptive(minimum: 88), spacing: 8)
+                                ], spacing: 16) {
+                                    ForEach(otherContacts) { contact in
+                                        contactButton(id: contact.id, name: contact.name, isNearby: false, isContact: true)
+                                    }
+                                }
+                            }
                         }
                     }
                     .padding(24)
