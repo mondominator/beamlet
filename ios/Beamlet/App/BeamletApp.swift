@@ -32,6 +32,11 @@ struct BeamletApp: App {
                 .environment(api)
                 .environment(nearbyService)
                 .preferredColorScheme(colorScheme)
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                    // Clear badge when app becomes active
+                    UNUserNotificationCenter.current().setBadgeCount(0)
+                    UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+                }
                 .task {
                     if authRepository.isAuthenticated {
                         await requestNotificationPermission()
