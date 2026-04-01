@@ -101,7 +101,7 @@ func (p *APNsPusher) Notify(recipientID, senderName string, file *model.File, ex
 		// Try production first (TestFlight/App Store), fall back to sandbox (Xcode dev builds)
 		res, err := p.prodClient.Push(notification)
 		if err != nil {
-			log.Printf("push: prod failed for %s: %v, trying sandbox...", device.APNsToken[:16], err)
+			log.Printf("push: prod network error for %s: %v, trying sandbox...", device.APNsToken[:16], err)
 			res, err = p.sandboxClient.Push(notification)
 		}
 		if err != nil {
@@ -109,9 +109,10 @@ func (p *APNsPusher) Notify(recipientID, senderName string, file *model.File, ex
 			continue
 		}
 
-		// If production says BadDeviceToken, try sandbox (device is a dev build)
-		if res.StatusCode == 400 && res.Reason == "BadDeviceToken" {
-			log.Printf("push: prod returned BadDeviceToken, trying sandbox for %s...", device.APNsToken[:16])
+		// If production rejects the token, try sandbox (device may be a dev/TestFlight build
+		// with sandbox-registered token, or key may only work in sandbox)
+		if res.StatusCode != 200 && (res.Reason == "BadDeviceToken" || res.Reason == "BadEnvironmentKeyInToken") {
+			log.Printf("push: prod returned %d/%s, trying sandbox for %s...", res.StatusCode, res.Reason, device.APNsToken[:16])
 			res, err = p.sandboxClient.Push(notification)
 			if err != nil {
 				log.Printf("push: sandbox also failed for %s: %v", device.APNsToken[:16], err)
