@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 enum InboxFilter: String, CaseIterable {
     case all = "All"
@@ -178,6 +179,9 @@ struct InboxView: View {
                 await viewModel?.loadFiles()
             }
             .onAppear {
+                // Clear notification badges when viewing inbox
+                UNUserNotificationCenter.current().setBadgeCount(0)
+
                 refreshTimer?.invalidate()
                 refreshTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { _ in
                     Task { await viewModel?.loadFiles() }
