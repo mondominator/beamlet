@@ -15,13 +15,23 @@ struct BeamletApp: App {
         _api = State(initialValue: apiInstance)
     }
 
+    @AppStorage("appTheme") private var appTheme: String = "system"
+
+    private var colorScheme: ColorScheme? {
+        switch appTheme {
+        case "light": return .light
+        case "dark": return .dark
+        default: return nil
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             RootView()
                 .environment(authRepository)
                 .environment(api)
                 .environment(nearbyService)
-                .preferredColorScheme(.dark)
+                .preferredColorScheme(colorScheme)
                 .task {
                     if authRepository.isAuthenticated {
                         await requestNotificationPermission()
