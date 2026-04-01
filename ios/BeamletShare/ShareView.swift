@@ -131,10 +131,10 @@ struct ShareView: View {
 
         isLoading = false
 
-        // Poll for nearby users
+        // Continuously poll nearby users (updates every 3s)
         Task {
-            for _ in 0..<10 {
-                try? await Task.sleep(for: .milliseconds(500))
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(3))
                 if let service = nearbyService {
                     nearbyUsers = service.nearbyUsers
                 }
