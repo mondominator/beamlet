@@ -141,25 +141,6 @@ struct SendView: View {
                         TextField("Message (optional)", text: Bindable(vm).message, axis: .vertical)
                             .lineLimit(3...6)
                     }
-                    .photosPicker(isPresented: $showPhotoPicker, selection: Bindable(vm).selectedPhoto, matching: .any(of: [.images, .videos]))
-                    .onChange(of: vm.selectedPhoto) {
-                        vm.selectedFileURL = nil
-                        Task { await vm.loadPhotoData() }
-                    }
-                    .fileImporter(
-                        isPresented: $showFilePicker,
-                        allowedContentTypes: [.item],
-                        allowsMultipleSelection: false
-                    ) { result in
-                        if case .success(let urls) = result, let url = urls.first {
-                            _ = url.startAccessingSecurityScopedResource()
-                            vm.selectedFileURL = url
-                            vm.selectedFileName = url.lastPathComponent
-                            vm.selectedFileMimeType = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType
-                            vm.selectedPhoto = nil
-                            vm.selectedPhotoData = nil
-                        }
-                    }
 
                     if let error = vm.error {
                         Section {
@@ -178,6 +159,25 @@ struct SendView: View {
                             }
                         }
                         .disabled(!vm.canSend)
+                    }
+                }
+                .photosPicker(isPresented: $showPhotoPicker, selection: Bindable(vm).selectedPhoto, matching: .any(of: [.images, .videos]))
+                .onChange(of: vm.selectedPhoto) {
+                    vm.selectedFileURL = nil
+                    Task { await vm.loadPhotoData() }
+                }
+                .fileImporter(
+                    isPresented: $showFilePicker,
+                    allowedContentTypes: [.item],
+                    allowsMultipleSelection: false
+                ) { result in
+                    if case .success(let urls) = result, let url = urls.first {
+                        _ = url.startAccessingSecurityScopedResource()
+                        vm.selectedFileURL = url
+                        vm.selectedFileName = url.lastPathComponent
+                        vm.selectedFileMimeType = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType
+                        vm.selectedPhoto = nil
+                        vm.selectedPhotoData = nil
                     }
                 }
                 .navigationTitle("Send")
