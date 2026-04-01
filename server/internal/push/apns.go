@@ -38,9 +38,10 @@ func BuildPayload(senderName, fileType, fileID string) Payload {
 }
 
 type APNsPusher struct {
-	client    *apns2.Client
-	bundleID  string
-	userStore *store.UserStore
+	prodClient    *apns2.Client
+	sandboxClient *apns2.Client
+	bundleID      string
+	userStore     *store.UserStore
 }
 
 func NewAPNsPusher(keyPath, keyID, teamID, bundleID string, sandbox bool, userStore *store.UserStore) (*APNsPusher, error) {
@@ -55,19 +56,13 @@ func NewAPNsPusher(keyPath, keyID, teamID, bundleID string, sandbox bool, userSt
 		TeamID:  teamID,
 	}
 
-	var client *apns2.Client
-	if sandbox {
-		client = apns2.NewTokenClient(tok).Development()
-		log.Println("APNs configured in SANDBOX (development) mode")
-	} else {
-		client = apns2.NewTokenClient(tok).Production()
-		log.Println("APNs configured in PRODUCTION mode")
-	}
+	log.Println("APNs configured (sends to both production and sandbox)")
 
 	return &APNsPusher{
-		client:    client,
-		bundleID:  bundleID,
-		userStore: userStore,
+		prodClient:    apns2.NewTokenClient(tok).Production(),
+		sandboxClient: apns2.NewTokenClient(tok).Development(),
+		bundleID:      bundleID,
+		userStore:     userStore,
 	}, nil
 }
 
@@ -102,11 +97,28 @@ func (p *APNsPusher) Notify(recipientID, senderName string, file *model.File, ex
 		}
 		notification.DeviceToken = device.APNsToken
 		log.Printf("push: sending to device %s...", device.APNsToken[:16])
-		res, err := p.client.Push(notification)
+
+		// Try production first (TestFlight/App Store), fall back to sandbox (Xcode dev builds)
+		res, err := p.prodClient.Push(notification)
 		if err != nil {
-			log.Printf("push: failed for device %s: %v", device.APNsToken[:16], err)
+			log.Printf("push: prod failed for %s: %v, trying sandbox...", device.APNsToken[:16], err)
+			res, err = p.sandboxClient.Push(notification)
+		}
+		if err != nil {
+			log.Printf("push: both failed for device %s: %v", device.APNsToken[:16], err)
 			continue
 		}
+
+		// If production says BadDeviceToken, try sandbox (device is a dev build)
+		if res.StatusCode == 400 && res.Reason == "BadDeviceToken" {
+			log.Printf("push: prod returned BadDeviceToken, trying sandbox for %s...", device.APNsToken[:16])
+			res, err = p.sandboxClient.Push(notification)
+			if err != nil {
+				log.Printf("push: sandbox also failed for %s: %v", device.APNsToken[:16], err)
+				continue
+			}
+		}
+
 		log.Printf("push: result for device %s: status=%d reason=%s", device.APNsToken[:16], res.StatusCode, res.Reason)
 		if res.StatusCode == 410 || res.Reason == "Unregistered" {
 			log.Printf("push: deactivating device %s: %s", device.APNsToken[:16], res.Reason)
