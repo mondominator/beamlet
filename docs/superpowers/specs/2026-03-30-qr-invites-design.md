@@ -56,7 +56,7 @@ CREATE TABLE invites (
 ### QR Code Payload
 
 ```json
-{"url": "http://192.168.86.250:8080", "invite": "abc123def456"}
+{"url": "http://your-server:8080", "invite": "abc123def456"}
 ```
 
 Encoded as a standard QR code. The iOS app's scanner reads this, extracts the server URL and invite token.

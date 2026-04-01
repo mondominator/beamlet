@@ -12,8 +12,19 @@ server/vendor/
 ios/build/
 ios/*.xcodeproj/xcuserdata/
 
+# Environment
+*.env
+.env.*
+
+# Editor temps
+*.swp
+*.swo
+*~
+*.iml
+
 # OS
 .DS_Store
+Thumbs.db
 
 # IDE
 .idea/
