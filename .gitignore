@@ -8,6 +8,10 @@ server/vendor/
 # Data
 /data/
 
+# iOS build artifacts
+ios/build/
+ios/*.xcodeproj/xcuserdata/
+
 # OS
 .DS_Store
 
