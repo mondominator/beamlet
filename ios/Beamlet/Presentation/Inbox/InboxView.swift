@@ -20,15 +20,25 @@ enum InboxFilter: String, CaseIterable {
     }
 }
 
+enum InboxTab: String, CaseIterable {
+    case received = "Received"
+    case sent = "Sent"
+}
+
 struct InboxView: View {
     @Environment(BeamletAPI.self) private var api
     @State private var viewModel: InboxViewModel?
     @State private var selectedFilter: InboxFilter = .all
+    @State private var selectedTab: InboxTab = .received
+    @State private var sentFiles: [BeamletFile] = []
+    @State private var isLoadingSent = false
 
     var body: some View {
         NavigationStack {
             Group {
-                if let vm = viewModel {
+                if selectedTab == .sent {
+                    sentFilesView
+                } else if let vm = viewModel {
                     if vm.isLoading && vm.files.isEmpty {
                         LoadingView(message: "Loading inbox...")
                     } else if let error = vm.error, vm.files.isEmpty {
@@ -85,11 +95,32 @@ struct InboxView: View {
                                 List {
                                     ForEach(filtered) { file in
                                         NavigationLink(value: file) {
-                                            FileRowView(
-                                                file: file,
-                                                thumbnailURL: vm.thumbnailURL(for: file.id),
-                                                authHeaders: vm.authHeaders
-                                            )
+                                            HStack {
+                                                if file.pinned == true {
+                                                    Image(systemName: "pin.fill")
+                                                        .font(.caption2)
+                                                        .foregroundStyle(.orange)
+                                                }
+                                                FileRowView(
+                                                    file: file,
+                                                    thumbnailURL: vm.thumbnailURL(for: file.id),
+                                                    authHeaders: vm.authHeaders
+                                                )
+                                            }
+                                        }
+                                        .swipeActions(edge: .leading) {
+                                            Button {
+                                                Task {
+                                                    let _ = try? await api.togglePin(file.id)
+                                                    await vm.loadFiles()
+                                                }
+                                            } label: {
+                                                Label(
+                                                    file.pinned == true ? "Unpin" : "Pin",
+                                                    systemImage: file.pinned == true ? "pin.slash" : "pin"
+                                                )
+                                            }
+                                            .tint(.orange)
                                         }
                                     }
                                     .onDelete { offsets in
@@ -110,11 +141,26 @@ struct InboxView: View {
                 }
             }
             .navigationTitle("Inbox")
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Picker("", selection: $selectedTab) {
+                        ForEach(InboxTab.allCases, id: \.self) { tab in
+                            Text(tab.rawValue).tag(tab)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 200)
+                }
+            }
             .navigationDestination(for: BeamletFile.self) { file in
                 FileDetailView(file: file)
             }
             .refreshable {
-                await viewModel?.loadFiles()
+                if selectedTab == .received {
+                    await viewModel?.loadFiles()
+                } else {
+                    await loadSentFiles()
+                }
             }
             .task {
                 if viewModel == nil {
@@ -122,6 +168,86 @@ struct InboxView: View {
                 }
                 await viewModel?.loadFiles()
             }
+            .onChange(of: selectedTab) { _, tab in
+                if tab == .sent && sentFiles.isEmpty {
+                    Task { await loadSentFiles() }
+                }
+            }
         }
+    }
+
+    @ViewBuilder
+    private var sentFilesView: some View {
+        if isLoadingSent && sentFiles.isEmpty {
+            LoadingView(message: "Loading sent files...")
+        } else if sentFiles.isEmpty {
+            EmptyStateView(
+                icon: "paperplane",
+                title: "No Sent Files",
+                message: "Files you send will appear here"
+            )
+        } else {
+            List {
+                ForEach(sentFiles) { file in
+                    NavigationLink(value: file) {
+                        HStack(spacing: 14) {
+                            // Type icon
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.blue.opacity(0.12))
+                                Image(systemName: file.isImage ? "photo.fill" : file.isVideo ? "video.fill" : file.isText ? "text.bubble.fill" : "doc.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(.blue)
+                            }
+                            .frame(width: 60, height: 60)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text("To: \(file.senderName ?? "Unknown")")
+                                        .font(.headline)
+                                    Spacer()
+                                    // Read receipt
+                                    if file.read {
+                                        HStack(spacing: 3) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .font(.caption2)
+                                            Text("Read")
+                                                .font(.caption2)
+                                        }
+                                        .foregroundStyle(.green)
+                                    } else {
+                                        HStack(spacing: 3) {
+                                            Image(systemName: "circle")
+                                                .font(.caption2)
+                                            Text("Delivered")
+                                                .font(.caption2)
+                                        }
+                                        .foregroundStyle(.secondary)
+                                    }
+                                }
+
+                                Text(file.displayType)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+
+                                if let date = file.createdAt {
+                                    Text(date, style: .relative)
+                                        .font(.caption2)
+                                        .foregroundStyle(.tertiary)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+            }
+            .listStyle(.plain)
+        }
+    }
+
+    private func loadSentFiles() async {
+        isLoadingSent = true
+        sentFiles = (try? await api.listSentFiles()) ?? []
+        isLoadingSent = false
     }
 }

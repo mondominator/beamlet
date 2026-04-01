@@ -114,6 +114,29 @@ func (s *Server) ListFiles(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(files)
 }
 
+func (s *Server) ListSentFiles(w http.ResponseWriter, r *http.Request) {
+	user := auth.UserFromContext(r.Context())
+
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+	if limit <= 0 || limit > 100 {
+		limit = 20
+	}
+
+	files, err := s.FileStore.ListForSender(user.ID, limit, offset)
+	if err != nil {
+		http.Error(w, "failed to list sent files", http.StatusInternalServerError)
+		return
+	}
+
+	if files == nil {
+		files = []model.File{}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(files)
+}
+
 func (s *Server) DownloadFile(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
@@ -201,4 +224,17 @@ func (s *Server) MarkFileRead(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+}
+
+func (s *Server) TogglePin(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	pinned, err := s.FileStore.TogglePin(id)
+	if err != nil {
+		http.Error(w, "failed to toggle pin", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{"pinned": pinned})
 }

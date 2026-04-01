@@ -58,12 +58,12 @@ func (s *FileStore) GetByID(id string) (*model.File, error) {
 func (s *FileStore) ListForRecipient(recipientID string, limit, offset int) ([]model.File, error) {
 	rows, err := s.db.Query(
 		`SELECT f.id, f.sender_id, f.recipient_id, f.filename, f.file_path, f.thumbnail_path,
-			f.file_type, f.file_size, f.content_type, f.text_content, f.message, f.read, f.expires_at, f.created_at,
+			f.file_type, f.file_size, f.content_type, f.text_content, f.message, f.read, f.pinned, f.expires_at, f.created_at,
 			u.name AS sender_name
 		FROM files f
 		JOIN users u ON u.id = f.sender_id
 		WHERE f.recipient_id = ?
-		ORDER BY f.created_at DESC
+		ORDER BY f.pinned DESC, f.created_at DESC
 		LIMIT ? OFFSET ?`,
 		recipientID, limit, offset,
 	)
@@ -78,7 +78,7 @@ func (s *FileStore) ListForRecipient(recipientID string, limit, offset int) ([]m
 		var filePath, thumbnailPath, textContent, message sql.NullString
 
 		if err := rows.Scan(&f.ID, &f.SenderID, &f.RecipientID, &f.Filename, &filePath, &thumbnailPath,
-			&f.FileType, &f.FileSize, &f.ContentType, &textContent, &message, &f.Read, &f.ExpiresAt, &f.CreatedAt,
+			&f.FileType, &f.FileSize, &f.ContentType, &textContent, &message, &f.Read, &f.Pinned, &f.ExpiresAt, &f.CreatedAt,
 			&f.SenderName); err != nil {
 			return nil, fmt.Errorf("scan file: %w", err)
 		}
@@ -90,6 +90,57 @@ func (s *FileStore) ListForRecipient(recipientID string, limit, offset int) ([]m
 		files = append(files, f)
 	}
 	return files, nil
+}
+
+func (s *FileStore) ListForSender(senderID string, limit, offset int) ([]model.File, error) {
+	rows, err := s.db.Query(
+		`SELECT f.id, f.sender_id, f.recipient_id, f.filename, f.file_path, f.thumbnail_path,
+			f.file_type, f.file_size, f.content_type, f.text_content, f.message, f.read, f.pinned, f.expires_at, f.created_at,
+			u.name AS recipient_name
+		FROM files f
+		JOIN users u ON u.id = f.recipient_id
+		WHERE f.sender_id = ?
+		ORDER BY f.created_at DESC
+		LIMIT ? OFFSET ?`,
+		senderID, limit, offset,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("query sent files: %w", err)
+	}
+	defer rows.Close()
+
+	var files []model.File
+	for rows.Next() {
+		var f model.File
+		var filePath, thumbnailPath, textContent, message sql.NullString
+
+		if err := rows.Scan(&f.ID, &f.SenderID, &f.RecipientID, &f.Filename, &filePath, &thumbnailPath,
+			&f.FileType, &f.FileSize, &f.ContentType, &textContent, &message, &f.Read, &f.Pinned, &f.ExpiresAt, &f.CreatedAt,
+			&f.SenderName); err != nil {
+			return nil, fmt.Errorf("scan sent file: %w", err)
+		}
+
+		f.FilePath = filePath.String
+		f.ThumbnailPath = thumbnailPath.String
+		f.TextContent = textContent.String
+		f.Message = message.String
+		files = append(files, f)
+	}
+	return files, nil
+}
+
+func (s *FileStore) TogglePin(id string) (bool, error) {
+	result, err := s.db.Exec("UPDATE files SET pinned = CASE WHEN pinned = 1 THEN 0 ELSE 1 END WHERE id = ?", id)
+	if err != nil {
+		return false, err
+	}
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return false, fmt.Errorf("file not found")
+	}
+	var pinned bool
+	s.db.QueryRow("SELECT pinned FROM files WHERE id = ?", id).Scan(&pinned)
+	return pinned, nil
 }
 
 func (s *FileStore) MarkRead(id string) error {
