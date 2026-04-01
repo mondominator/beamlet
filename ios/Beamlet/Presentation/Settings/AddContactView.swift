@@ -38,6 +38,16 @@ struct AddContactView: View {
                     Text("This code expires in 24 hours")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+
+                    // Share link button
+                    if let shareURL = URL(string: "\(url.absoluteString)/invite/\(token)") {
+                        ShareLink(item: shareURL, message: Text("Join me on Beamlet!")) {
+                            Label("Share Invite Link", systemImage: "square.and.arrow.up")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.large)
+                    }
                 }
             }
         }

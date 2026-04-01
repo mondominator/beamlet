@@ -25,6 +25,9 @@ func NewRouter(s *Server) *chi.Mux {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
+	// Public web page for invite links
+	r.Get("/invite/{token}", s.InviteWebPage)
+
 	r.Route("/api", func(r chi.Router) {
 		// Public routes (no auth)
 		r.Post("/invites/redeem", s.RedeemInvite)

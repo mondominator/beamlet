@@ -1,0 +1,79 @@
+{
+  "" : {
+    "diagnostics" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/BeamletShare-primary.dia",
+    "emit-module-dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/BeamletShare-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/BeamletShare-primary-emit-module.dia",
+    "pch" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/BeamletShare-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/BeamletShare-primary.swiftdeps"
+  },
+  "/Users/mondo/Documents/beamlet/ios/Beamlet/Data/AuthRepository.swift" : {
+    "const-values" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/AuthRepository.swiftconstvalues",
+    "dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/AuthRepository.d",
+    "diagnostics" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/AuthRepository.dia",
+    "index-unit-output-path" : "/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/AuthRepository.o",
+    "llvm-bc" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/AuthRepository.bc",
+    "object" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/AuthRepository.o",
+    "swift-dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/AuthRepository.swiftdeps",
+    "swiftmodule" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/AuthRepository~partial.swiftmodule"
+  },
+  "/Users/mondo/Documents/beamlet/ios/Beamlet/Data/BeamletAPI.swift" : {
+    "const-values" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/BeamletAPI.swiftconstvalues",
+    "dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/BeamletAPI.d",
+    "diagnostics" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/BeamletAPI.dia",
+    "index-unit-output-path" : "/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/BeamletAPI.o",
+    "llvm-bc" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/BeamletAPI.bc",
+    "object" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/BeamletAPI.o",
+    "swift-dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/BeamletAPI.swiftdeps",
+    "swiftmodule" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/BeamletAPI~partial.swiftmodule"
+  },
+  "/Users/mondo/Documents/beamlet/ios/Beamlet/Data/NearbyService.swift" : {
+    "const-values" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyService.swiftconstvalues",
+    "dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyService.d",
+    "diagnostics" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyService.dia",
+    "index-unit-output-path" : "/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyService.o",
+    "llvm-bc" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyService.bc",
+    "object" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyService.o",
+    "swift-dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyService.swiftdeps",
+    "swiftmodule" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyService~partial.swiftmodule"
+  },
+  "/Users/mondo/Documents/beamlet/ios/Beamlet/Model/Models.swift" : {
+    "const-values" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/Models.swiftconstvalues",
+    "dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/Models.d",
+    "diagnostics" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/Models.dia",
+    "index-unit-output-path" : "/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/Models.o",
+    "llvm-bc" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/Models.bc",
+    "object" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/Models.o",
+    "swift-dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/Models.swiftdeps",
+    "swiftmodule" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/Models~partial.swiftmodule"
+  },
+  "/Users/mondo/Documents/beamlet/ios/Beamlet/Model/NearbyUser.swift" : {
+    "const-values" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyUser.swiftconstvalues",
+    "dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyUser.d",
+    "diagnostics" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyUser.dia",
+    "index-unit-output-path" : "/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyUser.o",
+    "llvm-bc" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyUser.bc",
+    "object" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyUser.o",
+    "swift-dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyUser.swiftdeps",
+    "swiftmodule" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/NearbyUser~partial.swiftmodule"
+  },
+  "/Users/mondo/Documents/beamlet/ios/BeamletShare/ShareView.swift" : {
+    "const-values" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareView.swiftconstvalues",
+    "dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareView.d",
+    "diagnostics" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareView.dia",
+    "index-unit-output-path" : "/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareView.o",
+    "llvm-bc" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareView.bc",
+    "object" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareView.o",
+    "swift-dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareView.swiftdeps",
+    "swiftmodule" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareView~partial.swiftmodule"
+  },
+  "/Users/mondo/Documents/beamlet/ios/BeamletShare/ShareViewController.swift" : {
+    "const-values" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareViewController.swiftconstvalues",
+    "dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareViewController.d",
+    "diagnostics" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareViewController.dia",
+    "index-unit-output-path" : "/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareViewController.o",
+    "llvm-bc" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareViewController.bc",
+    "object" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareViewController.o",
+    "swift-dependencies" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareViewController.swiftdeps",
+    "swiftmodule" : "/Users/mondo/Documents/beamlet/ios/build/Build/Intermediates.noindex/Beamlet.build/Debug-iphoneos/BeamletShare.build/Objects-normal/arm64/ShareViewController~partial.swiftmodule"
+  }
+}
