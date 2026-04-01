@@ -11,6 +11,7 @@ struct SettingsView: View {
     @State private var filesReceived: Int?
     @State private var storageUsed: Int64?
     @AppStorage("appTheme") private var appTheme: String = "system"
+    @AppStorage("fileExpiryDays") private var fileExpiryDays: Int = 1
 
     var body: some View {
         NavigationStack {
@@ -84,6 +85,20 @@ struct SettingsView: View {
                     LabeledContent("Files Sent", value: filesSent.map { "\($0)" } ?? "—")
                     LabeledContent("Files Received", value: filesReceived.map { "\($0)" } ?? "—")
                     LabeledContent("Storage Used", value: storageUsed.map { formatBytes($0) } ?? "—")
+                }
+
+                Section {
+                    Picker("File Cleanup", selection: $fileExpiryDays) {
+                        Text("1 day").tag(1)
+                        Text("3 days").tag(3)
+                        Text("7 days").tag(7)
+                        Text("14 days").tag(14)
+                        Text("30 days").tag(30)
+                    }
+                } header: {
+                    Text("Storage")
+                } footer: {
+                    Text("Files you send will be automatically deleted from the server after this period.")
                 }
 
                 Section("Appearance") {

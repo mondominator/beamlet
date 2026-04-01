@@ -32,12 +32,19 @@ func (s *Server) UploadFile(w http.ResponseWriter, r *http.Request) {
 		contentType = "file"
 	}
 
+	expiryDays := s.Config.ExpiryDays
+	if v := r.FormValue("expiry_days"); v != "" {
+		if d, err := strconv.Atoi(v); err == nil && d >= 1 && d <= 365 {
+			expiryDays = d
+		}
+	}
+
 	f := &model.File{
 		SenderID:    user.ID,
 		RecipientID: recipientID,
 		ContentType: contentType,
 		Message:     r.FormValue("message"),
-		ExpiresAt:   time.Now().UTC().Add(time.Duration(s.Config.ExpiryDays) * 24 * time.Hour),
+		ExpiresAt:   time.Now().UTC().Add(time.Duration(expiryDays) * 24 * time.Hour),
 	}
 
 	if contentType == "text" || contentType == "link" {
