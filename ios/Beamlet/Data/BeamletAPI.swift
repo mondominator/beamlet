@@ -185,8 +185,24 @@ class BeamletAPI {
         ])
     }
 
+    func listSentFiles(limit: Int = 20, offset: Int = 0) async throws -> [BeamletFile] {
+        try await request("/api/files/sent", queryItems: [
+            URLQueryItem(name: "limit", value: "\(limit)"),
+            URLQueryItem(name: "offset", value: "\(offset)")
+        ])
+    }
+
     func markRead(_ fileID: String) async throws {
         try await requestVoid("/api/files/\(fileID)/read", method: "PUT")
+    }
+
+    struct PinResponse: Codable {
+        let pinned: Bool
+    }
+
+    func togglePin(_ fileID: String) async throws -> Bool {
+        let response: PinResponse = try await request("/api/files/\(fileID)/pin", method: "PUT")
+        return response.pinned
     }
 
     func deleteFile(_ fileID: String) async throws {
