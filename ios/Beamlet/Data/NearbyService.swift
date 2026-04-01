@@ -11,6 +11,7 @@ class NearbyService: NSObject {
     private var peripheralManager: CBPeripheralManager?
     private var discoveryCharacteristic: CBMutableCharacteristic?
     private var connectedPeripherals: Set<CBPeripheral> = []
+    private var scanTimer: Timer?
 
     private let userID: String
     private let api: BeamletAPI
@@ -39,9 +40,17 @@ class NearbyService: NSObject {
     func start() {
         centralManager = CBCentralManager(delegate: self, queue: nil)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
+
+        // Restart scanning every 10 seconds to pick up devices that
+        // restarted their app or came into range after initial scan
+        scanTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
+            self?.restartScanning()
+        }
     }
 
     func stop() {
+        scanTimer?.invalidate()
+        scanTimer = nil
         centralManager?.stopScan()
         peripheralManager?.stopAdvertising()
         peripheralManager?.removeAllServices()
@@ -51,6 +60,17 @@ class NearbyService: NSObject {
         connectedPeripherals.removeAll()
         nearbyUsers = []
         discoveredPeers = [:]
+    }
+
+    private func restartScanning() {
+        guard centralManager?.state == .poweredOn else { return }
+        centralManager?.stopScan()
+        discoveredPeers = [:]
+        nearbyUsers = []
+        centralManager?.scanForPeripherals(
+            withServices: [Self.serviceUUID],
+            options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]
+        )
     }
 
     func updateContacts(_ contacts: [BeamletUser]) {

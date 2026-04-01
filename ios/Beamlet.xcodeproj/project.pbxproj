@@ -30,6 +30,7 @@
 		CB5591F6A50F1CEFA7E1BFD2 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D79409532332E446859A82A /* SetupView.swift */; };
 		CD2A6373E73A7873C8436BD0 /* BeamletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */; };
 		D27EB68E0EB08FD46499A040 /* BeamletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */; };
+		D403F32CE1A88E5BAB9F1942 /* SendSuccessOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3CD2A9E9C5D94A822175D6 /* SendSuccessOverlay.swift */; };
 		D6C916148B91636BD533B86D /* NearbyUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23EDCBE8041A965911D7A9B1 /* NearbyUser.swift */; };
 		D7648B6CF4D20EC10287FE72 /* AuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */; };
 		E29D10014DC036F9AA997C96 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BF633582A97070F4311DC2 /* RootView.swift */; };
@@ -74,6 +75,7 @@
 /* Begin PBXFileReference section */
 		0FDD43800533A4CF4957CF71 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		11668AF57EEF73440BD2DBF1 /* FileRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileRowView.swift; sourceTree = "<group>"; };
+		1F3CD2A9E9C5D94A822175D6 /* SendSuccessOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendSuccessOverlay.swift; sourceTree = "<group>"; };
 		23B6D2DABDCC187F0F2EAE2E /* NearbyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyService.swift; sourceTree = "<group>"; };
 		23EDCBE8041A965911D7A9B1 /* NearbyUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyUser.swift; sourceTree = "<group>"; };
 		278215F1257F5E2BC5625437 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -279,6 +281,7 @@
 		F57D8D33626BCFEE79C5EC4C /* Send */ = {
 			isa = PBXGroup;
 			children = (
+				1F3CD2A9E9C5D94A822175D6 /* SendSuccessOverlay.swift */,
 				6FA922F7885C336DBF950AB0 /* SendView.swift */,
 				F05CA723CA51D1EC531549C2 /* SendViewModel.swift */,
 			);
@@ -441,6 +444,7 @@
 				3E0B5D283CA14FCD1C9F1635 /* QRScannerView.swift in Sources */,
 				E29D10014DC036F9AA997C96 /* RootView.swift in Sources */,
 				7B4E88C05AF6ADDCEF52D616 /* ScanInviteView.swift in Sources */,
+				D403F32CE1A88E5BAB9F1942 /* SendSuccessOverlay.swift in Sources */,
 				7507B94CCEC1F3164DC549C8 /* SendView.swift in Sources */,
 				5F9FC085B129882222A56E20 /* SendViewModel.swift in Sources */,
 				C26DBCA38BCBA7C7D6D88A1F /* SettingsView.swift in Sources */,
