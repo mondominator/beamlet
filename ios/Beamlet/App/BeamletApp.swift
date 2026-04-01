@@ -44,6 +44,15 @@ struct BeamletApp: App {
                         await startNearbyService()
                     }
                 }
+                .onChange(of: authRepository.isAuthenticated) { _, isAuth in
+                    if isAuth {
+                        Task {
+                            await requestNotificationPermission()
+                            await registerExistingDeviceToken()
+                            await startNearbyService()
+                        }
+                    }
+                }
                 .onReceive(NotificationCenter.default.publisher(for: .didReceiveAPNsToken)) { notification in
                     guard let token = notification.object as? String else { return }
                     authRepository.storeDeviceToken(token)
