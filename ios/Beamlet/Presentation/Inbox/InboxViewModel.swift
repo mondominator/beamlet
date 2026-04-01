@@ -1,13 +1,16 @@
 import Foundation
+import UIKit
 
 @Observable
 @MainActor
 class InboxViewModel {
     private let api: BeamletAPI
+    private var previousUnreadCount = 0
 
     var files: [BeamletFile] = []
     var isLoading = true
     var error: String?
+    var hasNewFiles = false
 
     init(api: BeamletAPI) {
         self.api = api
@@ -15,7 +18,22 @@ class InboxViewModel {
 
     func loadFiles() async {
         do {
-            files = try await api.listFiles()
+            let newFiles = try await api.listFiles()
+            let newUnreadCount = newFiles.filter { !$0.read }.count
+
+            // Haptic on new unread files
+            if newUnreadCount > previousUnreadCount && previousUnreadCount > 0 {
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
+                hasNewFiles = true
+                // Reset after brief flash
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    self.hasNewFiles = false
+                }
+            }
+            previousUnreadCount = newUnreadCount
+
+            files = newFiles
             isLoading = false
             error = nil
         } catch {
