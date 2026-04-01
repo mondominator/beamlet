@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beamlet Icons</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #08090d; color: #e8ecf4; font-family: 'Outfit', sans-serif; min-height: 100vh; }
+  .page { padding: 60px 40px 100px; max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 3rem; font-weight: 800; letter-spacing: -0.04em; background: linear-gradient(135deg, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+  .sub { font-size: 1rem; color: #4a5568; margin-bottom: 60px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 50px; }
+  .card { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+  .label { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: #3a4558; border: 1px solid #1a2332; padding: 4px 14px; border-radius: 50px; }
+  .frame { width: 200px; height: 200px; border-radius: 44px; overflow: hidden; box-shadow: 0 16px 50px rgba(0,0,0,0.5); transition: transform 0.3s ease; cursor: pointer; }
+  .frame:hover { transform: scale(1.08) translateY(-4px); }
+  .name { font-size: 1.2rem; font-weight: 600; }
+  .desc { font-size: 0.85rem; color: #5a6577; text-align: center; max-width: 240px; line-height: 1.5; }
+  .mini-row { margin-top: 70px; text-align: center; }
+  .mini-row h2 { font-size: 0.8rem; color: #3a4558; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 20px; }
+  .minis { display: flex; justify-content: center; gap: 16px; }
+  .mini { width: 56px; height: 56px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.4); transition: transform 0.2s; }
+  .mini:hover { transform: scale(1.2); }
+</style>
+</head>
+<body>
+<div class="page">
+<h1>Beamlet</h1>
+<p class="sub">Icon Concepts — Simple, Modern, Bold</p>
+
+<div class="grid">
+
+<!-- 1: ARROW BEAM — Minimal upward-right arrow with a light trail -->
+<div class="card">
+<span class="label">01</span>
+<div class="frame">
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg1" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0c1929"/>
+      <stop offset="100%" stop-color="#0f2847"/>
+    </linearGradient>
+    <linearGradient id="arrow1" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <filter id="g1"><feGaussianBlur stdDeviation="8"/></filter>
+  </defs>
+  <rect width="200" height="200" fill="url(#bg1)"/>
+  <!-- Glow trail -->
+  <line x1="45" y1="155" x2="130" y2="70" stroke="#3b82f6" stroke-width="24" stroke-linecap="round" opacity="0.12" filter="url(#g1)"/>
+  <!-- Trail line -->
+  <line x1="48" y1="152" x2="125" y2="75" stroke="url(#arrow1)" stroke-width="6" stroke-linecap="round" opacity="0.5"/>
+  <!-- Arrow head -->
+  <g transform="translate(140, 60)">
+    <path d="M 0 0 L -32 12 L -24 -20 Z" fill="url(#arrow1)"/>
+    <path d="M 0 0 L -24 -20 L -10 -8 Z" fill="white" opacity="0.25"/>
+  </g>
+  <!-- Origin dot -->
+  <circle cx="45" cy="155" r="8" fill="#06b6d4"/>
+  <circle cx="45" cy="155" r="3" fill="white"/>
+</svg>
+</div>
+<div class="name">Arrow Beam</div>
+<p class="desc">Bold directional arrow with glowing trail. Clean, unmistakable "send" gesture.</p>
+</div>
+
+<!-- 2: PAPER PLANE — Ultra-simple geometric plane -->
+<div class="card">
+<span class="label">02</span>
+<div class="frame">
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0f1e"/>
+      <stop offset="100%" stop-color="#141e33"/>
+    </linearGradient>
+    <linearGradient id="plane2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <filter id="g2"><feGaussianBlur stdDeviation="6"/></filter>
+  </defs>
+  <rect width="200" height="200" fill="url(#bg2)"/>
+  <!-- Glow -->
+  <polygon points="55,100 145,60 105,140" fill="#6366f1" opacity="0.08" filter="url(#g2)"/>
+  <!-- Paper plane body -->
+  <polygon points="50,105 150,55 110,145" fill="url(#plane2)"/>
+  <!-- Fold line / highlight -->
+  <polygon points="50,105 150,55 100,110" fill="white" opacity="0.15"/>
+  <!-- Inner fold -->
+  <line x1="100" y1="110" x2="110" y2="145" stroke="white" stroke-width="1" opacity="0.1"/>
+</svg>
+</div>
+<div class="name">Paper Plane</div>
+<p class="desc">Geometric paper airplane. Universal "send" symbol, bold and simple.</p>
+</div>
+
+<!-- 3: PULSE SEND — Circle with outward pulse waves -->
+<div class="card">
+<span class="label">03</span>
+<div class="frame">
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06150f"/>
+      <stop offset="100%" stop-color="#0a2a1f"/>
+    </linearGradient>
+    <linearGradient id="dot3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <filter id="g3"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+  <rect width="200" height="200" fill="url(#bg3)"/>
+  <!-- Ambient glow -->
+  <circle cx="100" cy="100" r="40" fill="#06b6d4" opacity="0.06" filter="url(#g3)"/>
+  <!-- Pulse rings -->
+  <circle cx="100" cy="100" r="20" fill="none" stroke="#06b6d4" stroke-width="1.5" opacity="0">
+    <animate attributeName="r" values="28;60" dur="2.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;0" dur="2.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="100" cy="100" r="20" fill="none" stroke="#10b981" stroke-width="1" opacity="0">
+    <animate attributeName="r" values="28;72" dur="2.5s" begin="0.8s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.35;0" dur="2.5s" begin="0.8s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="100" cy="100" r="20" fill="none" stroke="#06b6d4" stroke-width="0.8" opacity="0">
+    <animate attributeName="r" values="28;84" dur="2.5s" begin="1.6s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.2;0" dur="2.5s" begin="1.6s" repeatCount="indefinite"/>
+  </circle>
+  <!-- Center dot -->
+  <circle cx="100" cy="100" r="22" fill="url(#dot3)"/>
+  <circle cx="100" cy="100" r="8" fill="white" opacity="0.9"/>
+</svg>
+</div>
+<div class="name">Pulse Send</div>
+<p class="desc">Broadcasting outward. Radiates connection and presence.</p>
+</div>
+
+<!-- 4: BEAM BRIDGE — Two dots connected by a beam -->
+<div class="card">
+<span class="label">04</span>
+<div class="frame">
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c0a1a"/>
+      <stop offset="100%" stop-color="#15102e"/>
+    </linearGradient>
+    <linearGradient id="beam4" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <filter id="g4"><feGaussianBlur stdDeviation="6"/></filter>
+  </defs>
+  <rect width="200" height="200" fill="url(#bg4)"/>
+  <!-- Beam glow -->
+  <line x1="58" y1="100" x2="142" y2="100" stroke="url(#beam4)" stroke-width="16" stroke-linecap="round" opacity="0.1" filter="url(#g4)"/>
+  <!-- Beam -->
+  <line x1="58" y1="100" x2="142" y2="100" stroke="url(#beam4)" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+  <!-- Flow particles -->
+  <line x1="72" y1="100" x2="128" y2="100" stroke="white" stroke-width="1.5" stroke-dasharray="3 9" opacity="0.35">
+    <animate attributeName="stroke-dashoffset" values="0;-24" dur="1.2s" repeatCount="indefinite"/>
+  </line>
+  <!-- Left dot -->
+  <circle cx="58" cy="100" r="18" fill="#8b5cf6"/>
+  <circle cx="58" cy="100" r="6" fill="white" opacity="0.9"/>
+  <!-- Right dot -->
+  <circle cx="142" cy="100" r="18" fill="#06b6d4"/>
+  <circle cx="142" cy="100" r="6" fill="white" opacity="0.9"/>
+</svg>
+</div>
+<div class="name">Beam Bridge</div>
+<p class="desc">Two people, one connection. Minimal and instantly readable.</p>
+</div>
+
+<!-- 5: LIGHTNING BOLT — Simple bolt on dark -->
+<div class="card">
+<span class="label">05</span>
+<div class="frame">
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="bolt5" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <filter id="g5"><feGaussianBlur stdDeviation="12"/></filter>
+  </defs>
+  <rect width="200" height="200" fill="url(#bg5)"/>
+  <!-- Bolt glow -->
+  <polygon points="108,38 76,108 96,108 86,162 126,92 104,92 116,38" fill="#fbbf24" opacity="0.08" filter="url(#g5)"/>
+  <!-- Bolt -->
+  <polygon points="108,42 78,106 97,106 88,158 124,94 103,94 114,42" fill="url(#bolt5)"/>
+  <polygon points="108,42 78,106 97,106 88,158 124,94 103,94 114,42" fill="white" opacity="0.12"/>
+</svg>
+</div>
+<div class="name">Lightning</div>
+<p class="desc">Instant, powerful, electric. Pure speed energy.</p>
+</div>
+
+<!-- 6: TILT ARROW — Diagonal arrow in a circle -->
+<div class="card">
+<span class="label">06</span>
+<div class="frame">
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg6" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0a1628"/>
+      <stop offset="100%" stop-color="#0f2040"/>
+    </linearGradient>
+    <linearGradient id="a6" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <filter id="g6"><feGaussianBlur stdDeviation="8"/></filter>
+  </defs>
+  <rect width="200" height="200" fill="url(#bg6)"/>
+  <!-- Circle ring -->
+  <circle cx="100" cy="100" r="55" fill="none" stroke="url(#a6)" stroke-width="3" opacity="0.3"/>
+  <!-- Arrow glow -->
+  <line x1="72" y1="128" x2="128" y2="72" stroke="#3b82f6" stroke-width="16" stroke-linecap="round" opacity="0.1" filter="url(#g6)"/>
+  <!-- Arrow shaft -->
+  <line x1="74" y1="126" x2="120" y2="80" stroke="url(#a6)" stroke-width="6" stroke-linecap="round"/>
+  <!-- Arrow head -->
+  <polyline points="104,72 128,72 128,96" fill="none" stroke="url(#a6)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</div>
+<div class="name">Launch Arrow</div>
+<p class="desc">Upward diagonal arrow in a circle. Send it, launch it, beam it.</p>
+</div>
+
+</div>
+
+<!-- Mini preview row -->
+<div class="mini-row">
+<h2>Home Screen Size</h2>
+<div class="minis">
+  <div class="mini"><svg viewBox="0 0 200 200"><defs><linearGradient id="m1a" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs><rect width="200" height="200" fill="#0c1929"/><line x1="48" y1="152" x2="125" y2="75" stroke="url(#m1a)" stroke-width="6" stroke-linecap="round" opacity="0.5"/><g transform="translate(140,60)"><path d="M0 0L-32 12L-24-20Z" fill="url(#m1a)"/></g><circle cx="45" cy="155" r="8" fill="#06b6d4"/><circle cx="45" cy="155" r="3" fill="white"/></svg></div>
+  <div class="mini"><svg viewBox="0 0 200 200"><defs><linearGradient id="m2a" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs><rect width="200" height="200" fill="#0a0f1e"/><polygon points="50,105 150,55 110,145" fill="url(#m2a)"/><polygon points="50,105 150,55 100,110" fill="white" opacity="0.15"/></svg></div>
+  <div class="mini"><svg viewBox="0 0 200 200"><defs><linearGradient id="m3a" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs><rect width="200" height="200" fill="#06150f"/><circle cx="100" cy="100" r="22" fill="url(#m3a)"/><circle cx="100" cy="100" r="8" fill="white" opacity="0.9"/></svg></div>
+  <div class="mini"><svg viewBox="0 0 200 200"><defs><linearGradient id="m4a" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient></defs><rect width="200" height="200" fill="#0c0a1a"/><line x1="58" y1="100" x2="142" y2="100" stroke="url(#m4a)" stroke-width="4" stroke-linecap="round" opacity="0.7"/><circle cx="58" cy="100" r="18" fill="#8b5cf6"/><circle cx="58" cy="100" r="6" fill="white"/><circle cx="142" cy="100" r="18" fill="#06b6d4"/><circle cx="142" cy="100" r="6" fill="white"/></svg></div>
+  <div class="mini"><svg viewBox="0 0 200 200"><defs><linearGradient id="m5a" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient></defs><rect width="200" height="200" fill="#0d1117"/><polygon points="108,42 78,106 97,106 88,158 124,94 103,94 114,42" fill="url(#m5a)"/></svg></div>
+  <div class="mini"><svg viewBox="0 0 200 200"><defs><linearGradient id="m6a" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs><rect width="200" height="200" fill="#0a1628"/><circle cx="100" cy="100" r="55" fill="none" stroke="url(#m6a)" stroke-width="3" opacity="0.3"/><line x1="74" y1="126" x2="120" y2="80" stroke="url(#m6a)" stroke-width="6" stroke-linecap="round"/><polyline points="104,72 128,72 128,96" fill="none" stroke="url(#m6a)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+</div>
+</div>
+
+</div>
+</body>
+</html>

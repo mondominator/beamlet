@@ -5,6 +5,7 @@ struct SendView: View {
     @Environment(BeamletAPI.self) private var api
     @Environment(NearbyService.self) private var nearbyService: NearbyService?
     @State private var viewModel: SendViewModel?
+    @State private var showSendAnimation = false
 
     var body: some View {
         NavigationStack {
@@ -88,10 +89,30 @@ struct SendView: View {
                     }
                 }
                 .navigationTitle("Send")
-                .alert("Sent!", isPresented: Bindable(vm).showSuccess) {
-                    Button("OK") { vm.reset() }
-                } message: {
-                    Text("File sent successfully")
+                .overlay {
+                    if showSendAnimation {
+                        SendSuccessOverlay()
+                            .allowsHitTesting(false)
+                    }
+                }
+                .onChange(of: vm.showSuccess) { _, success in
+                    if success {
+                        // Haptic feedback
+                        let generator = UINotificationFeedbackGenerator()
+                        generator.notificationOccurred(.success)
+                        // Visual animation
+                        withAnimation(.spring(response: 0.3)) {
+                            showSendAnimation = true
+                        }
+                        // Auto-dismiss after delay
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            withAnimation {
+                                showSendAnimation = false
+                            }
+                            vm.showSuccess = false
+                            vm.reset()
+                        }
+                    }
                 }
                 .task { await vm.loadUsers() }
                 .onChange(of: vm.users) {
