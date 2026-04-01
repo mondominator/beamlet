@@ -1,6 +1,8 @@
 package api
 
 import (
+	"net/http"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/mondominator/beamlet/server/internal/auth"
@@ -24,6 +26,12 @@ func NewRouter(s *Server) *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
+
+	// Apple Universal Links association
+	r.Get("/.well-known/apple-app-site-association", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"applinks":{"apps":[],"details":[{"appID":"S6WU9SVVDW.com.beamlet.app","paths":["/invite/*"]}]}}`))
+	})
 
 	// Public web page for invite links
 	r.Get("/invite/{token}", s.InviteWebPage)
