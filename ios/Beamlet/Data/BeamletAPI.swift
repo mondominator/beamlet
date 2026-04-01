@@ -196,6 +196,15 @@ class BeamletAPI {
         try await requestVoid("/api/files/\(fileID)/read", method: "PUT")
     }
 
+    struct PinResponse: Codable {
+        let pinned: Bool
+    }
+
+    func togglePin(_ fileID: String) async throws -> Bool {
+        let response: PinResponse = try await request("/api/files/\(fileID)/pin", method: "PUT")
+        return response.pinned
+    }
+
     func deleteFile(_ fileID: String) async throws {
         try await requestVoid("/api/files/\(fileID)", method: "DELETE")
     }

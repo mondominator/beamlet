@@ -15,6 +15,7 @@ type File struct {
 	TextContent   string    `json:"text_content,omitempty"`
 	Message       string    `json:"message,omitempty"`
 	Read          bool      `json:"read"`
+	Pinned        bool      `json:"pinned"`
 	ExpiresAt     time.Time `json:"expires_at"`
 	CreatedAt     time.Time `json:"created_at"`
 	SenderName    string    `json:"sender_name,omitempty"`
