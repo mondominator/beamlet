@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import AudioToolbox
+import WidgetKit
 
 @Observable
 @MainActor
@@ -60,5 +61,29 @@ class InboxViewModel {
 
     var authHeaders: [String: String] {
         api.authHeaders
+    }
+
+    private func updateWidgetData(_ files: [BeamletFile]) {
+        struct WidgetFile: Codable {
+            let senderName: String
+            let type: String
+            let timeAgo: String
+        }
+
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+
+        let widgetFiles = files.prefix(4).map { file in
+            WidgetFile(
+                senderName: file.senderName ?? "Unknown",
+                type: file.displayType,
+                timeAgo: file.createdAt.map { formatter.localizedString(for: $0, relativeTo: Date()) } ?? ""
+            )
+        }
+
+        if let data = try? JSONEncoder().encode(widgetFiles) {
+            UserDefaults(suiteName: "group.com.beamlet.shared")?.set(data, forKey: "widgetRecentFiles")
+            WidgetCenter.shared.reloadAllTimelines()
+        }
     }
 }
