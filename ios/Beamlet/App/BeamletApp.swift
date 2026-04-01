@@ -170,8 +170,18 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([.banner, .sound, .badge])
     }
+
+    // Handle notification tap
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        let userInfo = response.notification.request.content.userInfo
+        if let fileID = userInfo["file_id"] as? String {
+            NotificationCenter.default.post(name: .didTapNotification, object: fileID)
+        }
+        completionHandler()
+    }
 }
 
 extension Notification.Name {
     static let didReceiveAPNsToken = Notification.Name("didReceiveAPNsToken")
+    static let didTapNotification = Notification.Name("didTapNotification")
 }

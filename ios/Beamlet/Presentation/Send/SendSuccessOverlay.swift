@@ -1,41 +1,49 @@
 import SwiftUI
 
 struct SendSuccessOverlay: View {
-    @State private var scale: CGFloat = 0.3
-    @State private var opacity: Double = 0
-    @State private var iconOffset: CGFloat = 20
-    @State private var particles: [Particle] = []
+    @State private var planeOffset: CGSize = .zero
+    @State private var planeScale: CGFloat = 1.0
+    @State private var planeOpacity: Double = 0
+    @State private var planeRotation: Double = 0
+    @State private var ringScale: CGFloat = 0.5
+    @State private var ringOpacity: Double = 0
+    @State private var textOpacity: Double = 0
+    @State private var dimOpacity: Double = 0
+    @State private var trails: [Trail] = []
 
-    struct Particle: Identifiable {
+    struct Trail: Identifiable {
         let id = UUID()
         var x: CGFloat
         var y: CGFloat
-        let angle: Double
-        let speed: CGFloat
-        let size: CGFloat
-        let color: Color
+        var opacity: Double
+        var size: CGFloat
     }
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.3 * opacity)
+            Color.black.opacity(0.25 * dimOpacity)
                 .ignoresSafeArea()
 
-            GeometryReader { geo in
-                ForEach(particles) { particle in
-                    Circle()
-                        .fill(particle.color)
-                        .frame(width: particle.size, height: particle.size)
-                        .position(
-                            x: geo.size.width / 2 + particle.x,
-                            y: geo.size.height / 2 + particle.y
-                        )
-                        .opacity(opacity)
-                }
-            }
+            // Expanding ring
+            Circle()
+                .stroke(
+                    LinearGradient(
+                        colors: [
+                            Color(red: 0.55, green: 0.36, blue: 0.96).opacity(0.6),
+                            Color(red: 0.23, green: 0.51, blue: 0.96).opacity(0)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    ),
+                    lineWidth: 3
+                )
+                .frame(width: 120, height: 120)
+                .scaleEffect(ringScale)
+                .opacity(ringOpacity)
 
-            VStack(spacing: 14) {
-                ZStack {
+            // Trail particles
+            GeometryReader { geo in
+                ForEach(trails) { trail in
                     Circle()
                         .fill(
                             LinearGradient(
@@ -44,63 +52,95 @@ struct SendSuccessOverlay: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 100, height: 100)
-                        .shadow(color: Color(red: 0.23, green: 0.51, blue: 0.96).opacity(0.5), radius: 20)
-
-                    Image(systemName: "paperplane.fill")
-                        .font(.system(size: 40))
-                        .foregroundStyle(.white)
-                        .offset(x: 2, y: iconOffset)
+                        .frame(width: trail.size, height: trail.size)
+                        .position(
+                            x: geo.size.width / 2 + trail.x,
+                            y: geo.size.height / 2 + trail.y
+                        )
+                        .opacity(trail.opacity)
                 }
+            }
 
-                Text("Sent!")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .opacity(opacity)
-            }
-            .scaleEffect(scale)
-            .opacity(opacity)
+            // Paper plane
+            Image(systemName: "paperplane.fill")
+                .font(.system(size: 44))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [Color(red: 0.55, green: 0.36, blue: 0.96), Color(red: 0.23, green: 0.51, blue: 0.96)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .shadow(color: Color(red: 0.23, green: 0.51, blue: 0.96).opacity(0.5), radius: 12)
+                .rotationEffect(.degrees(planeRotation))
+                .scaleEffect(planeScale)
+                .offset(planeOffset)
+                .opacity(planeOpacity)
+
+            // "Sent!" text
+            Text("Sent!")
+                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .foregroundStyle(.primary)
+                .opacity(textOpacity)
+                .offset(y: 20)
         }
-        .onAppear {
-            generateParticles()
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
-                scale = 1.0
-                opacity = 1.0
+        .onAppear { runAnimation() }
+    }
+
+    private func runAnimation() {
+        // Phase 1: Plane appears at center with a pop
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+            planeOpacity = 1
+            dimOpacity = 1
+            planeScale = 1.2
+        }
+
+        // Phase 2: Plane settles, ring expands
+        withAnimation(.easeOut(duration: 0.2).delay(0.2)) {
+            planeScale = 1.0
+        }
+        withAnimation(.easeOut(duration: 0.6).delay(0.2)) {
+            ringScale = 2.5
+            ringOpacity = 0.8
+        }
+        withAnimation(.easeOut(duration: 0.4).delay(0.5)) {
+            ringOpacity = 0
+        }
+
+        // Phase 3: Plane tilts and flies up-right, leaving trail
+        generateTrails()
+
+        withAnimation(.easeIn(duration: 0.5).delay(0.5)) {
+            planeRotation = -30
+            planeOffset = CGSize(width: 150, height: -300)
+            planeScale = 0.4
+        }
+        withAnimation(.easeIn(duration: 0.3).delay(0.8)) {
+            planeOpacity = 0
+        }
+
+        // Phase 4: Show "Sent!" text
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.7).delay(0.7)) {
+            textOpacity = 1
+        }
+
+        // Animate trails
+        withAnimation(.easeOut(duration: 0.8).delay(0.5)) {
+            for i in trails.indices {
+                trails[i].opacity = 0
             }
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.5).delay(0.1)) {
-                iconOffset = 0
-            }
-            animateParticles()
         }
     }
 
-    private func generateParticles() {
-        let colors: [Color] = [
-            Color(red: 0.55, green: 0.36, blue: 0.96),
-            Color(red: 0.23, green: 0.51, blue: 0.96),
-            Color(red: 0.02, green: 0.71, blue: 0.83),
-            .white
-        ]
-        particles = (0..<20).map { i in
-            let angle = Double(i) / 20.0 * .pi * 2
-            return Particle(
-                x: 0,
-                y: 0,
-                angle: angle,
-                speed: CGFloat.random(in: 80...200),
-                size: CGFloat.random(in: 4...10),
-                color: colors.randomElement() ?? .white
+    private func generateTrails() {
+        trails = (0..<8).map { i in
+            let progress = CGFloat(i) / 8.0
+            return Trail(
+                x: progress * 80 - 20,
+                y: progress * -140 + 20,
+                opacity: Double(1.0 - progress * 0.5),
+                size: CGFloat.random(in: 4...8)
             )
-        }
-    }
-
-    private func animateParticles() {
-        withAnimation(.easeOut(duration: 0.8)) {
-            for i in particles.indices {
-                let p = particles[i]
-                particles[i].x += cos(p.angle) * p.speed
-                particles[i].y += sin(p.angle) * p.speed
-            }
         }
     }
 }
