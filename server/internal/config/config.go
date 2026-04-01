@@ -7,11 +7,10 @@ import (
 )
 
 type Config struct {
-	DBPath      string
-	DataDir     string
-	Port        string
-	ExternalURL string // Public-facing URL (e.g., https://beam.example.com)
-
+	DBPath       string
+	DataDir      string
+	Port         string
+	ExternalURL  string
 	APNsKeyPath  string
 	APNsKeyID    string
 	APNsTeamID   string
