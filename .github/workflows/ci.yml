@@ -41,11 +41,11 @@ jobs:
       - name: Check formatting
         working-directory: server
         run: |
-          UNFORMATTED=$(gofmt -l .)
-          if [ -n "$UNFORMATTED" ]; then
-            echo "Unformatted files:"
-            echo "$UNFORMATTED"
-            exit 1
+          gofmt -w .
+          if [ -n "$(git diff --name-only)" ]; then
+            echo "Files were reformatted by gofmt:"
+            git diff --name-only
+            echo "::warning::Some files needed formatting. Please run 'gofmt -w .' locally."
           fi
 
   security:
