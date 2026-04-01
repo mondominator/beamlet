@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import AudioToolbox
 
 struct SendView: View {
     @Environment(BeamletAPI.self) private var api
@@ -62,17 +63,17 @@ struct SendView: View {
                                 } label: {
                                     HStack(spacing: 12) {
                                         ZStack {
-                                            Circle()
-                                                .fill(vm.isSelected(user) ? Color.blue.opacity(0.2) : Color.gray.opacity(0.1))
-                                                .frame(width: 36, height: 36)
                                             if vm.isSelected(user) {
-                                                Image(systemName: "checkmark")
-                                                    .font(.caption.bold())
-                                                    .foregroundStyle(.blue)
+                                                Circle()
+                                                    .fill(Color.blue.opacity(0.2))
+                                                    .frame(width: 36, height: 36)
+                                                    .overlay(
+                                                        Image(systemName: "checkmark")
+                                                            .font(.caption.bold())
+                                                            .foregroundStyle(.blue)
+                                                    )
                                             } else {
-                                                Text(user.name.prefix(1).uppercased())
-                                                    .font(.subheadline.bold())
-                                                    .foregroundStyle(.secondary)
+                                                AvatarView(name: user.name, size: 36)
                                             }
                                         }
                                         Text(user.name)
@@ -141,9 +142,10 @@ struct SendView: View {
                 }
                 .onChange(of: vm.showSuccess) { _, success in
                     if success {
-                        // Haptic feedback
+                        // Haptic + sound feedback
                         let generator = UINotificationFeedbackGenerator()
                         generator.notificationOccurred(.success)
+                        AudioServicesPlaySystemSound(1001) // "sent" swoosh
                         // Visual animation
                         withAnimation(.spring(response: 0.3)) {
                             showSendAnimation = true

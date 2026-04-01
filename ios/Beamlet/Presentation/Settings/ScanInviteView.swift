@@ -1,4 +1,5 @@
 import SwiftUI
+import AudioToolbox
 
 struct ScanInviteView: View {
     @Environment(BeamletAPI.self) private var api
@@ -57,6 +58,14 @@ struct ScanInviteView: View {
             do {
                 let response = try await api.redeemInviteAsExistingUser(inviteToken: payload.invite)
                 connectedName = response.contact?.name ?? "New contact"
+                // Haptic + sound on successful connect
+                let generator = UINotificationFeedbackGenerator()
+                generator.notificationOccurred(.success)
+                AudioServicesPlaySystemSound(1004)
+                // Auto-dismiss after 2 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                    dismiss()
+                }
             } catch {
                 self.error = error.localizedDescription
                 isRedeeming = false

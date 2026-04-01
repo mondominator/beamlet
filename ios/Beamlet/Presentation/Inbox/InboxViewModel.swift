@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import AudioToolbox
 
 @Observable
 @MainActor
@@ -25,6 +26,7 @@ class InboxViewModel {
             if newUnreadCount > previousUnreadCount && previousUnreadCount > 0 {
                 let generator = UIImpactFeedbackGenerator(style: .medium)
                 generator.impactOccurred()
+                AudioServicesPlaySystemSound(1003) // "received" ding
                 hasNewFiles = true
                 // Reset after brief flash
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
