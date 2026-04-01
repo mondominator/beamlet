@@ -376,6 +376,16 @@ class BeamletAPI {
     struct MeResponse: Codable {
         let id: String
         let name: String
+        let filesSent: Int?
+        let filesReceived: Int?
+        let storageUsed: Int64?
+
+        enum CodingKeys: String, CodingKey {
+            case id, name
+            case filesSent = "files_sent"
+            case filesReceived = "files_received"
+            case storageUsed = "storage_used"
+        }
     }
 
     func getMe() async throws -> MeResponse {

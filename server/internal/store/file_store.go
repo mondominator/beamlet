@@ -139,3 +139,27 @@ func (s *FileStore) ListExpired() ([]model.File, error) {
 	}
 	return files, nil
 }
+
+type UserStats struct {
+	FilesSent     int   `json:"files_sent"`
+	FilesReceived int   `json:"files_received"`
+	StorageUsed   int64 `json:"storage_used"`
+}
+
+func (s *FileStore) GetUserStats(userID string) (UserStats, error) {
+	var stats UserStats
+
+	s.db.QueryRow(
+		"SELECT COUNT(*) FROM files WHERE sender_id = ?", userID,
+	).Scan(&stats.FilesSent)
+
+	s.db.QueryRow(
+		"SELECT COUNT(*) FROM files WHERE recipient_id = ?", userID,
+	).Scan(&stats.FilesReceived)
+
+	s.db.QueryRow(
+		"SELECT COALESCE(SUM(file_size), 0) FROM files WHERE sender_id = ? OR recipient_id = ?", userID, userID,
+	).Scan(&stats.StorageUsed)
+
+	return stats, nil
+}
