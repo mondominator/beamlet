@@ -3,6 +3,10 @@ package com.beamlet.android.ui.inbox
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -109,6 +113,7 @@ fun InboxScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ReceivedContent(
     state: InboxUiState,
@@ -144,14 +149,45 @@ private fun ReceivedContent(
                     items = state.receivedFiles,
                     key = { it.id },
                 ) { file ->
-                    InboxItemCard(
-                        file = file,
-                        thumbnailUrl = thumbnailUrl(file.id),
-                        authHeaders = authHeaders,
-                        onTap = { onTap(file) },
-                        onPin = { onPin(file.id) },
-                        onDelete = { onDelete(file.id) },
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = { value ->
+                            if (value == SwipeToDismissBoxValue.EndToStart) {
+                                onDelete(file.id)
+                                true
+                            } else {
+                                false
+                            }
+                        },
                     )
+
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        backgroundContent = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(MaterialTheme.colorScheme.error)
+                                    .padding(horizontal = 20.dp),
+                                contentAlignment = Alignment.CenterEnd,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = Color.White,
+                                )
+                            }
+                        },
+                        enableDismissFromStartToEnd = false,
+                    ) {
+                        InboxItemCard(
+                            file = file,
+                            thumbnailUrl = thumbnailUrl(file.id),
+                            authHeaders = authHeaders,
+                            onTap = { onTap(file) },
+                            onPin = { onPin(file.id) },
+                            onDelete = { onDelete(file.id) },
+                        )
+                    }
                     HorizontalDivider(
                         thickness = 0.5.dp,
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f),

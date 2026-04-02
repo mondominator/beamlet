@@ -191,10 +191,10 @@ private fun ImageContent(
         AuthenticatedImage(
             url = thumbnailUrl,
             authHeaders = authHeaders,
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Fit,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(160.dp)
+                .heightIn(max = 160.dp)
                 .clip(RoundedCornerShape(14.dp)),
         )
     }

@@ -11,18 +11,23 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -151,7 +156,11 @@ fun ImageViewerScreen(
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(WindowInsets.safeDrawing),
+            ) {
                 // Top bar — close button
                 Row(
                     modifier = Modifier
@@ -180,48 +189,56 @@ fun ImageViewerScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 48.dp),
+                        .padding(bottom = 24.dp),
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     // Share
-                    IconButton(onClick = {
-                        imageBytes?.let { bytes ->
-                            shareImage(context, bytes, fileId)
-                        }
-                    }) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                imageVector = Icons.Default.Share,
-                                contentDescription = "Share",
-                                tint = Color.White,
-                                modifier = Modifier.size(24.dp),
-                            )
-                            Text("Share", color = Color.White, fontSize = 10.sp)
-                        }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable {
+                                imageBytes?.let { bytes ->
+                                    shareImage(context, bytes, fileId)
+                                }
+                            }
+                            .padding(horizontal = 24.dp, vertical = 12.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Share",
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp),
+                        )
+                        Text("Share", color = Color.White, fontSize = 10.sp)
                     }
 
                     Spacer(modifier = Modifier.width(32.dp))
 
                     // Save
-                    IconButton(onClick = {
-                        imageBytes?.let { bytes ->
-                            saveImage(context, bytes, fileId)
-                            saved = true
-                        }
-                    }) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                imageVector = Icons.Default.Download,
-                                contentDescription = "Save",
-                                tint = if (saved) Color(0xFF34C759) else Color.White,
-                                modifier = Modifier.size(24.dp),
-                            )
-                            Text(
-                                text = if (saved) "Saved" else "Save",
-                                color = if (saved) Color(0xFF34C759) else Color.White,
-                                fontSize = 10.sp,
-                            )
-                        }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable {
+                                imageBytes?.let { bytes ->
+                                    saveImage(context, bytes, fileId)
+                                    saved = true
+                                }
+                            }
+                            .padding(horizontal = 24.dp, vertical = 12.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Download,
+                            contentDescription = "Save",
+                            tint = if (saved) Color(0xFF34C759) else Color.White,
+                            modifier = Modifier.size(24.dp),
+                        )
+                        Text(
+                            text = if (saved) "Saved" else "Save",
+                            color = if (saved) Color(0xFF34C759) else Color.White,
+                            fontSize = 10.sp,
+                        )
                     }
                 }
             }
