@@ -7,8 +7,8 @@
     <!-- Paper plane icon -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M30,72L44,54L30,36L78,54Z"/>
+        android:pathData="M26,72 L46,54 L26,36 L82,54 Z"/>
     <path
-        android:fillColor="#E0E0FF"
-        android:pathData="M44,54L78,54L44,72Z"/>
+        android:fillColor="#DDDCFE"
+        android:pathData="M46,54 L82,54 L46,70 Z"/>
 </vector>

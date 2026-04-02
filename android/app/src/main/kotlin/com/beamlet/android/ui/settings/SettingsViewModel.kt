@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.beamlet.android.data.auth.AuthRepository
 import com.beamlet.android.data.contacts.ContactRepository
+import com.beamlet.android.data.nearby.DiscoverabilityMode
+import com.beamlet.android.data.nearby.NearbyService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,12 +22,14 @@ data class SettingsUiState(
     val appTheme: String = "system",
     val fileExpiryDays: Int = 1,
     val showDisconnectDialog: Boolean = false,
+    val discoverabilityMode: DiscoverabilityMode = DiscoverabilityMode.CONTACTS_ONLY,
 )
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val contactRepository: ContactRepository,
+    private val nearbyService: NearbyService,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -37,6 +41,11 @@ class SettingsViewModel @Inject constructor(
             fcmToken = authRepository.fcmToken,
         )
         loadStats()
+        viewModelScope.launch {
+            nearbyService.mode.collect { mode ->
+                _uiState.value = _uiState.value.copy(discoverabilityMode = mode)
+            }
+        }
     }
 
     private fun loadStats() {
@@ -50,6 +59,10 @@ class SettingsViewModel @Inject constructor(
                 )
             } catch (_: Exception) { }
         }
+    }
+
+    fun setDiscoverabilityMode(mode: DiscoverabilityMode) {
+        nearbyService.setMode(mode)
     }
 
     fun setAppTheme(theme: String) {
