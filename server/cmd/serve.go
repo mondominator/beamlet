@@ -60,7 +60,7 @@ func ServeCmd() *cobra.Command {
 			}
 
 			stopCleanup := make(chan struct{})
-			go cleanup.StartScheduler(fileStore, diskStorage, stopCleanup)
+			go cleanup.StartScheduler(fileStore, diskStorage, inviteStore, stopCleanup)
 
 			router := api.NewRouter(srv)
 

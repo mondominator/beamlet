@@ -30,4 +30,5 @@
   <Config Name="APNs Key Path" Target="BEAMLET_APNS_KEY_PATH" Default="/app/apns_key.p8" Mode="" Description="Path to APNs key inside container" Type="Variable" Display="advanced" Required="false" Mask="false">/app/apns_key.p8</Config>
   <Config Name="Max File Size" Target="BEAMLET_MAX_FILE_SIZE" Default="524288000" Mode="" Description="Maximum upload size in bytes (default 500MB)" Type="Variable" Display="advanced" Required="false" Mask="false">524288000</Config>
   <Config Name="Expiry Days" Target="BEAMLET_EXPIRY_DAYS" Default="30" Mode="" Description="Days before files auto-expire (0 = never)" Type="Variable" Display="advanced" Required="false" Mask="false">30</Config>
+  <Config Name="External URL" Target="BEAMLET_EXTERNAL_URL" Default="" Mode="" Description="Public URL for invite links (e.g. https://beamlet.example.com)" Type="Variable" Display="always" Required="false" Mask="false"/>
 </Container>

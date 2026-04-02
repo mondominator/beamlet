@@ -85,11 +85,15 @@ class NearbyService: NSObject {
         return Data(hash.prefix(8))
     }
 
+    private static let dayFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.timeZone = TimeZone(identifier: "UTC")
+        return f
+    }()
+
     private static func todayString() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(identifier: "UTC")
-        return formatter.string(from: Date())
+        dayFormatter.string(from: Date())
     }
 
     // MARK: - Advertising

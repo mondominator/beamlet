@@ -2,6 +2,7 @@ package storage
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -14,8 +15,10 @@ func GenerateThumbnail(srcPath, destDir, mimeType string) (string, error) {
 		return "", nil
 	}
 
+	thumbDir := filepath.Join(destDir, "thumbs")
+	os.MkdirAll(thumbDir, 0755)
 	thumbName := uuid.New().String() + ".jpg"
-	thumbPath := filepath.Join(destDir, thumbName)
+	thumbPath := filepath.Join(thumbDir, thumbName)
 
 	if strings.HasPrefix(mimeType, "image/") {
 		cmd := exec.Command("convert", srcPath, "-thumbnail", "200x200>", "-quality", "80", thumbPath)
