@@ -11,7 +11,7 @@ RUN go build -o beamlet .
 
 FROM alpine:3.21
 
-RUN apk add --no-cache ca-certificates imagemagick ffmpeg
+RUN apk add --no-cache ca-certificates imagemagick ffmpeg libheif-tools
 RUN adduser -D -u 1001 beamlet
 
 WORKDIR /app
