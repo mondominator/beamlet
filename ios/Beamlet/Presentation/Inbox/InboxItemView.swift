@@ -5,13 +5,9 @@ struct InboxItemView: View {
     let thumbnailURL: URL?
     let authHeaders: [String: String]
     let onTap: () -> Void
-    let onSavePhoto: (UIImage) -> Void
     let onReply: () -> Void
     let onPin: () -> Void
     let onDelete: () -> Void
-    let onShare: (Data) -> Void
-
-    @State private var fullImage: UIImage?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -158,7 +154,7 @@ struct InboxItemView: View {
                 Text(file.filename)
                     .font(.subheadline.weight(.medium))
                     .lineLimit(1)
-                Text(formattedSize)
+                Text(file.formattedSize)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -215,9 +211,4 @@ struct InboxItemView: View {
         }
     }
 
-    private var formattedSize: String {
-        let formatter = ByteCountFormatter()
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: file.fileSize)
-    }
 }

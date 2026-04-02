@@ -28,7 +28,6 @@
   <Config Name="APNs Team ID" Target="BEAMLET_APNS_TEAM_ID" Default="" Mode="" Description="Apple Developer Team ID" Type="Variable" Display="always" Required="false" Mask="false"/>
   <Config Name="APNs Bundle ID" Target="BEAMLET_APNS_BUNDLE_ID" Default="com.beamlet.app" Mode="" Description="iOS app bundle identifier" Type="Variable" Display="always" Required="false" Mask="false">com.beamlet.app</Config>
   <Config Name="APNs Key Path" Target="BEAMLET_APNS_KEY_PATH" Default="/app/apns_key.p8" Mode="" Description="Path to APNs key inside container" Type="Variable" Display="advanced" Required="false" Mask="false">/app/apns_key.p8</Config>
-  <Config Name="APNs Sandbox" Target="BEAMLET_APNS_SANDBOX" Default="true" Mode="" Description="Use APNs sandbox (true for dev builds, false for App Store)" Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
   <Config Name="Max File Size" Target="BEAMLET_MAX_FILE_SIZE" Default="524288000" Mode="" Description="Maximum upload size in bytes (default 500MB)" Type="Variable" Display="advanced" Required="false" Mask="false">524288000</Config>
   <Config Name="Expiry Days" Target="BEAMLET_EXPIRY_DAYS" Default="30" Mode="" Description="Days before files auto-expire (0 = never)" Type="Variable" Display="advanced" Required="false" Mask="false">30</Config>
 </Container>

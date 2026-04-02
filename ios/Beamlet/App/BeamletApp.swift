@@ -124,7 +124,7 @@ struct BeamletApp: App {
             if path.hasPrefix("/invite/") {
                 inviteToken = String(path.dropFirst("/invite/".count))
                 // Server URL is the base of this URL
-                var components = URLComponents(url: url, resolvingAgainstBaseURL: false)!
+                guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return }
                 components.path = ""
                 components.query = nil
                 serverURL = components.url?.absoluteString
@@ -141,10 +141,11 @@ struct BeamletApp: App {
                     generator.notificationOccurred(.success)
                 }
             }
+        } else {
+            // Store for setup flow
+            UserDefaults.standard.set(serverURL, forKey: "pendingInviteURL")
+            UserDefaults.standard.set(inviteToken, forKey: "pendingInviteToken")
         }
-        // Store for setup flow
-        UserDefaults.standard.set(serverURL, forKey: "pendingInviteURL")
-        UserDefaults.standard.set(inviteToken, forKey: "pendingInviteToken")
     }
 }
 
@@ -163,7 +164,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        #if DEBUG
         print("Failed to register for push: \(error)")
+        #endif
     }
 
     // Show notifications even when app is in foreground

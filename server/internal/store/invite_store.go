@@ -81,6 +81,9 @@ func (s *InviteStore) FindByToken(token string) (*model.Invite, error) {
 			return &inv, nil
 		}
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 
 	return nil, fmt.Errorf("invite not found or expired")
 }

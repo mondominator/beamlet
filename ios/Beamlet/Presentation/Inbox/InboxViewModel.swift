@@ -12,7 +12,6 @@ class InboxViewModel {
     var files: [BeamletFile] = []
     var isLoading = true
     var error: String?
-    var hasNewFiles = false
 
     init(api: BeamletAPI) {
         self.api = api
@@ -28,15 +27,11 @@ class InboxViewModel {
                 let generator = UIImpactFeedbackGenerator(style: .medium)
                 generator.impactOccurred()
                 AudioServicesPlaySystemSound(1003) // "received" ding
-                hasNewFiles = true
-                // Reset after brief flash
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                    self.hasNewFiles = false
-                }
             }
             previousUnreadCount = newUnreadCount
 
             files = newFiles
+            updateWidgetData(newFiles)
             isLoading = false
             error = nil
         } catch {

@@ -11,6 +11,11 @@ server/vendor/
 # iOS build artifacts
 ios/build/
 ios/*.xcodeproj/xcuserdata/
+*.xcarchive
+*.ipa
+
+# Go build artifacts
+server/coverage.out
 
 # Environment
 *.env

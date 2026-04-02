@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -39,7 +40,7 @@ func ServeCmd() *cobra.Command {
 
 			var pusher *push.APNsPusher
 			if cfg.APNsKeyPath != "" {
-				p, err := push.NewAPNsPusher(cfg.APNsKeyPath, cfg.APNsKeyID, cfg.APNsTeamID, cfg.APNsBundleID, cfg.APNsSandbox, userStore)
+				p, err := push.NewAPNsPusher(cfg.APNsKeyPath, cfg.APNsKeyID, cfg.APNsTeamID, cfg.APNsBundleID, userStore)
 				if err != nil {
 					log.Printf("warning: APNs setup failed: %v (push notifications disabled)", err)
 				} else {
@@ -62,17 +63,25 @@ func ServeCmd() *cobra.Command {
 
 			router := api.NewRouter(srv)
 
+			httpServer := &http.Server{
+				Addr:    ":" + cfg.Port,
+				Handler: router,
+			}
+
 			go func() {
 				sigCh := make(chan os.Signal, 1)
 				signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 				<-sigCh
 				log.Println("shutting down...")
 				close(stopCleanup)
-				os.Exit(0)
+				httpServer.Shutdown(context.Background())
 			}()
 
 			log.Printf("beamlet server listening on :%s", cfg.Port)
-			return http.ListenAndServe(":"+cfg.Port, router)
+			if err := httpServer.ListenAndServe(); err != http.ErrServerClosed {
+				return err
+			}
+			return nil
 		},
 	}
 }

@@ -52,7 +52,7 @@ docker run -d \
   -e BEAMLET_APNS_KEY_ID=YOUR_KEY_ID \
   -e BEAMLET_APNS_TEAM_ID=YOUR_TEAM_ID \
   -e BEAMLET_APNS_BUNDLE_ID=com.beamlet.app \
-  -e BEAMLET_APNS_SANDBOX=true \
+  -e BEAMLET_EXTERNAL_URL=https://your-domain.com \
   ghcr.io/mondominator/beamlet:latest serve
 ```
 
@@ -81,11 +81,15 @@ An Unraid template is included. Copy `unraid-template.xml` to your Unraid templa
 | `BEAMLET_APNS_KEY_ID` | | APNs Key ID |
 | `BEAMLET_APNS_TEAM_ID` | | Apple Team ID |
 | `BEAMLET_APNS_BUNDLE_ID` | | iOS bundle identifier |
-| `BEAMLET_APNS_SANDBOX` | `true` | Use sandbox APNs (dev builds) |
+| `BEAMLET_EXTERNAL_URL` | | Public URL when behind reverse proxy |
 
 ## iOS App
 
-Requires iOS 17.0+. Build with Xcode 15+ and XcodeGen:
+Requires iOS 17.0+. Build with Xcode 16+ and [XcodeGen](https://github.com/yonaskolb/XcodeGen):
+
+```bash
+brew install xcodegen
+```
 
 ```bash
 cd ios

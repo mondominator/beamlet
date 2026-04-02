@@ -29,6 +29,7 @@ class SendViewModel {
     }
 
     func clearAttachment() {
+        selectedFileURL?.stopAccessingSecurityScopedResource()
         selectedPhoto = nil
         selectedPhotoData = nil
         selectedFileURL = nil
@@ -82,6 +83,7 @@ class SendViewModel {
                     )
                 } else if let fileURL = selectedFileURL {
                     let fileData = try Data(contentsOf: fileURL)
+                    fileURL.stopAccessingSecurityScopedResource()
                     let _ = try await api.uploadFile(
                         recipientID: userID,
                         fileData: fileData,
@@ -101,6 +103,7 @@ class SendViewModel {
 
     func reset() {
         selectedUsers.removeAll()
+        selectedFileURL?.stopAccessingSecurityScopedResource()
         selectedPhoto = nil
         selectedPhotoData = nil
         selectedFileURL = nil

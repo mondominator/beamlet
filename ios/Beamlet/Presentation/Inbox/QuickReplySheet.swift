@@ -15,6 +15,7 @@ struct QuickReplySheet: View {
     @State private var selectedPhotoData: Data?
     @State private var isSending = false
     @State private var showSuccess = false
+    @State private var error: String?
 
     var body: some View {
         NavigationStack {
@@ -49,6 +50,13 @@ struct QuickReplySheet: View {
                         .lineLimit(3...8)
                         .textFieldStyle(.roundedBorder)
                         .padding(.horizontal)
+
+                    if let error {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                            .padding(.horizontal)
+                    }
 
                     HStack {
                         PhotosPicker(selection: $selectedPhoto, matching: .images) {
@@ -117,6 +125,7 @@ struct QuickReplySheet: View {
             AudioServicesPlaySystemSound(1001)
             dismiss()
         } catch {
+            self.error = error.localizedDescription
             isSending = false
         }
     }

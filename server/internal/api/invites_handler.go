@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -69,7 +70,9 @@ func (s *Server) RedeemInvite(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		s.InviteStore.Redeem(invite.ID, user.ID)
+		if err := s.InviteStore.Redeem(invite.ID, user.ID); err != nil {
+			log.Printf("failed to redeem invite: %v", err)
+		}
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
@@ -87,9 +90,15 @@ func (s *Server) RedeemInvite(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		s.InviteStore.Redeem(invite.ID, existingUserID)
+		if err := s.InviteStore.Redeem(invite.ID, existingUserID); err != nil {
+			log.Printf("failed to redeem invite: %v", err)
+		}
 
-		creator, _ := s.UserStore.GetByID(invite.CreatorID)
+		creator, err := s.UserStore.GetByID(invite.CreatorID)
+		if err != nil || creator == nil {
+			http.Error(w, "invite creator not found", http.StatusInternalServerError)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"contact": map[string]string{
@@ -117,9 +126,15 @@ func (s *Server) RedeemInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.InviteStore.Redeem(invite.ID, newUser.ID)
+	if err := s.InviteStore.Redeem(invite.ID, newUser.ID); err != nil {
+		log.Printf("failed to redeem invite: %v", err)
+	}
 
-	creator, _ := s.UserStore.GetByID(invite.CreatorID)
+	creator, err := s.UserStore.GetByID(invite.CreatorID)
+	if err != nil || creator == nil {
+		http.Error(w, "invite creator not found", http.StatusInternalServerError)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"user_id": newUser.ID,

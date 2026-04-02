@@ -76,6 +76,9 @@ func (s *UserStore) Authenticate(token string) (*model.User, error) {
 			return &u, nil
 		}
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate users: %w", err)
+	}
 	return nil, ErrAuthFailed
 }
 
@@ -93,6 +96,9 @@ func (s *UserStore) List() ([]model.User, error) {
 			return nil, fmt.Errorf("scan user: %w", err)
 		}
 		users = append(users, u)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate users: %w", err)
 	}
 	return users, nil
 }
@@ -145,6 +151,9 @@ func (s *UserStore) GetActiveDevices(userID string) ([]model.Device, error) {
 			return nil, fmt.Errorf("scan device: %w", err)
 		}
 		devices = append(devices, d)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate devices: %w", err)
 	}
 	return devices, nil
 }

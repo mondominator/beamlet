@@ -5,7 +5,7 @@
 If you discover a security vulnerability, please report it responsibly:
 
 1. **Do NOT** open a public issue
-2. Email the details to the repository owner or use GitHub's private vulnerability reporting
+2. Use [GitHub's private vulnerability reporting](https://github.com/mondominator/beamlet/security/advisories/new) or email security concerns to the repository owner
 3. Include steps to reproduce the issue
 4. Allow reasonable time for a fix before public disclosure
 

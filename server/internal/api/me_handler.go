@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -12,7 +13,10 @@ func (s *Server) GetMe(w http.ResponseWriter, r *http.Request) {
 	user := auth.UserFromContext(r.Context())
 
 	// Get storage stats
-	stats, _ := s.FileStore.GetUserStats(user.ID)
+	stats, err := s.FileStore.GetUserStats(user.ID)
+	if err != nil {
+		log.Printf("failed to get user stats for %s: %v", user.ID, err)
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
