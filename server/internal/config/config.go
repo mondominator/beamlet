@@ -15,7 +15,7 @@ type Config struct {
 	APNsKeyID    string
 	APNsTeamID   string
 	APNsBundleID string
-	FCMServerKey string
+	FCMKeyPath   string
 	MaxFileSize  int64
 	ExpiryDays   int
 }
@@ -41,7 +41,7 @@ func Load() Config {
 		APNsKeyID:    getEnv("BEAMLET_APNS_KEY_ID", ""),
 		APNsTeamID:   getEnv("BEAMLET_APNS_TEAM_ID", ""),
 		APNsBundleID: getEnv("BEAMLET_APNS_BUNDLE_ID", ""),
-		FCMServerKey: getEnv("BEAMLET_FCM_SERVER_KEY", ""),
+		FCMKeyPath:   getEnv("BEAMLET_FCM_KEY_PATH", ""),
 		MaxFileSize:  maxSize,
 		ExpiryDays:   expiryDays,
 	}

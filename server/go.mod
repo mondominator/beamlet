@@ -10,6 +10,7 @@ require (
 	github.com/sideshow/apns2 v0.25.0
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/crypto v0.45.0
+	golang.org/x/oauth2 v0.25.0
 	modernc.org/sqlite v1.37.0
 )
 
