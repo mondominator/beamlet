@@ -79,6 +79,7 @@ class NearbyService @Inject constructor(
     // ---- Public API ----
 
     fun start() {
+        Log.d(TAG, "start() called, scope=${scope != null}")
         if (scope != null) return
         if (!hasBluetoothPermissions()) {
             Log.w(TAG, "Missing Bluetooth permissions, cannot start NearbyService")
