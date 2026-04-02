@@ -250,7 +250,7 @@ struct SendView: View {
                 }
                 .photosPicker(isPresented: $showPhotoPicker, selection: Bindable(vm).selectedPhoto, matching: .any(of: [.images, .videos]))
                 .onChange(of: vm.selectedPhoto) {
-                    vm.selectedFileURL = nil
+                    vm.clearAttachment()
                     Task { await vm.loadPhotoData() }
                 }
                 .fileImporter(

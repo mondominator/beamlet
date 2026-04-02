@@ -21,6 +21,7 @@ struct ShareView: View {
             // Header bar
             HStack {
                 Button("Cancel") {
+                    nearbyService?.stop()
                     extensionContext?.completeRequest(returningItems: nil)
                 }
                 Spacer()
@@ -282,6 +283,7 @@ struct ShareView: View {
 
                 sent = true
                 try? await Task.sleep(for: .seconds(1))
+                nearbyService?.stop()
                 extensionContext?.completeRequest(returningItems: nil)
             } catch {
                 self.error = error.localizedDescription

@@ -70,29 +70,43 @@ class SendViewModel {
         let expiry = UserDefaults.standard.integer(forKey: "fileExpiryDays")
         let expiryDays = expiry > 0 ? expiry : 1
 
+        // Read file data once before the loop
+        var fileData: Data?
+        var fileName: String?
+        var fileMimeType: String?
+
+        if let photoData = selectedPhotoData {
+            fileData = photoData
+            fileName = "photo.jpg"
+            fileMimeType = "image/jpeg"
+        } else if let fileURL = selectedFileURL {
+            do {
+                fileData = try Data(contentsOf: fileURL)
+            } catch {
+                self.error = error.localizedDescription
+                isSending = false
+                return
+            }
+            fileURL.stopAccessingSecurityScopedResource()
+            fileName = selectedFileName ?? fileURL.lastPathComponent
+            fileMimeType = selectedFileMimeType ?? "application/octet-stream"
+        }
+
+        guard let data = fileData, let name = fileName else {
+            isSending = false
+            return
+        }
+
         do {
             for userID in selectedUsers {
-                if let photoData = selectedPhotoData {
-                    let _ = try await api.uploadFile(
-                        recipientID: userID,
-                        fileData: photoData,
-                        filename: "photo.jpg",
-                        mimeType: "image/jpeg",
-                        message: nil,
-                        expiryDays: expiryDays
-                    )
-                } else if let fileURL = selectedFileURL {
-                    let fileData = try Data(contentsOf: fileURL)
-                    fileURL.stopAccessingSecurityScopedResource()
-                    let _ = try await api.uploadFile(
-                        recipientID: userID,
-                        fileData: fileData,
-                        filename: selectedFileName ?? fileURL.lastPathComponent,
-                        mimeType: selectedFileMimeType ?? "application/octet-stream",
-                        message: nil,
-                        expiryDays: expiryDays
-                    )
-                }
+                let _ = try await api.uploadFile(
+                    recipientID: userID,
+                    fileData: data,
+                    filename: name,
+                    mimeType: fileMimeType ?? "application/octet-stream",
+                    message: nil,
+                    expiryDays: expiryDays
+                )
             }
             showSuccess = true
         } catch {

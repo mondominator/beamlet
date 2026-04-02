@@ -1,7 +1,9 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
+	"html"
 	"net/http"
 	"net/url"
 
@@ -29,6 +31,7 @@ func (s *Server) InviteWebPage(w http.ResponseWriter, r *http.Request) {
 	if creator, err := s.UserStore.GetByID(invite.CreatorID); err == nil {
 		creatorName = creator.Name
 	}
+	safeName := html.EscapeString(creatorName)
 
 	// Build the QR payload URL for the app
 	// Use external URL if configured, otherwise derive from request
@@ -36,11 +39,14 @@ func (s *Server) InviteWebPage(w http.ResponseWriter, r *http.Request) {
 	if serverURL == "" {
 		serverURL = fmt.Sprintf("%s://%s", scheme(r), r.Host)
 	}
-	qrPayload := fmt.Sprintf(`{"u":"%s","i":"%s"}`, serverURL, token)
-	encodedPayload := url.QueryEscape(qrPayload)
+	qrData := map[string]string{"u": serverURL, "i": token}
+	qrJSON, _ := json.Marshal(qrData)
+	encodedPayload := url.QueryEscape(string(qrJSON))
+	safeServerURL := html.EscapeString(serverURL)
+	safeToken := html.EscapeString(token)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	fmt.Fprintf(w, invitePage, creatorName, creatorName, encodedPayload, serverURL, token)
+	fmt.Fprintf(w, invitePage, safeName, safeName, encodedPayload, safeServerURL, safeToken)
 }
 
 func scheme(r *http.Request) string {

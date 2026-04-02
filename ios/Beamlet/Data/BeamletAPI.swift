@@ -67,7 +67,8 @@ class BeamletAPI {
             throw APIError.notAuthenticated
         }
 
-        var urlComponents = URLComponents(url: baseURL.appendingPathComponent(endpoint), resolvingAgainstBaseURL: true)
+        let path = endpoint.hasPrefix("/") ? String(endpoint.dropFirst()) : endpoint
+        var urlComponents = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: true)
         urlComponents?.queryItems = queryItems?.isEmpty == false ? queryItems : nil
 
         guard let url = urlComponents?.url else {
@@ -134,7 +135,9 @@ class BeamletAPI {
             throw APIError.notAuthenticated
         }
 
-        guard let url = URL(string: baseURL.absoluteString + endpoint) else {
+        let base = baseURL.absoluteString.hasSuffix("/") ? String(baseURL.absoluteString.dropLast()) : baseURL.absoluteString
+        let path = endpoint.hasPrefix("/") ? endpoint : "/\(endpoint)"
+        guard let url = URL(string: base + path) else {
             throw APIError.invalidURL
         }
 
@@ -142,12 +145,21 @@ class BeamletAPI {
         request.httpMethod = method
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
+        if let deviceToken = authRepository.deviceToken {
+            request.setValue(deviceToken, forHTTPHeaderField: "X-Device-Token")
+        }
+
         if let body = body {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.httpBody = body
         }
 
-        let (_, response) = try await session.data(for: request)
+        let (_, response): (Data, URLResponse)
+        do {
+            (_, response) = try await session.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
@@ -215,7 +227,7 @@ class BeamletAPI {
             throw APIError.notAuthenticated
         }
 
-        let url = baseURL.appendingPathComponent("/api/files/\(fileID)")
+        let url = baseURL.appendingPathComponent("api/files/\(fileID)")
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
@@ -228,7 +240,7 @@ class BeamletAPI {
 
     func thumbnailURL(for fileID: String) -> URL? {
         guard let baseURL = authRepository.serverURL else { return nil }
-        return baseURL.appendingPathComponent("/api/files/\(fileID)/thumbnail")
+        return baseURL.appendingPathComponent("api/files/\(fileID)/thumbnail")
     }
 
     var authHeaders: [String: String] {
@@ -251,7 +263,7 @@ class BeamletAPI {
             throw APIError.notAuthenticated
         }
 
-        let url = baseURL.appendingPathComponent("/api/files")
+        let url = baseURL.appendingPathComponent("api/files")
         let boundary = UUID().uuidString
 
         var request = URLRequest(url: url)
@@ -298,7 +310,7 @@ class BeamletAPI {
             throw APIError.notAuthenticated
         }
 
-        let url = baseURL.appendingPathComponent("/api/files")
+        let url = baseURL.appendingPathComponent("api/files")
         let boundary = UUID().uuidString
 
         var request = URLRequest(url: url)
@@ -337,7 +349,7 @@ class BeamletAPI {
     }
 
     func redeemInvite(serverURL: URL, inviteToken: String, name: String) async throws -> RedeemResponse {
-        let url = serverURL.appendingPathComponent("/api/invites/redeem")
+        let url = serverURL.appendingPathComponent("api/invites/redeem")
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -365,7 +377,7 @@ class BeamletAPI {
             throw APIError.notAuthenticated
         }
 
-        let url = baseURL.appendingPathComponent("/api/invites/redeem")
+        let url = baseURL.appendingPathComponent("api/invites/redeem")
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

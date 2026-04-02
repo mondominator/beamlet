@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/mondominator/beamlet/server/internal/api"
 	"github.com/mondominator/beamlet/server/internal/cleanup"
@@ -64,8 +65,10 @@ func ServeCmd() *cobra.Command {
 			router := api.NewRouter(srv)
 
 			httpServer := &http.Server{
-				Addr:    ":" + cfg.Port,
-				Handler: router,
+				Addr:              ":" + cfg.Port,
+				Handler:           router,
+				ReadHeaderTimeout: 10 * time.Second,
+				IdleTimeout:       120 * time.Second,
 			}
 
 			go func() {
@@ -74,7 +77,9 @@ func ServeCmd() *cobra.Command {
 				<-sigCh
 				log.Println("shutting down...")
 				close(stopCleanup)
-				httpServer.Shutdown(context.Background())
+				ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+				defer cancel()
+				httpServer.Shutdown(ctx)
 			}()
 
 			log.Printf("beamlet server listening on :%s", cfg.Port)

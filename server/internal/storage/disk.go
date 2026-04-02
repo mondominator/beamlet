@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -44,7 +45,11 @@ func (s *DiskStorage) Save(filename, mimeType string, r io.Reader) (string, erro
 }
 
 func (s *DiskStorage) Read(path string) (io.ReadCloser, error) {
-	f, err := os.Open(path)
+	clean := filepath.Clean(path)
+	if !strings.HasPrefix(clean, s.baseDir) {
+		return nil, fmt.Errorf("path outside base directory")
+	}
+	f, err := os.Open(clean)
 	if err != nil {
 		return nil, fmt.Errorf("open file: %w", err)
 	}
@@ -52,7 +57,11 @@ func (s *DiskStorage) Read(path string) (io.ReadCloser, error) {
 }
 
 func (s *DiskStorage) Delete(path string) error {
-	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+	clean := filepath.Clean(path)
+	if !strings.HasPrefix(clean, s.baseDir) {
+		return fmt.Errorf("path outside base directory")
+	}
+	if err := os.Remove(clean); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("delete file: %w", err)
 	}
 	return nil

@@ -44,10 +44,11 @@ func (s *InviteStore) Create(creatorID, createdUserID string, ttl time.Duration)
 		invite.CreatedUserID = sql.NullString{String: createdUserID, Valid: true}
 	}
 
+	prefix := token[:8]
 	_, err = s.db.Exec(
-		`INSERT INTO invites (id, token_hash, creator_id, created_user_id, expires_at, created_at)
-		 VALUES (?, ?, ?, ?, ?, ?)`,
-		invite.ID, invite.TokenHash, invite.CreatorID,
+		`INSERT INTO invites (id, token_hash, token_prefix, creator_id, created_user_id, expires_at, created_at)
+		 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+		invite.ID, invite.TokenHash, prefix, invite.CreatorID,
 		invite.CreatedUserID, invite.ExpiresAt, invite.CreatedAt,
 	)
 	if err != nil {
@@ -58,33 +59,55 @@ func (s *InviteStore) Create(creatorID, createdUserID string, ttl time.Duration)
 }
 
 func (s *InviteStore) FindByToken(token string) (*model.Invite, error) {
-	rows, err := s.db.Query(
+	if len(token) < 8 {
+		return nil, fmt.Errorf("invite not found or expired")
+	}
+	prefix := token[:8]
+	now := time.Now().UTC()
+
+	// Fast path: lookup by prefix
+	var inv model.Invite
+	err := s.db.QueryRow(
 		`SELECT id, token_hash, creator_id, created_user_id, redeemed_by, expires_at, redeemed_at, created_at
 		 FROM invites
-		 WHERE redeemed_at IS NULL AND expires_at > ?`,
-		time.Now().UTC(),
+		 WHERE token_prefix = ? AND redeemed_at IS NULL AND expires_at > ?`,
+		prefix, now,
+	).Scan(
+		&inv.ID, &inv.TokenHash, &inv.CreatorID, &inv.CreatedUserID,
+		&inv.RedeemedBy, &inv.ExpiresAt, &inv.RedeemedAt, &inv.CreatedAt,
 	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var inv model.Invite
-		if err := rows.Scan(
-			&inv.ID, &inv.TokenHash, &inv.CreatorID, &inv.CreatedUserID,
-			&inv.RedeemedBy, &inv.ExpiresAt, &inv.RedeemedAt, &inv.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
+	if err == nil {
 		if bcrypt.CompareHashAndPassword([]byte(inv.TokenHash), []byte(token)) == nil {
 			return &inv, nil
 		}
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invite not found or expired")
 	}
 
+	// Fallback: scan invites without prefix (pre-migration rows)
+	rows, err := s.db.Query(
+		`SELECT id, token_hash, creator_id, created_user_id, redeemed_by, expires_at, redeemed_at, created_at
+		 FROM invites
+		 WHERE token_prefix IS NULL AND redeemed_at IS NULL AND expires_at > ?`,
+		now,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("invite not found or expired")
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var candidate model.Invite
+		if err := rows.Scan(
+			&candidate.ID, &candidate.TokenHash, &candidate.CreatorID, &candidate.CreatedUserID,
+			&candidate.RedeemedBy, &candidate.ExpiresAt, &candidate.RedeemedAt, &candidate.CreatedAt,
+		); err != nil {
+			continue
+		}
+		if bcrypt.CompareHashAndPassword([]byte(candidate.TokenHash), []byte(token)) == nil {
+			// Backfill prefix
+			s.db.Exec("UPDATE invites SET token_prefix = ? WHERE id = ?", prefix, candidate.ID)
+			return &candidate, nil
+		}
+	}
 	return nil, fmt.Errorf("invite not found or expired")
 }
 
