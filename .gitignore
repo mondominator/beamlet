@@ -7,6 +7,10 @@ server/vendor/
 
 # Firebase
 google-services.json
+
+# Android signing
+*.keystore
+*.jks
 **/fcm_key.json
 *-firebase-adminsdk-*.json
 
