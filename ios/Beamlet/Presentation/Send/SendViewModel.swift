@@ -38,6 +38,13 @@ class SendViewModel {
         selectedFileMimeType = nil
     }
 
+    func clearFileAttachment() {
+        selectedFileURL?.stopAccessingSecurityScopedResource()
+        selectedFileURL = nil
+        selectedFileName = nil
+        selectedFileMimeType = nil
+    }
+
     func toggleUser(_ user: BeamletUser) {
         if selectedUsers.contains(user.id) {
             selectedUsers.remove(user.id)

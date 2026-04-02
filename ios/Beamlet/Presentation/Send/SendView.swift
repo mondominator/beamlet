@@ -264,7 +264,8 @@ struct SendView: View {
                 }
                 .photosPicker(isPresented: $showPhotoPicker, selection: Bindable(vm).selectedPhoto, matching: .any(of: [.images, .videos]))
                 .onChange(of: vm.selectedPhoto) {
-                    vm.clearAttachment()
+                    // Clear file attachment (if switching from file to photo)
+                    vm.clearFileAttachment()
                     Task { await vm.loadPhotoData() }
                 }
                 .fileImporter(

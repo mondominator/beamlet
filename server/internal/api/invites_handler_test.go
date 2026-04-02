@@ -208,3 +208,51 @@ func TestRedeemInviteMissingToken(t *testing.T) {
 		t.Fatalf("expected 400, got %d: %s", rec.Code, rec.Body.String())
 	}
 }
+
+func TestRedeemInviteSelfRedeem(t *testing.T) {
+	srv, aliceToken := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	// Create an invite as Alice
+	req := httptest.NewRequest("POST", "/api/invites", nil)
+	req.Header.Set("Authorization", "Bearer "+aliceToken)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("create invite: expected 201, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	var createResp map[string]string
+	json.NewDecoder(rec.Body).Decode(&createResp)
+	inviteToken := createResp["invite_token"]
+
+	// Alice tries to redeem her own invite
+	body := `{"invite_token":"` + inviteToken + `"}`
+	req = httptest.NewRequest("POST", "/api/invites/redeem", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+aliceToken)
+	rec = httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for self-redeem, got %d: %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestRedeemInviteBodyTooLarge(t *testing.T) {
+	srv, _ := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	// Send a body larger than 1MB limit set by MaxBytesReader
+	largeBody := strings.Repeat("x", 2*1024*1024) // 2MB
+	req := httptest.NewRequest("POST", "/api/invites/redeem", strings.NewReader(largeBody))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	// Should get 400 because the JSON decode will fail on the oversized body
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for oversized body, got %d: %s", rec.Code, rec.Body.String())
+	}
+}
