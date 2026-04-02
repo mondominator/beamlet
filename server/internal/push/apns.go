@@ -86,23 +86,23 @@ func (p *APNsPusher) Notify(recipientID, senderName string, file *model.File, ex
 
 	pl := BuildPayload(senderName, file.FileType, file.ID)
 
-	notification := &apns2.Notification{
-		Topic: p.bundleID,
-		Payload: payload.NewPayload().
-			AlertTitle(pl.AlertTitle).
-			AlertBody(pl.AlertBody).
-			MutableContent().
-			Custom("file_id", pl.FileID).
-			Sound("default").
-			Badge(1),
-	}
-
 	for _, device := range devices {
 		if device.APNsToken == excludeDeviceToken {
 			log.Printf("push: skipping sender device %s...", truncToken(device.APNsToken))
 			continue
 		}
-		notification.DeviceToken = device.APNsToken
+
+		notification := &apns2.Notification{
+			DeviceToken: device.APNsToken,
+			Topic:       p.bundleID,
+			Payload: payload.NewPayload().
+				AlertTitle(pl.AlertTitle).
+				AlertBody(pl.AlertBody).
+				MutableContent().
+				Custom("file_id", pl.FileID).
+				Sound("default").
+				Badge(1),
+		}
 		log.Printf("push: sending to device %s...", truncToken(device.APNsToken))
 
 		// Try production first (TestFlight/App Store), fall back to sandbox (Xcode dev builds)

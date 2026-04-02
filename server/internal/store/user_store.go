@@ -13,7 +13,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var ErrAuthFailed = errors.New("authentication failed")
+var errAuthFailed = errors.New("authentication failed")
 
 type UserStore struct {
 	db *sql.DB
@@ -31,10 +31,11 @@ func (s *UserStore) Create(name string) (*model.User, string, error) {
 		return nil, "", fmt.Errorf("hash token: %w", err)
 	}
 
+	prefix := token[:8]
 	now := time.Now().UTC()
 	_, err = s.db.Exec(
-		"INSERT INTO users (id, name, token_hash, created_at) VALUES (?, ?, ?, ?)",
-		id, name, string(hash), now,
+		"INSERT INTO users (id, name, token_hash, token_prefix, created_at) VALUES (?, ?, ?, ?, ?)",
+		id, name, string(hash), prefix, now,
 	)
 	if err != nil {
 		return nil, "", fmt.Errorf("insert user: %w", err)
@@ -61,25 +62,43 @@ func (s *UserStore) GetByID(id string) (*model.User, error) {
 }
 
 func (s *UserStore) Authenticate(token string) (*model.User, error) {
-	rows, err := s.db.Query("SELECT id, name, token_hash, created_at FROM users")
-	if err != nil {
-		return nil, fmt.Errorf("query users: %w", err)
+	if len(token) < 8 {
+		return nil, errAuthFailed
 	}
-	defer rows.Close()
+	prefix := token[:8]
 
-	for rows.Next() {
-		var u model.User
-		if err := rows.Scan(&u.ID, &u.Name, &u.TokenHash, &u.CreatedAt); err != nil {
-			return nil, fmt.Errorf("scan user: %w", err)
-		}
+	// Fast path: lookup by prefix (O(1) instead of O(n) bcrypt)
+	var u model.User
+	err := s.db.QueryRow(
+		"SELECT id, name, token_hash, created_at FROM users WHERE token_prefix = ?", prefix,
+	).Scan(&u.ID, &u.Name, &u.TokenHash, &u.CreatedAt)
+	if err == nil {
 		if bcrypt.CompareHashAndPassword([]byte(u.TokenHash), []byte(token)) == nil {
 			return &u, nil
 		}
+		return nil, errAuthFailed
 	}
-	if err := rows.Err(); err != nil {
-		return nil, fmt.Errorf("iterate users: %w", err)
+
+	// Fallback: scan for users without token_prefix (pre-migration rows)
+	rows, err := s.db.Query(
+		"SELECT id, name, token_hash, created_at FROM users WHERE token_prefix IS NULL",
+	)
+	if err != nil {
+		return nil, errAuthFailed
 	}
-	return nil, ErrAuthFailed
+	defer rows.Close()
+	for rows.Next() {
+		var candidate model.User
+		if err := rows.Scan(&candidate.ID, &candidate.Name, &candidate.TokenHash, &candidate.CreatedAt); err != nil {
+			continue
+		}
+		if bcrypt.CompareHashAndPassword([]byte(candidate.TokenHash), []byte(token)) == nil {
+			// Backfill the prefix for future fast lookups
+			s.db.Exec("UPDATE users SET token_prefix = ? WHERE id = ?", prefix, candidate.ID)
+			return &candidate, nil
+		}
+	}
+	return nil, errAuthFailed
 }
 
 func (s *UserStore) List() ([]model.User, error) {
@@ -110,7 +129,8 @@ func (s *UserStore) RevokeToken(userID string) (string, error) {
 		return "", fmt.Errorf("hash token: %w", err)
 	}
 
-	result, err := s.db.Exec("UPDATE users SET token_hash = ? WHERE id = ?", string(hash), userID)
+	prefix := token[:8]
+	result, err := s.db.Exec("UPDATE users SET token_hash = ?, token_prefix = ? WHERE id = ?", string(hash), prefix, userID)
 	if err != nil {
 		return "", fmt.Errorf("update token: %w", err)
 	}

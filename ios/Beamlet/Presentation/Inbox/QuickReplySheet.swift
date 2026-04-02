@@ -123,6 +123,7 @@ struct QuickReplySheet: View {
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(.success)
             AudioServicesPlaySystemSound(1001)
+            isSending = false
             dismiss()
         } catch {
             self.error = error.localizedDescription

@@ -65,8 +65,6 @@ class NearbyService: NSObject {
     private func restartScanning() {
         guard centralManager?.state == .poweredOn else { return }
         centralManager?.stopScan()
-        discoveredPeers = [:]
-        nearbyUsers = []
         centralManager?.scanForPeripherals(
             withServices: [Self.serviceUUID],
             options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]

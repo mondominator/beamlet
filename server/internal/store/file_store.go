@@ -136,16 +136,13 @@ func (s *FileStore) ListForSender(senderID string, limit, offset int) ([]model.F
 }
 
 func (s *FileStore) TogglePin(id string) (bool, error) {
-	result, err := s.db.Exec("UPDATE files SET pinned = CASE WHEN pinned = 1 THEN 0 ELSE 1 END WHERE id = ?", id)
-	if err != nil {
-		return false, err
-	}
-	rows, _ := result.RowsAffected()
-	if rows == 0 {
-		return false, fmt.Errorf("file not found")
-	}
 	var pinned bool
-	s.db.QueryRow("SELECT pinned FROM files WHERE id = ?", id).Scan(&pinned)
+	err := s.db.QueryRow(
+		`UPDATE files SET pinned = NOT COALESCE(pinned, 0) WHERE id = ? RETURNING pinned`, id,
+	).Scan(&pinned)
+	if err != nil {
+		return false, fmt.Errorf("toggle pin: %w", err)
+	}
 	return pinned, nil
 }
 

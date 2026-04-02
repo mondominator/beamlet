@@ -28,6 +28,7 @@ func (s *Server) CreateInvite(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) RedeemInvite(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 1<<20) // 1 MB
 	var req struct {
 		InviteToken string `json:"invite_token"`
 		Name        string `json:"name"`
@@ -85,6 +86,11 @@ func (s *Server) RedeemInvite(w http.ResponseWriter, r *http.Request) {
 
 	// Case 2: Existing user scanning an invite
 	if existingUserID != "" {
+		if existingUserID == invite.CreatorID {
+			http.Error(w, "cannot redeem your own invite", http.StatusBadRequest)
+			return
+		}
+
 		if err := s.ContactStore.Add(invite.CreatorID, existingUserID); err != nil {
 			http.Error(w, "failed to add contact", http.StatusInternalServerError)
 			return

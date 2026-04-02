@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -119,6 +120,9 @@ func (s *Server) ListFiles(w http.ResponseWriter, r *http.Request) {
 	if limit <= 0 || limit > 100 {
 		limit = 20
 	}
+	if offset < 0 {
+		offset = 0
+	}
 
 	files, err := s.FileStore.ListForRecipient(user.ID, limit, offset)
 	if err != nil {
@@ -141,6 +145,9 @@ func (s *Server) ListSentFiles(w http.ResponseWriter, r *http.Request) {
 	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
 	if limit <= 0 || limit > 100 {
 		limit = 20
+	}
+	if offset < 0 {
+		offset = 0
 	}
 
 	files, err := s.FileStore.ListForSender(user.ID, limit, offset)
@@ -193,7 +200,9 @@ func (s *Server) DownloadFile(w http.ResponseWriter, r *http.Request) {
 	}, f.Filename)
 	w.Header().Set("Content-Type", f.FileType)
 	w.Header().Set("Content-Disposition", `attachment; filename="`+safeName+`"`)
-	io.Copy(w, reader)
+	if _, err := io.Copy(w, reader); err != nil {
+		log.Printf("download copy error: %v", err)
+	}
 }
 
 func (s *Server) DownloadThumbnail(w http.ResponseWriter, r *http.Request) {
@@ -224,7 +233,9 @@ func (s *Server) DownloadThumbnail(w http.ResponseWriter, r *http.Request) {
 	defer reader.Close()
 
 	w.Header().Set("Content-Type", "image/jpeg")
-	io.Copy(w, reader)
+	if _, err := io.Copy(w, reader); err != nil {
+		log.Printf("download copy error: %v", err)
+	}
 }
 
 func (s *Server) DeleteFile(w http.ResponseWriter, r *http.Request) {

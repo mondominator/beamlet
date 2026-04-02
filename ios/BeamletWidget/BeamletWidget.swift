@@ -20,7 +20,7 @@ struct BeamletProvider: TimelineProvider {
         let files = loadRecentFiles()
         let entry = BeamletEntry(date: Date(), files: files)
         // Refresh every 15 minutes
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
+        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date()) ?? Date().addingTimeInterval(900)
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
         completion(timeline)
     }
