@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -24,6 +25,12 @@ func (s *Server) UploadFile(w http.ResponseWriter, r *http.Request) {
 	recipientID := r.FormValue("recipient_id")
 	if recipientID == "" {
 		http.Error(w, "recipient_id is required", http.StatusBadRequest)
+		return
+	}
+
+	areContacts, err := s.ContactStore.AreContacts(user.ID, recipientID)
+	if err != nil || !areContacts {
+		http.Error(w, "not a contact", http.StatusForbidden)
 		return
 	}
 
@@ -81,6 +88,12 @@ func (s *Server) UploadFile(w http.ResponseWriter, r *http.Request) {
 
 	created, err := s.FileStore.Create(f)
 	if err != nil {
+		if f.FilePath != "" {
+			s.Storage.Delete(f.FilePath)
+		}
+		if f.ThumbnailPath != "" {
+			s.Storage.Delete(f.ThumbnailPath)
+		}
 		http.Error(w, "failed to create file record", http.StatusInternalServerError)
 		return
 	}
@@ -145,11 +158,17 @@ func (s *Server) ListSentFiles(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) DownloadFile(w http.ResponseWriter, r *http.Request) {
+	user := auth.UserFromContext(r.Context())
 	id := chi.URLParam(r, "id")
 
 	f, err := s.FileStore.GetByID(id)
 	if err != nil {
 		http.Error(w, "file not found", http.StatusNotFound)
+		return
+	}
+
+	if f.SenderID != user.ID && f.RecipientID != user.ID {
+		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 
@@ -166,17 +185,29 @@ func (s *Server) DownloadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer reader.Close()
 
+	safeName := strings.Map(func(r rune) rune {
+		if r == '"' || r == '\\' || r == '\n' || r == '\r' {
+			return '_'
+		}
+		return r
+	}, f.Filename)
 	w.Header().Set("Content-Type", f.FileType)
-	w.Header().Set("Content-Disposition", "attachment; filename=\""+f.Filename+"\"")
+	w.Header().Set("Content-Disposition", `attachment; filename="`+safeName+`"`)
 	io.Copy(w, reader)
 }
 
 func (s *Server) DownloadThumbnail(w http.ResponseWriter, r *http.Request) {
+	user := auth.UserFromContext(r.Context())
 	id := chi.URLParam(r, "id")
 
 	f, err := s.FileStore.GetByID(id)
 	if err != nil {
 		http.Error(w, "file not found", http.StatusNotFound)
+		return
+	}
+
+	if f.SenderID != user.ID && f.RecipientID != user.ID {
+		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 
@@ -197,11 +228,17 @@ func (s *Server) DownloadThumbnail(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) DeleteFile(w http.ResponseWriter, r *http.Request) {
+	user := auth.UserFromContext(r.Context())
 	id := chi.URLParam(r, "id")
 
 	f, err := s.FileStore.GetByID(id)
 	if err != nil {
 		http.Error(w, "file not found", http.StatusNotFound)
+		return
+	}
+
+	if f.SenderID != user.ID && f.RecipientID != user.ID {
+		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 
@@ -222,7 +259,19 @@ func (s *Server) DeleteFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) MarkFileRead(w http.ResponseWriter, r *http.Request) {
+	user := auth.UserFromContext(r.Context())
 	id := chi.URLParam(r, "id")
+
+	f, err := s.FileStore.GetByID(id)
+	if err != nil {
+		http.Error(w, "file not found", http.StatusNotFound)
+		return
+	}
+
+	if f.SenderID != user.ID && f.RecipientID != user.ID {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
 
 	if err := s.FileStore.MarkRead(id); err != nil {
 		http.Error(w, "failed to mark read", http.StatusInternalServerError)
@@ -234,7 +283,19 @@ func (s *Server) MarkFileRead(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) TogglePin(w http.ResponseWriter, r *http.Request) {
+	user := auth.UserFromContext(r.Context())
 	id := chi.URLParam(r, "id")
+
+	f, err := s.FileStore.GetByID(id)
+	if err != nil {
+		http.Error(w, "file not found", http.StatusNotFound)
+		return
+	}
+
+	if f.SenderID != user.ID && f.RecipientID != user.ID {
+		http.Error(w, "not found", http.StatusNotFound)
+		return
+	}
 
 	pinned, err := s.FileStore.TogglePin(id)
 	if err != nil {

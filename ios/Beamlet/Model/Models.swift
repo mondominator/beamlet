@@ -52,6 +52,12 @@ struct BeamletFile: Codable, Identifiable, Hashable {
         if isLink { return "Link" }
         return "File"
     }
+
+    var formattedSize: String {
+        let formatter = ByteCountFormatter()
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: fileSize)
+    }
 }
 
 struct InviteResponse: Codable {

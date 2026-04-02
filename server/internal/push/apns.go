@@ -11,6 +11,13 @@ import (
 	"github.com/sideshow/apns2/token"
 )
 
+func truncToken(t string) string {
+	if len(t) > 16 {
+		return t[:16]
+	}
+	return t
+}
+
 type Payload struct {
 	AlertTitle string
 	AlertBody  string
@@ -44,7 +51,7 @@ type APNsPusher struct {
 	userStore     *store.UserStore
 }
 
-func NewAPNsPusher(keyPath, keyID, teamID, bundleID string, sandbox bool, userStore *store.UserStore) (*APNsPusher, error) {
+func NewAPNsPusher(keyPath, keyID, teamID, bundleID string, userStore *store.UserStore) (*APNsPusher, error) {
 	authKey, err := token.AuthKeyFromFile(keyPath)
 	if err != nil {
 		return nil, err
@@ -92,37 +99,37 @@ func (p *APNsPusher) Notify(recipientID, senderName string, file *model.File, ex
 
 	for _, device := range devices {
 		if device.APNsToken == excludeDeviceToken {
-			log.Printf("push: skipping sender device %s...", device.APNsToken[:16])
+			log.Printf("push: skipping sender device %s...", truncToken(device.APNsToken))
 			continue
 		}
 		notification.DeviceToken = device.APNsToken
-		log.Printf("push: sending to device %s...", device.APNsToken[:16])
+		log.Printf("push: sending to device %s...", truncToken(device.APNsToken))
 
 		// Try production first (TestFlight/App Store), fall back to sandbox (Xcode dev builds)
 		res, err := p.prodClient.Push(notification)
 		if err != nil {
-			log.Printf("push: prod network error for %s: %v, trying sandbox...", device.APNsToken[:16], err)
+			log.Printf("push: prod network error for %s: %v, trying sandbox...", truncToken(device.APNsToken), err)
 			res, err = p.sandboxClient.Push(notification)
 		}
 		if err != nil {
-			log.Printf("push: both failed for device %s: %v", device.APNsToken[:16], err)
+			log.Printf("push: both failed for device %s: %v", truncToken(device.APNsToken), err)
 			continue
 		}
 
 		// If production rejects the token, try sandbox (device may be a dev/TestFlight build
 		// with sandbox-registered token, or key may only work in sandbox)
 		if res.StatusCode != 200 && (res.Reason == "BadDeviceToken" || res.Reason == "BadEnvironmentKeyInToken") {
-			log.Printf("push: prod returned %d/%s, trying sandbox for %s...", res.StatusCode, res.Reason, device.APNsToken[:16])
+			log.Printf("push: prod returned %d/%s, trying sandbox for %s...", res.StatusCode, res.Reason, truncToken(device.APNsToken))
 			res, err = p.sandboxClient.Push(notification)
 			if err != nil {
-				log.Printf("push: sandbox also failed for %s: %v", device.APNsToken[:16], err)
+				log.Printf("push: sandbox also failed for %s: %v", truncToken(device.APNsToken), err)
 				continue
 			}
 		}
 
-		log.Printf("push: result for device %s: status=%d reason=%s", device.APNsToken[:16], res.StatusCode, res.Reason)
+		log.Printf("push: result for device %s: status=%d reason=%s", truncToken(device.APNsToken), res.StatusCode, res.Reason)
 		if res.StatusCode == 410 || res.Reason == "Unregistered" {
-			log.Printf("push: deactivating device %s: %s", device.APNsToken[:16], res.Reason)
+			log.Printf("push: deactivating device %s: %s", truncToken(device.APNsToken), res.Reason)
 			p.userStore.DeactivateDevice(device.APNsToken)
 		}
 	}

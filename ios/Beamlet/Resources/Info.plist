@@ -19,7 +19,7 @@
     <key>CFBundleShortVersionString</key>
     <string>1.0</string>
     <key>CFBundleVersion</key>
-    <string>11</string>
+    <string>12</string>
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
     <key>CFBundleURLTypes</key>
@@ -52,10 +52,6 @@
         <string>UIInterfaceOrientationPortraitUpsideDown</string>
         <string>UIInterfaceOrientationLandscapeLeft</string>
         <string>UIInterfaceOrientationLandscapeRight</string>
-    </array>
-    <key>BGTaskSchedulerPermittedIdentifiers</key>
-    <array>
-        <string>com.beamlet.app.cleanup</string>
     </array>
     <key>NSCameraUsageDescription</key>
     <string>Beamlet uses the camera to scan QR codes for connecting with other users.</string>

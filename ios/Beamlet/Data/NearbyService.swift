@@ -1,7 +1,6 @@
 import Foundation
 import CoreBluetooth
 import CryptoKit
-import Observation
 
 @Observable
 class NearbyService: NSObject {
@@ -38,6 +37,7 @@ class NearbyService: NSObject {
     }
 
     func start() {
+        guard centralManager == nil else { return }
         centralManager = CBCentralManager(delegate: self, queue: nil)
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil)
 

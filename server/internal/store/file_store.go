@@ -40,10 +40,10 @@ func (s *FileStore) GetByID(id string) (*model.File, error) {
 
 	err := s.db.QueryRow(
 		`SELECT id, sender_id, recipient_id, filename, file_path, thumbnail_path,
-			file_type, file_size, content_type, text_content, message, read, expires_at, created_at
+			file_type, file_size, content_type, text_content, message, read, pinned, expires_at, created_at
 		FROM files WHERE id = ?`, id,
 	).Scan(&f.ID, &f.SenderID, &f.RecipientID, &f.Filename, &filePath, &thumbnailPath,
-		&f.FileType, &f.FileSize, &f.ContentType, &textContent, &message, &f.Read, &f.ExpiresAt, &f.CreatedAt)
+		&f.FileType, &f.FileSize, &f.ContentType, &textContent, &message, &f.Read, &f.Pinned, &f.ExpiresAt, &f.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("get file: %w", err)
 	}
@@ -89,6 +89,9 @@ func (s *FileStore) ListForRecipient(recipientID string, limit, offset int) ([]m
 		f.Message = message.String
 		files = append(files, f)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return files, nil
 }
 
@@ -96,7 +99,7 @@ func (s *FileStore) ListForSender(senderID string, limit, offset int) ([]model.F
 	rows, err := s.db.Query(
 		`SELECT f.id, f.sender_id, f.recipient_id, f.filename, f.file_path, f.thumbnail_path,
 			f.file_type, f.file_size, f.content_type, f.text_content, f.message, f.read, f.pinned, f.expires_at, f.created_at,
-			u.name AS recipient_name
+			u.name AS sender_name
 		FROM files f
 		JOIN users u ON u.id = f.recipient_id
 		WHERE f.sender_id = ?
@@ -125,6 +128,9 @@ func (s *FileStore) ListForSender(senderID string, limit, offset int) ([]model.F
 		f.TextContent = textContent.String
 		f.Message = message.String
 		files = append(files, f)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return files, nil
 }
@@ -188,6 +194,9 @@ func (s *FileStore) ListExpired() ([]model.File, error) {
 		f.ThumbnailPath = thumbnailPath.String
 		files = append(files, f)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return files, nil
 }
 
@@ -200,17 +209,23 @@ type UserStats struct {
 func (s *FileStore) GetUserStats(userID string) (UserStats, error) {
 	var stats UserStats
 
-	s.db.QueryRow(
+	if err := s.db.QueryRow(
 		"SELECT COUNT(*) FROM files WHERE sender_id = ?", userID,
-	).Scan(&stats.FilesSent)
+	).Scan(&stats.FilesSent); err != nil {
+		return stats, fmt.Errorf("count sent: %w", err)
+	}
 
-	s.db.QueryRow(
+	if err := s.db.QueryRow(
 		"SELECT COUNT(*) FROM files WHERE recipient_id = ?", userID,
-	).Scan(&stats.FilesReceived)
+	).Scan(&stats.FilesReceived); err != nil {
+		return stats, fmt.Errorf("count received: %w", err)
+	}
 
-	s.db.QueryRow(
+	if err := s.db.QueryRow(
 		"SELECT COALESCE(SUM(file_size), 0) FROM files WHERE sender_id = ? OR recipient_id = ?", userID, userID,
-	).Scan(&stats.StorageUsed)
+	).Scan(&stats.StorageUsed); err != nil {
+		return stats, fmt.Errorf("sum storage: %w", err)
+	}
 
 	return stats, nil
 }

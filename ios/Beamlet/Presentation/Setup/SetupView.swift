@@ -122,18 +122,25 @@ struct SetupView: View {
             }
             .sheet(item: $scannedPayload) { payload in
                 NavigationStack {
-                    NameEntryView(
-                        serverURL: URL(string: payload.url)!,
-                        inviteToken: payload.invite,
-                        onComplete: {
-                            scannedPayload = nil
-                            // Clear pending invite
-                            UserDefaults.standard.removeObject(forKey: "pendingInviteURL")
-                            UserDefaults.standard.removeObject(forKey: "pendingInviteToken")
+                    Group {
+                        if let serverURL = URL(string: payload.url) {
+                            NameEntryView(
+                                serverURL: serverURL,
+                                inviteToken: payload.invite,
+                                onComplete: {
+                                    scannedPayload = nil
+                                    // Clear pending invite
+                                    UserDefaults.standard.removeObject(forKey: "pendingInviteURL")
+                                    UserDefaults.standard.removeObject(forKey: "pendingInviteToken")
+                                }
+                            )
+                            .environment(authRepository)
+                            .environment(api)
+                        } else {
+                            Text("Invalid server URL")
+                                .foregroundStyle(.red)
                         }
-                    )
-                    .environment(authRepository)
-                    .environment(api)
+                    }
                     .navigationTitle("Setup")
                     .navigationBarTitleDisplayMode(.inline)
                 }

@@ -50,7 +50,6 @@ struct InboxView: View {
                                         thumbnailURL: vm.thumbnailURL(for: file.id),
                                         authHeaders: vm.authHeaders,
                                         onTap: { handleTap(file: file, vm: vm) },
-                                        onSavePhoto: { image in saveToPhotos(image) },
                                         onReply: { replyFile = file },
                                         onPin: {
                                             Task {
@@ -62,8 +61,7 @@ struct InboxView: View {
                                             if let idx = vm.files.firstIndex(of: file) {
                                                 vm.deleteFiles(at: IndexSet(integer: idx))
                                             }
-                                        },
-                                        onShare: { data in shareFile(data: data, filename: file.filename) }
+                                        }
                                     )
                                 }
                             }
@@ -175,21 +173,6 @@ struct InboxView: View {
                     quickLookURL = tempURL
                 }
             }
-        }
-    }
-
-    private func saveToPhotos(_ image: UIImage) {
-        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
-    }
-
-    private func shareFile(data: Data, filename: String) {
-        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
-        try? data.write(to: tempURL)
-        let ac = UIActivityViewController(activityItems: [tempURL], applicationActivities: nil)
-        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let root = scene.windows.first?.rootViewController {
-            root.present(ac, animated: true)
         }
     }
 
