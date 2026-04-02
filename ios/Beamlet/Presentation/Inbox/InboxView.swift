@@ -100,10 +100,12 @@ struct InboxView: View {
             .onAppear {
                 UNUserNotificationCenter.current().setBadgeCount(0)
                 refreshTimer?.invalidate()
-                refreshTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { _ in
+                refreshTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [self] _ in
                     Task {
                         await viewModel?.loadFiles()
-                        await loadSentFiles()
+                        if selectedTab == .sent {
+                            await loadSentFiles()
+                        }
                     }
                 }
             }

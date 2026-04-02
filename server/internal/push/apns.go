@@ -23,6 +23,7 @@ type Payload struct {
 	AlertTitle string
 	AlertBody  string
 	FileID     string
+	FileType   string
 }
 
 func BuildPayload(senderName, fileType, fileID string) Payload {
@@ -42,6 +43,7 @@ func BuildPayload(senderName, fileType, fileID string) Payload {
 		AlertTitle: senderName,
 		AlertBody:  body,
 		FileID:     fileID,
+		FileType:   fileType,
 	}
 }
 

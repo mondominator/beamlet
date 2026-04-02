@@ -46,8 +46,8 @@ class AuthInterceptor @Inject constructor(
 
         val response = chain.proceed(newRequest)
 
-        // Handle 401/403 by clearing auth state
-        if (response.code == 401 || response.code == 403) {
+        // Handle 401 by clearing auth state (403 is a permission error, not invalid auth)
+        if (response.code == 401) {
             authRepository.clear()
         }
 

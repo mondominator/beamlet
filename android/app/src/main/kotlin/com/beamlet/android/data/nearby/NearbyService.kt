@@ -41,7 +41,9 @@ import java.security.MessageDigest
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.util.Collections
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -72,9 +74,9 @@ class NearbyService @Inject constructor(
 
     private var contactIDs: Set<String> = emptySet()
     private var contactNames: Map<String, String> = emptyMap()
-    private val discoveredPeers = mutableMapOf<String, NearbyUser>()
-    private val connectedGatts = mutableSetOf<BluetoothGatt>()
-    private val pendingPayloads = mutableMapOf<String, ByteArray>()
+    private val discoveredPeers = ConcurrentHashMap<String, NearbyUser>()
+    private val connectedGatts: MutableSet<BluetoothGatt> = Collections.synchronizedSet(mutableSetOf())
+    private val pendingPayloads = ConcurrentHashMap<String, ByteArray>()
 
     // ---- Public API ----
 

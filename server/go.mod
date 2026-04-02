@@ -10,11 +10,12 @@ require (
 	github.com/sideshow/apns2 v0.25.0
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/crypto v0.45.0
-	golang.org/x/oauth2 v0.25.0
+	golang.org/x/oauth2 v0.30.0
 	modernc.org/sqlite v1.37.0
 )
 
 require (
+	cloud.google.com/go/compute/metadata v0.8.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect

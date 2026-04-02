@@ -1,8 +1,11 @@
 package com.beamlet.android.ui.inbox
 
-import android.text.format.Formatter
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,9 +54,9 @@ import com.beamlet.android.ui.components.AuthenticatedImage
 import com.beamlet.android.ui.components.AvatarView
 import com.beamlet.android.ui.theme.BrandBlue
 import com.beamlet.android.ui.theme.BrandPurple
-import java.time.Duration
-import java.time.Instant
+import com.beamlet.android.util.formatRelativeTime
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun InboxItemCard(
     file: FileDto,
@@ -66,10 +69,15 @@ fun InboxItemCard(
 ) {
     var showContextMenu by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onTap() }
+            .combinedClickable(
+                onClick = { onTap() },
+                onLongClick = { showContextMenu = true },
+            )
             .background(MaterialTheme.colorScheme.surface)
             .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
     ) {
@@ -152,7 +160,11 @@ fun InboxItemCard(
                     DropdownMenuItem(
                         text = { Text("Copy Text") },
                         leadingIcon = { Icon(Icons.Default.ContentCopy, null) },
-                        onClick = { showContextMenu = false },
+                        onClick = {
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            clipboard.setPrimaryClip(ClipData.newPlainText("text", file.textContent))
+                            showContextMenu = false
+                        },
                     )
                 }
                 DropdownMenuItem(
@@ -337,15 +349,3 @@ private fun GenericFileContent(file: FileDto) {
     }
 }
 
-private fun formatRelativeTime(instant: Instant): String {
-    val now = Instant.now()
-    val duration = Duration.between(instant, now)
-    val seconds = duration.seconds
-    return when {
-        seconds < 60 -> "just now"
-        seconds < 3600 -> "${seconds / 60}m ago"
-        seconds < 86400 -> "${seconds / 3600}h ago"
-        seconds < 604800 -> "${seconds / 86400}d ago"
-        else -> "${seconds / 604800}w ago"
-    }
-}

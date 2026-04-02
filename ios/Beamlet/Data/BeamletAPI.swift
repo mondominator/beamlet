@@ -307,7 +307,13 @@ class BeamletAPI {
 
         request.httpBody = body
 
-        let (data, response) = try await session.data(for: request)
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
         guard let http = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
         }
@@ -349,7 +355,13 @@ class BeamletAPI {
 
         request.httpBody = body
 
-        let (data, response) = try await session.data(for: request)
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
         guard let http = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
         }
@@ -378,7 +390,13 @@ class BeamletAPI {
             "name": name,
         ])
 
-        let (data, response) = try await session.data(for: request)
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
         guard let http = response as? HTTPURLResponse, 200..<300 ~= http.statusCode else {
             let msg = String(data: data, encoding: .utf8)
             throw APIError.httpError(
@@ -404,7 +422,13 @@ class BeamletAPI {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpBody = try JSONEncoder().encode(["invite_token": inviteToken])
 
-        let (data, response) = try await session.data(for: request)
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
         guard let http = response as? HTTPURLResponse, 200..<300 ~= http.statusCode else {
             let msg = String(data: data, encoding: .utf8)
             throw APIError.httpError(

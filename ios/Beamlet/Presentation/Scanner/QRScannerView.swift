@@ -17,11 +17,21 @@ struct QRScannerView: UIViewControllerRepresentable {
 class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     var onScan: ((String) -> Void)?
     private var captureSession: AVCaptureSession?
+    private var preview: AVCaptureVideoPreviewLayer?
     private var hasScanned = false
+
+    deinit {
+        captureSession?.stopRunning()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCamera()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        preview?.frame = view.bounds
     }
 
     private func setupCamera() {
@@ -43,11 +53,12 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
             output.metadataObjectTypes = [.qr]
         }
 
-        let preview = AVCaptureVideoPreviewLayer(session: session)
-        preview.frame = view.bounds
-        preview.videoGravity = .resizeAspectFill
-        view.layer.addSublayer(preview)
+        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+        previewLayer.frame = view.bounds
+        previewLayer.videoGravity = .resizeAspectFill
+        view.layer.addSublayer(previewLayer)
 
+        preview = previewLayer
         captureSession = session
         DispatchQueue.global(qos: .userInitiated).async {
             session.startRunning()

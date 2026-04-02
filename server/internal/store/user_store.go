@@ -82,6 +82,10 @@ func (s *UserStore) Authenticate(token string) (*model.User, error) {
 				return &u, nil
 			}
 		}
+		if err := rows.Err(); err != nil {
+			rows.Close()
+			return nil, errAuthFailed
+		}
 		rows.Close()
 	}
 

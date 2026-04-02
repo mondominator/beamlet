@@ -120,6 +120,10 @@ func (s *Server) RedeemInvite(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "name is required for new users", http.StatusBadRequest)
 		return
 	}
+	if len(req.Name) > 100 {
+		http.Error(w, "name too long (max 100 characters)", http.StatusBadRequest)
+		return
+	}
 
 	newUser, userToken, err := s.UserStore.Create(req.Name)
 	if err != nil {
