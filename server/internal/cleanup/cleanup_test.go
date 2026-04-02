@@ -306,3 +306,93 @@ func TestRunOnce_ExpiredFileWithEmptyPaths(t *testing.T) {
 		t.Fatalf("expected 1 deleted, got %d", deleted)
 	}
 }
+
+func TestRunOnce_FileWithMissingDiskFile(t *testing.T) {
+	// Tests the branch where diskStorage.Delete is called on a file that
+	// doesn't exist on disk -- the cleanup should still succeed and count the deletion
+	db := testutil.TestDB(t)
+	tmpDir := t.TempDir()
+
+	us := store.NewUserStore(db.SQL())
+	fs := store.NewFileStore(db.SQL())
+	ds := storage.NewDiskStorage(tmpDir)
+
+	sender, _, _ := us.Create("Alice")
+	recipient, _, _ := us.Create("Bob")
+
+	// Create a file record pointing to a non-existent disk path
+	fs.Create(&model.File{
+		SenderID:      sender.ID,
+		RecipientID:   recipient.ID,
+		Filename:      "ghost.txt",
+		FilePath:      tmpDir + "/nonexistent-file.txt",
+		ThumbnailPath: tmpDir + "/nonexistent-thumb.jpg",
+		FileType:      "text/plain",
+		ContentType:   "file",
+		ExpiresAt:     time.Now().Add(-1 * time.Hour),
+	})
+
+	deleted, err := cleanup.RunOnce(fs, ds, nil)
+	if err != nil {
+		t.Fatalf("run once: %v", err)
+	}
+	if deleted != 1 {
+		t.Fatalf("expected 1 deleted, got %d", deleted)
+	}
+}
+
+func TestRunOnce_InviteStoreDeleteExpiredActuallyDeletes(t *testing.T) {
+	db := testutil.TestDB(t)
+	tmpDir := t.TempDir()
+
+	us := store.NewUserStore(db.SQL())
+	fs := store.NewFileStore(db.SQL())
+	is := store.NewInviteStore(db.SQL())
+	ds := storage.NewDiskStorage(tmpDir)
+
+	alice, _, _ := us.Create("Alice")
+
+	// Create multiple expired invites (expired >7 days ago)
+	is.Create(alice.ID, "", -8*24*time.Hour)
+	is.Create(alice.ID, "", -9*24*time.Hour)
+	is.Create(alice.ID, "", -10*24*time.Hour)
+
+	// Also create a non-expired invite that should NOT be deleted
+	is.Create(alice.ID, "", 24*time.Hour)
+
+	deleted, err := cleanup.RunOnce(fs, ds, is)
+	if err != nil {
+		t.Fatalf("run once: %v", err)
+	}
+	// No file deletions expected
+	if deleted != 0 {
+		t.Fatalf("expected 0 file deletions, got %d", deleted)
+	}
+}
+
+func TestStartScheduler_StopsImmediately(t *testing.T) {
+	db := testutil.TestDB(t)
+	tmpDir := t.TempDir()
+
+	fs := store.NewFileStore(db.SQL())
+	ds := storage.NewDiskStorage(tmpDir)
+
+	stop := make(chan struct{})
+
+	done := make(chan struct{})
+	go func() {
+		cleanup.StartScheduler(fs, ds, nil, stop)
+		close(done)
+	}()
+
+	// Let the initial RunOnce execute, then stop
+	time.Sleep(50 * time.Millisecond)
+	close(stop)
+
+	select {
+	case <-done:
+		// Success: scheduler stopped
+	case <-time.After(2 * time.Second):
+		t.Fatal("StartScheduler did not stop within timeout")
+	}
+}
