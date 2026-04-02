@@ -18,7 +18,7 @@ type Server struct {
 	ContactStore *store.ContactStore
 	InviteStore  *store.InviteStore
 	Storage      *storage.DiskStorage
-	Pusher       *push.APNsPusher
+	Pusher       *push.Pusher
 	Config       config.Config
 }
 

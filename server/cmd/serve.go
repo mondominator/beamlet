@@ -39,14 +39,24 @@ func ServeCmd() *cobra.Command {
 			inviteStore := store.NewInviteStore(database.SQL())
 			diskStorage := storage.NewDiskStorage(cfg.DataDir)
 
-			var pusher *push.APNsPusher
+			var apnsNotifier push.Notifier
 			if cfg.APNsKeyPath != "" {
-				p, err := push.NewAPNsPusher(cfg.APNsKeyPath, cfg.APNsKeyID, cfg.APNsTeamID, cfg.APNsBundleID, userStore)
+				n, err := push.NewAPNsNotifier(cfg.APNsKeyPath, cfg.APNsKeyID, cfg.APNsTeamID, cfg.APNsBundleID, userStore)
 				if err != nil {
-					log.Printf("warning: APNs setup failed: %v (push notifications disabled)", err)
+					log.Printf("warning: APNs setup failed: %v (iOS push notifications disabled)", err)
 				} else {
-					pusher = p
+					apnsNotifier = n
 				}
+			}
+
+			var fcmNotifier push.Notifier
+			if cfg.FCMServerKey != "" {
+				fcmNotifier = push.NewFCMNotifier(cfg.FCMServerKey, userStore)
+			}
+
+			var pusher *push.Pusher
+			if apnsNotifier != nil || fcmNotifier != nil {
+				pusher = push.NewPusher(apnsNotifier, fcmNotifier, userStore)
 			}
 
 			srv := &api.Server{
