@@ -1,6 +1,7 @@
 package push
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -44,14 +45,15 @@ func BuildPayload(senderName, fileType, fileID string) Payload {
 	}
 }
 
-type APNsPusher struct {
+// APNsNotifier sends push notifications to a single iOS device via APNs.
+type APNsNotifier struct {
 	prodClient    *apns2.Client
 	sandboxClient *apns2.Client
 	bundleID      string
 	userStore     *store.UserStore
 }
 
-func NewAPNsPusher(keyPath, keyID, teamID, bundleID string, userStore *store.UserStore) (*APNsPusher, error) {
+func NewAPNsNotifier(keyPath, keyID, teamID, bundleID string, userStore *store.UserStore) (*APNsNotifier, error) {
 	authKey, err := token.AuthKeyFromFile(keyPath)
 	if err != nil {
 		return nil, err
@@ -65,7 +67,7 @@ func NewAPNsPusher(keyPath, keyID, teamID, bundleID string, userStore *store.Use
 
 	log.Println("APNs configured (sends to both production and sandbox)")
 
-	return &APNsPusher{
+	return &APNsNotifier{
 		prodClient:    apns2.NewTokenClient(tok).Production(),
 		sandboxClient: apns2.NewTokenClient(tok).Development(),
 		bundleID:      bundleID,
@@ -73,64 +75,45 @@ func NewAPNsPusher(keyPath, keyID, teamID, bundleID string, userStore *store.Use
 	}, nil
 }
 
-func (p *APNsPusher) Notify(recipientID, senderName string, file *model.File, excludeDeviceToken string) {
-	log.Printf("push: notifying recipient %s from %s", recipientID, senderName)
+func (p *APNsNotifier) Send(device model.Device, pl Payload) error {
+	notification := &apns2.Notification{
+		DeviceToken: device.APNsToken,
+		Topic:       p.bundleID,
+		Payload: payload.NewPayload().
+			AlertTitle(pl.AlertTitle).
+			AlertBody(pl.AlertBody).
+			MutableContent().
+			Custom("file_id", pl.FileID).
+			Sound("default").
+			Badge(1),
+	}
+	log.Printf("push/apns: sending to device %s...", truncToken(device.APNsToken))
 
-	devices, err := p.userStore.GetActiveDevices(recipientID)
+	// Try production first (TestFlight/App Store), fall back to sandbox (Xcode dev builds)
+	res, err := p.prodClient.Push(notification)
 	if err != nil {
-		log.Printf("push: failed to get devices for %s: %v", recipientID, err)
-		return
+		log.Printf("push/apns: prod network error for %s: %v, trying sandbox...", truncToken(device.APNsToken), err)
+		res, err = p.sandboxClient.Push(notification)
+	}
+	if err != nil {
+		return fmt.Errorf("both prod and sandbox failed: %w", err)
 	}
 
-	log.Printf("push: found %d active devices for %s", len(devices), recipientID)
-
-	pl := BuildPayload(senderName, file.FileType, file.ID)
-
-	for _, device := range devices {
-		if device.APNsToken == excludeDeviceToken {
-			log.Printf("push: skipping sender device %s...", truncToken(device.APNsToken))
-			continue
-		}
-
-		notification := &apns2.Notification{
-			DeviceToken: device.APNsToken,
-			Topic:       p.bundleID,
-			Payload: payload.NewPayload().
-				AlertTitle(pl.AlertTitle).
-				AlertBody(pl.AlertBody).
-				MutableContent().
-				Custom("file_id", pl.FileID).
-				Sound("default").
-				Badge(1),
-		}
-		log.Printf("push: sending to device %s...", truncToken(device.APNsToken))
-
-		// Try production first (TestFlight/App Store), fall back to sandbox (Xcode dev builds)
-		res, err := p.prodClient.Push(notification)
+	// If production rejects the token, try sandbox (device may be a dev/TestFlight build
+	// with sandbox-registered token, or key may only work in sandbox)
+	if res.StatusCode != 200 && (res.Reason == "BadDeviceToken" || res.Reason == "BadEnvironmentKeyInToken") {
+		log.Printf("push/apns: prod returned %d/%s, trying sandbox for %s...", res.StatusCode, res.Reason, truncToken(device.APNsToken))
+		res, err = p.sandboxClient.Push(notification)
 		if err != nil {
-			log.Printf("push: prod network error for %s: %v, trying sandbox...", truncToken(device.APNsToken), err)
-			res, err = p.sandboxClient.Push(notification)
-		}
-		if err != nil {
-			log.Printf("push: both failed for device %s: %v", truncToken(device.APNsToken), err)
-			continue
-		}
-
-		// If production rejects the token, try sandbox (device may be a dev/TestFlight build
-		// with sandbox-registered token, or key may only work in sandbox)
-		if res.StatusCode != 200 && (res.Reason == "BadDeviceToken" || res.Reason == "BadEnvironmentKeyInToken") {
-			log.Printf("push: prod returned %d/%s, trying sandbox for %s...", res.StatusCode, res.Reason, truncToken(device.APNsToken))
-			res, err = p.sandboxClient.Push(notification)
-			if err != nil {
-				log.Printf("push: sandbox also failed for %s: %v", truncToken(device.APNsToken), err)
-				continue
-			}
-		}
-
-		log.Printf("push: result for device %s: status=%d reason=%s", truncToken(device.APNsToken), res.StatusCode, res.Reason)
-		if res.StatusCode == 410 || res.Reason == "Unregistered" {
-			log.Printf("push: deactivating device %s: %s", truncToken(device.APNsToken), res.Reason)
-			p.userStore.DeactivateDevice(device.APNsToken)
+			return fmt.Errorf("sandbox also failed: %w", err)
 		}
 	}
+
+	log.Printf("push/apns: result for device %s: status=%d reason=%s", truncToken(device.APNsToken), res.StatusCode, res.Reason)
+	if res.StatusCode == 410 || res.Reason == "Unregistered" {
+		log.Printf("push/apns: deactivating device %s: %s", truncToken(device.APNsToken), res.Reason)
+		p.userStore.DeactivateDevice(device.APNsToken)
+	}
+
+	return nil
 }
