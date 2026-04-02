@@ -60,6 +60,8 @@ class NearbyService: NSObject {
         connectedPeripherals.removeAll()
         nearbyUsers = []
         discoveredPeers = [:]
+        centralManager = nil
+        peripheralManager = nil
     }
 
     private func restartScanning() {

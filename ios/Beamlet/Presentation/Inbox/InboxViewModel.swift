@@ -58,6 +58,12 @@ class InboxViewModel {
         api.authHeaders
     }
 
+    private static let relativeDateFormatter: RelativeDateTimeFormatter = {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter
+    }()
+
     private func updateWidgetData(_ files: [BeamletFile]) {
         struct WidgetFile: Codable {
             let senderName: String
@@ -65,8 +71,7 @@ class InboxViewModel {
             let timeAgo: String
         }
 
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
+        let formatter = Self.relativeDateFormatter
 
         let widgetFiles = files.prefix(4).map { file in
             WidgetFile(

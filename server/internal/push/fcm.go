@@ -119,7 +119,7 @@ func (f *FCMNotifier) Send(device model.Device, pl Payload) error {
 			Data: map[string]string{
 				"file_id":      pl.FileID,
 				"sender_name":  pl.AlertTitle,
-				"content_type": pl.AlertBody,
+				"content_type": pl.FileType,
 			},
 			Android: &fcmAndroid{
 				Priority: "high",
@@ -150,7 +150,7 @@ func (f *FCMNotifier) Send(device model.Device, pl Payload) error {
 	}
 	defer resp.Body.Close()
 
-	respBody, _ := io.ReadAll(resp.Body)
+	respBody, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
 
 	if resp.StatusCode != http.StatusOK {
 		var errResp struct {

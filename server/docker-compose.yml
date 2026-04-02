@@ -8,6 +8,7 @@ services:
     volumes:
       - beamlet-data:/data
       - ./apns_key.p8:/app/apns_key.p8:ro
+      - ./fcm_service_account.json:/app/fcm_service_account.json:ro
     environment:
       - BEAMLET_DB_PATH=/data/beamlet.db
       - BEAMLET_DATA_DIR=/data/files
@@ -18,6 +19,7 @@ services:
       - BEAMLET_APNS_BUNDLE_ID=com.beamlet.app
       - BEAMLET_MAX_FILE_SIZE=524288000
       - BEAMLET_EXPIRY_DAYS=30
+      - BEAMLET_FCM_KEY_PATH=/app/fcm_service_account.json
       - BEAMLET_EXTERNAL_URL=${BEAMLET_EXTERNAL_URL:-}
 
 volumes:

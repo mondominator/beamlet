@@ -52,11 +52,17 @@ func (s *Server) UploadFile(w http.ResponseWriter, r *http.Request) {
 		RecipientID: recipientID,
 		ContentType: contentType,
 		Message:     r.FormValue("message"),
-		ExpiresAt:   time.Now().UTC().Add(time.Duration(expiryDays) * 24 * time.Hour),
+	}
+	if expiryDays > 0 {
+		f.ExpiresAt = time.Now().UTC().Add(time.Duration(expiryDays) * 24 * time.Hour)
 	}
 
 	if contentType == "text" || contentType == "link" {
 		f.TextContent = r.FormValue("text_content")
+		if len(f.TextContent) > 10000 {
+			http.Error(w, "text_content too large (max 10000 characters)", http.StatusBadRequest)
+			return
+		}
 		f.Filename = contentType
 		f.FileType = "text/plain"
 	} else {

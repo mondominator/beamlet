@@ -121,7 +121,4 @@ class SendViewModel @Inject constructor(
         )
     }
 
-    fun dismissSuccess() {
-        _uiState.value = _uiState.value.copy(showSuccess = false)
-    }
 }

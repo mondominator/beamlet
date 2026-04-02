@@ -39,8 +39,7 @@ import com.beamlet.android.data.api.ContactDto
 import com.beamlet.android.ui.components.AvatarView
 import com.beamlet.android.ui.components.EmptyStateView
 import com.beamlet.android.ui.components.LoadingView
-import java.time.Duration
-import java.time.Instant
+import com.beamlet.android.util.formatRelativeTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -138,7 +137,7 @@ private fun ContactRow(
             )
             contact.createdAt?.let { instant ->
                 Text(
-                    text = "Connected ${formatRelativeTime(instant)} ago",
+                    text = "Connected ${formatRelativeTime(instant)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 )
@@ -155,14 +154,3 @@ private fun ContactRow(
     }
 }
 
-private fun formatRelativeTime(instant: Instant): String {
-    val duration = Duration.between(instant, Instant.now())
-    val seconds = duration.seconds
-    return when {
-        seconds < 60 -> "just now"
-        seconds < 3600 -> "${seconds / 60}m"
-        seconds < 86400 -> "${seconds / 3600}h"
-        seconds < 604800 -> "${seconds / 86400}d"
-        else -> "${seconds / 604800}w"
-    }
-}

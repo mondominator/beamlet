@@ -54,8 +54,7 @@ import com.beamlet.android.ui.components.EmptyStateView
 import com.beamlet.android.ui.components.ErrorView
 import com.beamlet.android.ui.components.LoadingView
 import com.beamlet.android.ui.theme.BrandBlue
-import java.time.Duration
-import java.time.Instant
+import com.beamlet.android.util.formatRelativeTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -311,7 +310,7 @@ private fun SentFileRow(file: FileDto) {
 
             file.createdAt?.let { instant ->
                 Text(
-                    text = formatRelativeTimeSent(instant),
+                    text = formatRelativeTime(instant),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                 )
@@ -320,15 +319,3 @@ private fun SentFileRow(file: FileDto) {
     }
 }
 
-private fun formatRelativeTimeSent(instant: Instant): String {
-    val now = Instant.now()
-    val duration = Duration.between(instant, now)
-    val seconds = duration.seconds
-    return when {
-        seconds < 60 -> "just now"
-        seconds < 3600 -> "${seconds / 60}m ago"
-        seconds < 86400 -> "${seconds / 3600}h ago"
-        seconds < 604800 -> "${seconds / 86400}d ago"
-        else -> "${seconds / 604800}w ago"
-    }
-}

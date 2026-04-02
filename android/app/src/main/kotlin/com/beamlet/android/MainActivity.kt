@@ -29,7 +29,7 @@ import com.beamlet.android.ui.theme.BeamletTheme
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -149,7 +149,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun redeemInviteAsExistingUser(inviteToken: String) {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 contactRepository.redeemInviteAsExistingUser(inviteToken)
                 Log.d("MainActivity", "Redeemed invite as existing user")
@@ -191,7 +191,7 @@ class MainActivity : ComponentActivity() {
     private fun registerFcmToken() {
         FirebaseMessaging.getInstance().token.addOnSuccessListener { token ->
             authRepository.storeFcmToken(token)
-            CoroutineScope(Dispatchers.IO).launch {
+            lifecycleScope.launch(Dispatchers.IO) {
                 try {
                     contactRepository.registerDevice(token)
                 } catch (e: Exception) {

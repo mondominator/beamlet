@@ -25,6 +25,10 @@ func (s *Server) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "apns_token is required", http.StatusBadRequest)
 		return
 	}
+	if req.Platform != "ios" && req.Platform != "android" && req.Platform != "" {
+		http.Error(w, "invalid platform", http.StatusBadRequest)
+		return
+	}
 	if req.Platform == "" {
 		req.Platform = "ios"
 	}

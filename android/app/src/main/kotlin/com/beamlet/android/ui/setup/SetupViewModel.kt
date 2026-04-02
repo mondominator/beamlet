@@ -18,7 +18,6 @@ data class SetupUiState(
     val token: String = "",
     val isConnecting: Boolean = false,
     val error: String? = null,
-    val showScanner: Boolean = false,
     val scannedPayload: QrPayload? = null,
     val showNameEntry: Boolean = false,
     val nameText: String = "",
@@ -47,14 +46,6 @@ class SetupViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(nameText = value)
     }
 
-    fun openScanner() {
-        _uiState.value = _uiState.value.copy(showScanner = true)
-    }
-
-    fun closeScanner() {
-        _uiState.value = _uiState.value.copy(showScanner = false)
-    }
-
     fun dismissNameEntry() {
         _uiState.value = _uiState.value.copy(
             showNameEntry = false,
@@ -64,7 +55,6 @@ class SetupViewModel @Inject constructor(
     }
 
     fun handleQrScan(rawValue: String) {
-        _uiState.value = _uiState.value.copy(showScanner = false)
         try {
             val payload = gson.fromJson(rawValue, QrPayload::class.java)
             if (payload.url.isNotBlank() && payload.invite.isNotBlank()) {

@@ -1,6 +1,7 @@
 import Foundation
 import PhotosUI
 import SwiftUI
+import UIKit
 
 @Observable
 @MainActor
@@ -69,7 +70,13 @@ class SendViewModel {
 
     func loadPhotoData() async {
         guard let item = selectedPhoto else { return }
-        selectedPhotoData = try? await item.loadTransferable(type: Data.self)
+        // Load raw data and convert to JPEG (photos may be HEIC)
+        guard let rawData = try? await item.loadTransferable(type: Data.self),
+              let uiImage = UIImage(data: rawData) else {
+            selectedPhotoData = nil
+            return
+        }
+        selectedPhotoData = uiImage.jpegData(compressionQuality: 0.85)
     }
 
     func send() async {

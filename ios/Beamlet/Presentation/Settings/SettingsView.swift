@@ -139,9 +139,13 @@ struct SettingsView: View {
         }
     }
 
-    private func formatBytes(_ bytes: Int64) -> String {
+    private static let byteFormatter: ByteCountFormatter = {
         let formatter = ByteCountFormatter()
         formatter.countStyle = .file
-        return formatter.string(fromByteCount: bytes)
+        return formatter
+    }()
+
+    private func formatBytes(_ bytes: Int64) -> String {
+        Self.byteFormatter.string(fromByteCount: bytes)
     }
 }
