@@ -32,6 +32,12 @@ server/coverage.out
 *~
 *.iml
 
+# Android build artifacts
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+
 # OS
 .DS_Store
 Thumbs.db
