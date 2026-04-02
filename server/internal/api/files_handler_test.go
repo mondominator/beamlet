@@ -17,12 +17,15 @@ func TestUploadFile(t *testing.T) {
 	router := api.NewRouter(srv)
 
 	users, _ := srv.UserStore.List()
-	var bobID string
+	var aliceID, bobID string
 	for _, u := range users {
-		if u.Name == "Bob" {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
 			bobID = u.ID
 		}
 	}
+	srv.ContactStore.Add(aliceID, bobID)
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -56,12 +59,15 @@ func TestUploadText(t *testing.T) {
 	router := api.NewRouter(srv)
 
 	users, _ := srv.UserStore.List()
-	var bobID string
+	var aliceID, bobID string
 	for _, u := range users {
-		if u.Name == "Bob" {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
 			bobID = u.ID
 		}
 	}
+	srv.ContactStore.Add(aliceID, bobID)
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
