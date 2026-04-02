@@ -1,5 +1,4 @@
 import SwiftUI
-import UserNotifications
 
 struct SetupView: View {
     @Environment(AuthRepository.self) private var authRepository
@@ -202,18 +201,8 @@ struct SetupView: View {
                 authRepository.storeUserID(me.id)
             }
 
-            let center = UNUserNotificationCenter.current()
-            let granted = try? await center.requestAuthorization(options: [.alert, .badge, .sound])
-            if granted == true {
-                await MainActor.run {
-                    UIApplication.shared.registerForRemoteNotifications()
-                }
-            }
-
-            if let deviceToken = UserDefaults(suiteName: "group.com.beamlet.shared")?.string(forKey: "apnsDeviceToken") {
-                authRepository.storeDeviceToken(deviceToken)
-                try? await api.registerDevice(apnsToken: deviceToken)
-            }
+            // Notification permission and device registration are handled by
+            // BeamletApp.onChange(of: authRepository.isAuthenticated).
 
             isConnecting = false
         }

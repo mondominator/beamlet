@@ -18,6 +18,7 @@ services:
       - BEAMLET_APNS_BUNDLE_ID=com.beamlet.app
       - BEAMLET_MAX_FILE_SIZE=524288000
       - BEAMLET_EXPIRY_DAYS=30
+      - BEAMLET_EXTERNAL_URL=${BEAMLET_EXTERNAL_URL:-}
 
 volumes:
   beamlet-data:

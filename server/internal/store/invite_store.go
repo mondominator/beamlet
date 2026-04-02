@@ -65,26 +65,32 @@ func (s *InviteStore) FindByToken(token string) (*model.Invite, error) {
 	prefix := token[:8]
 	now := time.Now().UTC()
 
-	// Fast path: lookup by prefix
-	var inv model.Invite
-	err := s.db.QueryRow(
+	// Fast path: lookup by prefix (handles collisions by iterating all matches)
+	rows, err := s.db.Query(
 		`SELECT id, token_hash, creator_id, created_user_id, redeemed_by, expires_at, redeemed_at, created_at
 		 FROM invites
 		 WHERE token_prefix = ? AND redeemed_at IS NULL AND expires_at > ?`,
 		prefix, now,
-	).Scan(
-		&inv.ID, &inv.TokenHash, &inv.CreatorID, &inv.CreatedUserID,
-		&inv.RedeemedBy, &inv.ExpiresAt, &inv.RedeemedAt, &inv.CreatedAt,
 	)
 	if err == nil {
-		if bcrypt.CompareHashAndPassword([]byte(inv.TokenHash), []byte(token)) == nil {
-			return &inv, nil
+		for rows.Next() {
+			var inv model.Invite
+			if err := rows.Scan(
+				&inv.ID, &inv.TokenHash, &inv.CreatorID, &inv.CreatedUserID,
+				&inv.RedeemedBy, &inv.ExpiresAt, &inv.RedeemedAt, &inv.CreatedAt,
+			); err != nil {
+				continue
+			}
+			if bcrypt.CompareHashAndPassword([]byte(inv.TokenHash), []byte(token)) == nil {
+				rows.Close()
+				return &inv, nil
+			}
 		}
-		return nil, fmt.Errorf("invite not found or expired")
+		rows.Close()
 	}
 
 	// Fallback: scan invites without prefix (pre-migration rows)
-	rows, err := s.db.Query(
+	rows, err = s.db.Query(
 		`SELECT id, token_hash, creator_id, created_user_id, redeemed_by, expires_at, redeemed_at, created_at
 		 FROM invites
 		 WHERE token_prefix IS NULL AND redeemed_at IS NULL AND expires_at > ?`,
