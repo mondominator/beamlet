@@ -191,10 +191,10 @@ private fun ImageContent(
         AuthenticatedImage(
             url = thumbnailUrl,
             authHeaders = authHeaders,
-            contentScale = ContentScale.Fit,
+            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 200.dp)
+                .height(160.dp)
                 .clip(RoundedCornerShape(14.dp)),
         )
     }
@@ -211,10 +211,10 @@ private fun VideoContent(
             AuthenticatedImage(
                 url = thumbnailUrl,
                 authHeaders = authHeaders,
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 200.dp)
+                    .height(160.dp)
                     .clip(RoundedCornerShape(14.dp)),
             )
             Icon(
