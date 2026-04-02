@@ -38,6 +38,7 @@ func (s *Server) RegisterDevice(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("register-device: OK for user %s", user.Name)
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }

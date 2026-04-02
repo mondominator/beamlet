@@ -50,11 +50,11 @@ func (s *Server) InviteWebPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func scheme(r *http.Request) string {
+	if proto := r.Header.Get("X-Forwarded-Proto"); proto == "http" || proto == "https" {
+		return proto
+	}
 	if r.TLS != nil {
 		return "https"
-	}
-	if proto := r.Header.Get("X-Forwarded-Proto"); proto != "" {
-		return proto
 	}
 	return "http"
 }

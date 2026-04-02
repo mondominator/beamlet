@@ -1,7 +1,5 @@
 import SwiftUI
 import UniformTypeIdentifiers
-import CoreBluetooth
-import CryptoKit
 
 struct ShareView: View {
     let api: BeamletAPI

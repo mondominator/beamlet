@@ -158,7 +158,7 @@ struct BeamletWidgetEntryView: View {
     }
 
     private func colorFor(_ name: String) -> Color {
-        let colors: [Color] = [.blue, .purple, .pink, .orange, .green, .teal, .indigo, .mint]
+        let colors: [Color] = [.blue, .purple, .pink, .orange, .green, .teal, .indigo, .mint, .cyan, .red]
         let hash = name.unicodeScalars.reduce(0) { $0 &+ Int($1.value) }
         return colors[abs(hash) % colors.count]
     }

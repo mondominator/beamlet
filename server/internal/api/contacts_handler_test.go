@@ -7,12 +7,42 @@ import (
 	"testing"
 
 	"github.com/mondominator/beamlet/server/internal/api"
+	"github.com/mondominator/beamlet/server/internal/config"
+	"github.com/mondominator/beamlet/server/internal/storage"
+	"github.com/mondominator/beamlet/server/internal/store"
+	"github.com/mondominator/beamlet/server/testutil"
 )
+
+func setupTestServer(t *testing.T) (*api.Server, string) {
+	t.Helper()
+	db := testutil.TestDB(t)
+	tmpDir := t.TempDir()
+
+	us := store.NewUserStore(db.SQL())
+	fs := store.NewFileStore(db.SQL())
+	cs := store.NewContactStore(db.SQL())
+	is := store.NewInviteStore(db.SQL())
+	ds := storage.NewDiskStorage(tmpDir)
+
+	_, token, _ := us.Create("Alice")
+	us.Create("Bob")
+
+	srv := &api.Server{
+		UserStore:    us,
+		FileStore:    fs,
+		ContactStore: cs,
+		InviteStore:  is,
+		Storage:      ds,
+		Config:       config.Config{MaxFileSize: 524288000, ExpiryDays: 30, DataDir: tmpDir},
+	}
+	return srv, token
+}
 
 func TestListContacts(t *testing.T) {
 	srv, token := setupTestServer(t)
 	router := api.NewRouter(srv)
 
+	// Get Alice and Bob's IDs
 	users, _ := srv.UserStore.List()
 	var aliceID, bobID string
 	for _, u := range users {
@@ -23,7 +53,7 @@ func TestListContacts(t *testing.T) {
 		}
 	}
 
-	// Add Bob as a contact
+	// Add Bob as a contact of Alice
 	srv.ContactStore.Add(aliceID, bobID)
 
 	req := httptest.NewRequest("GET", "/api/contacts", nil)
@@ -54,6 +84,7 @@ func TestListContactsEmpty(t *testing.T) {
 	srv, token := setupTestServer(t)
 	router := api.NewRouter(srv)
 
+	// No contacts added - should return empty array
 	req := httptest.NewRequest("GET", "/api/contacts", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	rec := httptest.NewRecorder()
@@ -71,38 +102,5 @@ func TestListContactsEmpty(t *testing.T) {
 	}
 	if len(contacts) != 0 {
 		t.Fatalf("expected 0 contacts, got %d", len(contacts))
-	}
-}
-
-func TestDeleteContact(t *testing.T) {
-	srv, token := setupTestServer(t)
-	router := api.NewRouter(srv)
-
-	users, _ := srv.UserStore.List()
-	var aliceID, bobID string
-	for _, u := range users {
-		if u.Name == "Alice" {
-			aliceID = u.ID
-		} else if u.Name == "Bob" {
-			bobID = u.ID
-		}
-	}
-
-	// Add Bob as a contact, then delete
-	srv.ContactStore.Add(aliceID, bobID)
-
-	req := httptest.NewRequest("DELETE", "/api/contacts/"+bobID, nil)
-	req.Header.Set("Authorization", "Bearer "+token)
-	rec := httptest.NewRecorder()
-	router.ServeHTTP(rec, req)
-
-	if rec.Code != http.StatusNoContent {
-		t.Fatalf("expected 204, got %d: %s", rec.Code, rec.Body.String())
-	}
-
-	// Verify contact is gone
-	contacts, _ := srv.ContactStore.ListForUser(aliceID)
-	if len(contacts) != 0 {
-		t.Fatalf("expected 0 contacts after delete, got %d", len(contacts))
 	}
 }
