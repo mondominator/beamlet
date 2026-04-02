@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +21,7 @@ import com.beamlet.android.data.auth.AuthRepository
 import com.beamlet.android.data.auth.AuthState
 import com.beamlet.android.data.contacts.ContactRepository
 import com.beamlet.android.data.files.FileRepository
+import com.beamlet.android.data.nearby.NearbyService
 import com.beamlet.android.push.BeamletFirebaseService
 import com.beamlet.android.ui.navigation.BeamletNavHost
 import com.beamlet.android.ui.setup.SetupViewModel
@@ -38,6 +40,7 @@ class MainActivity : ComponentActivity() {
     @Inject lateinit var authRepository: AuthRepository
     @Inject lateinit var fileRepository: FileRepository
     @Inject lateinit var contactRepository: ContactRepository
+    @Inject lateinit var nearbyService: NearbyService
     @Inject lateinit var gson: Gson
 
     private val setupViewModel: SetupViewModel by viewModels()
@@ -46,6 +49,13 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
                 registerFcmToken()
+            }
+        }
+
+    private val requestBlePermissions =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
+            if (results.values.all { it }) {
+                nearbyService.start()
             }
         }
 
@@ -76,9 +86,12 @@ class MainActivity : ComponentActivity() {
 
                 var pendingFileId by remember { mutableStateOf(pendingFileIdFromIntent) }
 
-                // Register FCM when authenticated
-                if (isAuthenticated) {
-                    registerFcmToken()
+                // Register FCM and start BLE when authenticated
+                LaunchedEffect(isAuthenticated) {
+                    if (isAuthenticated) {
+                        registerFcmToken()
+                        startNearbyIfPermitted()
+                    }
                 }
 
                 BeamletNavHost(
@@ -144,6 +157,35 @@ class MainActivity : ComponentActivity() {
                 Log.e("MainActivity", "Failed to redeem invite", e)
             }
         }
+    }
+
+    private fun startNearbyIfPermitted() {
+        val blePermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            arrayOf(
+                Manifest.permission.BLUETOOTH_SCAN,
+                Manifest.permission.BLUETOOTH_CONNECT,
+                Manifest.permission.BLUETOOTH_ADVERTISE,
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            )
+        }
+
+        val allGranted = blePermissions.all {
+            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        }
+
+        if (allGranted) {
+            nearbyService.start()
+        } else {
+            requestBlePermissions.launch(blePermissions)
+        }
+    }
+
+    override fun onDestroy() {
+        nearbyService.stop()
+        super.onDestroy()
     }
 
     private fun registerFcmToken() {

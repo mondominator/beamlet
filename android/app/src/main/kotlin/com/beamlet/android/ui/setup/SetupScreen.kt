@@ -26,6 +26,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,6 +51,12 @@ fun SetupScreen(
     viewModel: SetupViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsState()
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) onNavigateToScanner()
+    }
 
     Column(
         modifier = Modifier
@@ -87,7 +96,7 @@ fun SetupScreen(
 
         // QR Scan button
         Button(
-            onClick = onNavigateToScanner,
+            onClick = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
             modifier = Modifier.fillMaxWidth(),
         ) {
             Icon(Icons.Default.QrCodeScanner, contentDescription = null)
