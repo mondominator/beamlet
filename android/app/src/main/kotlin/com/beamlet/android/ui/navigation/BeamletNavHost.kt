@@ -1,6 +1,7 @@
 package com.beamlet.android.ui.navigation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.draw.rotate
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Send
@@ -160,7 +161,13 @@ private fun MainScreenWithBottomNav(
 
                 bottomNavItems.forEach { item ->
                     NavigationBarItem(
-                        icon = { Icon(item.icon, contentDescription = item.label) },
+                        icon = {
+                            Icon(
+                                item.icon,
+                                contentDescription = item.label,
+                                modifier = if (item == BottomNavItem.Send) Modifier.rotate(-45f) else Modifier,
+                            )
+                        },
                         label = { Text(item.label) },
                         selected = currentDestination?.hierarchy?.any { it.route == item.route } == true,
                         onClick = {

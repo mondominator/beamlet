@@ -25,6 +25,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -39,6 +40,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.beamlet.android.data.nearby.DiscoverabilityMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,6 +58,22 @@ fun SettingsScreen(
             .verticalScroll(rememberScrollState()),
     ) {
         TopAppBar(title = { Text("Settings") })
+
+        // Discoverability section
+        SectionHeader("Discoverability")
+        DiscoverabilityMode.entries.forEach { mode ->
+            DiscoverabilityOption(
+                mode = mode,
+                selected = state.discoverabilityMode == mode,
+                onClick = { viewModel.setDiscoverabilityMode(mode) },
+            )
+        }
+        Text(
+            text = state.discoverabilityMode.description,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+        )
 
         // Contacts section
         SectionHeader("Contacts")
@@ -291,5 +309,30 @@ private fun SettingsLabelValue(
             modifier = Modifier.weight(1f),
         )
         content()
+    }
+}
+
+@Composable
+private fun DiscoverabilityOption(
+    mode: DiscoverabilityMode,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = onClick,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = mode.displayName,
+            style = MaterialTheme.typography.bodyLarge,
+        )
     }
 }
