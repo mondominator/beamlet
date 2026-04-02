@@ -178,7 +178,7 @@ class BeamletAPI {
     // MARK: - Users
 
     func listUsers() async throws -> [BeamletUser] {
-        try await request("/api/users")
+        try await request("/api/contacts")
     }
 
     // MARK: - Device Registration
