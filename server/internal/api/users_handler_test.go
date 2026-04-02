@@ -56,7 +56,7 @@ func TestListUsers(t *testing.T) {
 	// Add Bob as a contact of Alice
 	srv.ContactStore.Add(aliceID, bobID)
 
-	req := httptest.NewRequest("GET", "/api/users", nil)
+	req := httptest.NewRequest("GET", "/api/contacts", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	rec := httptest.NewRecorder()
 	router.ServeHTTP(rec, req)
@@ -85,7 +85,7 @@ func TestListUsersEmpty(t *testing.T) {
 	router := api.NewRouter(srv)
 
 	// No contacts added - should return empty array
-	req := httptest.NewRequest("GET", "/api/users", nil)
+	req := httptest.NewRequest("GET", "/api/contacts", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	rec := httptest.NewRecorder()
 	router.ServeHTTP(rec, req)
