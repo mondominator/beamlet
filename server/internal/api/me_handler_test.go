@@ -100,3 +100,40 @@ func TestGetUserProfile_NotFound(t *testing.T) {
 		t.Fatalf("expected 404, got %d: %s", rec.Code, rec.Body.String())
 	}
 }
+
+func TestGetUserProfile_Exists(t *testing.T) {
+	srv, _ := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	// Get Alice's ID
+	users, _ := srv.UserStore.List()
+	var aliceID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		}
+	}
+
+	// Public endpoint - no auth required
+	req := httptest.NewRequest("GET", "/api/users/"+aliceID+"/profile", nil)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	var result struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	}
+	if err := json.NewDecoder(rec.Body).Decode(&result); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if result.Name != "Alice" {
+		t.Fatalf("expected Alice, got %s", result.Name)
+	}
+	if result.ID != aliceID {
+		t.Fatalf("expected ID %s, got %s", aliceID, result.ID)
+	}
+}

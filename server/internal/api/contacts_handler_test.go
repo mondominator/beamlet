@@ -104,3 +104,17 @@ func TestListContactsEmpty(t *testing.T) {
 		t.Fatalf("expected 0 contacts, got %d", len(contacts))
 	}
 }
+
+func TestListUsersLegacyRoute(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	req := httptest.NewRequest("GET", "/api/users", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("legacy /api/users route should return 200, got %d", rec.Code)
+	}
+}
