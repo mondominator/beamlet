@@ -1,105 +1,72 @@
 # Beamlet Codebase Audit — Action Plan
 
-**Date:** 2026-04-01
-**Audited by:** Claude Code
+## Audit v1 (2026-04-01) — COMPLETED
 
-## Summary Stats
+19 issues found and fixed. All closed: #39-#57.
+
+## Audit v2 (2026-04-02) — Re-audit after fixes
 
 | Severity | Count | Issues |
 |----------|-------|--------|
-| Critical | 6 | #39, #40, #41, #42, #43, #44 |
-| High | 6 | #45, #46, #47, #48, #49, #50 |
-| Medium | 4 | #51, #52, #53, #54 |
-| Low | 3 | #55, #56, #57 |
-| **Total** | **19** | |
+| Critical | 2 | #58, #59 |
+| High | 6 | #60, #61, #62, #63, #64, #65 |
+| Medium | 2 | #66, #67 |
+| Low | 2 | #68, #69 |
+| **Total** | **12** | |
 
 | Category | Count |
 |----------|-------|
-| Security | 8 |
-| Bug | 7 |
-| Dead Code | 3 |
+| Security | 5 |
+| Bug | 5 |
 | Tech Debt | 3 |
 | Code Quality | 2 |
-| Docs / Config | 1 |
 
 ## Recommended Order
 
-### Sprint 1: Security (Critical) — Do First
-
-These are exploitable vulnerabilities in a public-facing server.
+### Sprint 1: Critical + Quick Security Wins
 
 | # | Issue | Description | Effort |
 |---|-------|-------------|--------|
-| 1 | #39 | IDOR on all file endpoints | Small |
-| 2 | #41 | Upload bypasses contact system | Small |
-| 3 | #44 | Container runs as root | Small |
-| 4 | #46 | Content-Disposition header injection | Small |
-| 5 | #40 | O(N) bcrypt auth (DoS vector) | Medium |
-| 6 | #47 | No rate limiting | Medium |
+| 1 | #58 | O(N) bcrypt auth — store token prefix for indexed lookup | Medium |
+| 2 | #59 | Security-scoped resource leak + multi-recipient send break | Small |
+| 3 | #62 | XSS in invite page — use html.EscapeString() | Small |
+| 4 | #65 | Missing NSPhotoLibraryAddUsageDescription — crash on save | Small |
+| 5 | #61 | No body size limit on JSON endpoints — http.MaxBytesReader | Small |
 
-**Why first:** These are exploitable by any authenticated user (#39, #41) or by unauthenticated attackers (#40, #47). The IDOR allows downloading any user's files.
-
-### Sprint 2: Crash Fixes + Security (Critical/High)
+### Sprint 2: High Priority Bugs
 
 | # | Issue | Description | Effort |
 |---|-------|-------------|--------|
-| 7 | #42 | Force unwraps crash on malformed URLs | Small |
-| 8 | #43 | Security-scoped resource leak | Small |
-| 9 | #45 | Auth token in UserDefaults → Keychain | Medium |
-| 10 | #48 | Nil deref panic on deleted invite creator | Small |
-| 11 | #49 | Graceful shutdown broken | Small |
+| 6 | #60 | HTTP server timeouts — add Read/Write/Idle timeouts | Small |
+| 7 | #63 | Sent tab wrong name — fix model/query field | Small |
+| 8 | #64 | requestVoid missing device token + error wrapping | Small |
 
-### Sprint 3: Bugs + Dead Code (High/Medium)
+### Sprint 3: Medium — Stability & Cleanup
 
 | # | Issue | Description | Effort |
 |---|-------|-------------|--------|
-| 12 | #50 | Delete 3 unused iOS files + wire up widget | Small |
-| 13 | #51 | Server bugs: wrong field names, missing columns, orphans, TOCTOU | Medium |
-| 14 | #52 | Server dead code: duplicate handlers, unused methods | Small |
-| 15 | #53 | iOS bugs: race conditions, silent errors, missing callbacks | Medium |
+| 9 | #66 | Server: duplicate route, TOCTOU, self-redeem, dead code, shutdown | Medium |
+| 10 | #67 | iOS: nearby flicker, BLE leak, KeychainService, wrong-server invite | Medium |
 
-### Sprint 4: Infrastructure + Cleanup (Medium/Low)
+### Sprint 4: Low — Polish
 
 | # | Issue | Description | Effort |
 |---|-------|-------------|--------|
-| 16 | #54 | Missing DB index, CI improvements, Docker hardening | Medium |
-| 17 | #55 | Swallowed errors across server | Small |
-| 18 | #56 | iOS redundant code, unused imports, magic numbers | Small |
-| 19 | #57 | Documentation gaps and stale config | Small |
+| 11 | #68 | Server: io.Copy errors, json.Encode errors, path validation | Small |
+| 12 | #69 | iOS: isSending reset, credential flash, scanner flag, widget unwrap | Small |
 
 ## Quick Wins (< 5 minutes each)
 
-- **#39**: Add 1 ownership check to each file handler (5 lines of code)
-- **#41**: Add 1 `AreContacts` check in UploadFile (3 lines)
-- **#42**: Change 2 force unwraps to `guard let` (2 lines each)
-- **#43**: Add `stopAccessingSecurityScopedResource()` call (1 line)
-- **#44**: Add `USER` directive to Dockerfile (2 lines)
-- **#46**: Use `mime.FormatMediaType` for filename (1 line)
-- **#48**: Add nil check on creator lookup (3 lines)
-- **#50**: Delete FileRowView.swift, FileDetailView.swift, InAppBanner.swift
-
-## Dependency Chain
-
-```
-#40 (O(N) bcrypt) → #47 (rate limiting)
-   Rate limiting is a band-aid; fixing the bcrypt scan is the real fix.
-   Do #40 first, then #47 adds defense-in-depth.
-
-#45 (Keychain) → #50 (dead code cleanup)
-   Wire up KeychainService before deleting it as dead code.
-
-#51 (server bugs: wrong field name) → #53 (iOS sent tab wrong name)
-   The iOS sent tab bug is caused by the server returning the wrong field.
-   Fix server first, then iOS displays correctly.
-
-#52 (remove duplicate handler) → #54 (CI improvements)
-   Clean up dead code before adding stricter linting.
-```
+- **#62**: Add `html.EscapeString()` to invite page handler (1 line each for name/URL)
+- **#65**: Add `NSPhotoLibraryAddUsageDescription` to Info.plist (2 lines)
+- **#61**: Wrap `r.Body` with `http.MaxBytesReader` in 2 handlers (1 line each)
+- **#60**: Add 3 timeout fields to `http.Server{}` (3 lines)
+- **#59**: Move file read before loop, stop after loop (move 2 lines)
 
 ## Effort Estimates
 
 | Effort | Issues | Time |
 |--------|--------|------|
-| Small | #39, #41, #42, #43, #44, #46, #48, #49, #50, #52, #55, #56, #57 | ~1-2 hours total |
-| Medium | #40, #45, #47, #51, #53, #54 | ~4-6 hours total |
-| **Total** | 19 issues | ~5-8 hours |
+| Small | #59, #60, #61, #62, #63, #64, #65, #68, #69 | ~2-3 hours |
+| Medium | #58, #66, #67 | ~3-4 hours |
+| **Total** | 12 issues | ~5-7 hours |
