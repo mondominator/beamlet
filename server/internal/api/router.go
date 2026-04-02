@@ -56,6 +56,7 @@ func NewRouter(s *Server) *chi.Mux {
 			r.Put("/files/{id}/read", s.MarkFileRead)
 			r.Put("/files/{id}/pin", s.TogglePin)
 
+			r.Get("/users", s.ListContacts) // legacy alias
 			r.Get("/contacts", s.ListContacts)
 			r.Delete("/contacts/{id}", s.DeleteContact)
 			r.Post("/invites", s.CreateInvite)
