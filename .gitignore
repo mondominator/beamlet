@@ -5,6 +5,11 @@ server/vendor/
 # APNs key
 *.p8
 
+# Firebase
+google-services.json
+**/fcm_key.json
+*-firebase-adminsdk-*.json
+
 # Data
 /data/
 

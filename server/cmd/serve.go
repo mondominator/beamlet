@@ -50,8 +50,13 @@ func ServeCmd() *cobra.Command {
 			}
 
 			var fcmNotifier push.Notifier
-			if cfg.FCMServerKey != "" {
-				fcmNotifier = push.NewFCMNotifier(cfg.FCMServerKey, userStore)
+			if cfg.FCMKeyPath != "" {
+				n, err := push.NewFCMNotifier(cfg.FCMKeyPath, userStore)
+				if err != nil {
+					log.Printf("warning: FCM setup failed: %v (Android push notifications disabled)", err)
+				} else {
+					fcmNotifier = n
+				}
 			}
 
 			var pusher *push.Pusher
