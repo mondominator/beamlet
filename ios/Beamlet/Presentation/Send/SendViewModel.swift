@@ -15,6 +15,7 @@ class SendViewModel {
     var selectedFileName: String?
     var selectedFileMimeType: String?
     var isSending = false
+    var isLoadingUsers = true
     var error: String?
     var showSuccess = false
 
@@ -54,7 +55,9 @@ class SendViewModel {
     }
 
     func loadUsers() async {
+        isLoadingUsers = true
         users = (try? await api.listUsers()) ?? []
+        isLoadingUsers = false
     }
 
     func loadPhotoData() async {

@@ -158,13 +158,27 @@ struct SendView: View {
                                         }
                                         .padding(.horizontal)
 
-                                        if vm.users.isEmpty {
+                                        if vm.isLoadingUsers {
                                             HStack {
                                                 Spacer()
                                                 ProgressView("Loading contacts...")
                                                     .padding(.vertical, 20)
                                                 Spacer()
                                             }
+                                        } else if vm.users.isEmpty {
+                                            VStack(spacing: 10) {
+                                                Image(systemName: "person.2.slash")
+                                                    .font(.largeTitle)
+                                                    .foregroundStyle(.secondary)
+                                                Text("No contacts yet")
+                                                    .font(.headline)
+                                                    .foregroundStyle(.secondary)
+                                                Text("Add a contact in Settings to start sharing.")
+                                                    .font(.caption)
+                                                    .foregroundStyle(.tertiary)
+                                            }
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 30)
                                         } else {
                                             LazyVGrid(columns: columns, spacing: 16) {
                                                 ForEach(vm.users) { user in
