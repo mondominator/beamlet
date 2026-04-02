@@ -99,7 +99,7 @@ func (s *FileStore) ListForSender(senderID string, limit, offset int) ([]model.F
 	rows, err := s.db.Query(
 		`SELECT f.id, f.sender_id, f.recipient_id, f.filename, f.file_path, f.thumbnail_path,
 			f.file_type, f.file_size, f.content_type, f.text_content, f.message, f.read, f.pinned, f.expires_at, f.created_at,
-			u.name AS sender_name
+			u.name AS recipient_name
 		FROM files f
 		JOIN users u ON u.id = f.recipient_id
 		WHERE f.sender_id = ?
@@ -119,7 +119,7 @@ func (s *FileStore) ListForSender(senderID string, limit, offset int) ([]model.F
 
 		if err := rows.Scan(&f.ID, &f.SenderID, &f.RecipientID, &f.Filename, &filePath, &thumbnailPath,
 			&f.FileType, &f.FileSize, &f.ContentType, &textContent, &message, &f.Read, &f.Pinned, &f.ExpiresAt, &f.CreatedAt,
-			&f.SenderName); err != nil {
+			&f.RecipientName); err != nil {
 			return nil, fmt.Errorf("scan sent file: %w", err)
 		}
 

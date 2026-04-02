@@ -19,4 +19,5 @@ type File struct {
 	ExpiresAt     time.Time `json:"expires_at"`
 	CreatedAt     time.Time `json:"created_at"`
 	SenderName    string    `json:"sender_name,omitempty"`
+	RecipientName string    `json:"recipient_name,omitempty"`
 }

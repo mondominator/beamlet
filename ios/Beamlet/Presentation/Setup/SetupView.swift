@@ -197,27 +197,22 @@ struct SetupView: View {
             // Only store after validation succeeds
             authRepository.store(serverURL: url, token: trimmedToken)
 
-            do {
-                // Fetch and store user ID
-                if let me = try? await api.getMe() {
-                    authRepository.storeUserID(me.id)
-                }
+            // Fetch and store user ID
+            if let me = try? await api.getMe() {
+                authRepository.storeUserID(me.id)
+            }
 
-                let center = UNUserNotificationCenter.current()
-                let granted = try? await center.requestAuthorization(options: [.alert, .badge, .sound])
-                if granted == true {
-                    await MainActor.run {
-                        UIApplication.shared.registerForRemoteNotifications()
-                    }
+            let center = UNUserNotificationCenter.current()
+            let granted = try? await center.requestAuthorization(options: [.alert, .badge, .sound])
+            if granted == true {
+                await MainActor.run {
+                    UIApplication.shared.registerForRemoteNotifications()
                 }
+            }
 
-                if let deviceToken = UserDefaults(suiteName: "group.com.beamlet.shared")?.string(forKey: "apnsDeviceToken") {
-                    authRepository.storeDeviceToken(deviceToken)
-                    try? await api.registerDevice(apnsToken: deviceToken)
-                }
-            } catch {
-                authRepository.clear()
-                self.error = error.localizedDescription
+            if let deviceToken = UserDefaults(suiteName: "group.com.beamlet.shared")?.string(forKey: "apnsDeviceToken") {
+                authRepository.storeDeviceToken(deviceToken)
+                try? await api.registerDevice(apnsToken: deviceToken)
             }
 
             isConnecting = false

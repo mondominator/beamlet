@@ -203,7 +203,7 @@ struct InboxView: View {
 
                         VStack(alignment: .leading, spacing: 4) {
                             HStack {
-                                Text("To: \(file.senderName ?? "Unknown")")
+                                Text("To: \(file.recipientName ?? file.senderName ?? "Unknown")")
                                     .font(.headline)
                                 Spacer()
                                 if file.read {

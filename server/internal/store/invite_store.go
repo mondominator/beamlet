@@ -111,6 +111,19 @@ func (s *InviteStore) FindByToken(token string) (*model.Invite, error) {
 	return nil, fmt.Errorf("invite not found or expired")
 }
 
+func (s *InviteStore) DeleteExpired() (int, error) {
+	result, err := s.db.Exec(
+		`DELETE FROM invites WHERE (redeemed_at IS NOT NULL AND redeemed_at < ?) OR (expires_at < ?)`,
+		time.Now().UTC().Add(-7*24*time.Hour),
+		time.Now().UTC().Add(-7*24*time.Hour),
+	)
+	if err != nil {
+		return 0, err
+	}
+	n, _ := result.RowsAffected()
+	return int(n), nil
+}
+
 func (s *InviteStore) Redeem(inviteID, redeemedByID string) error {
 	_, err := s.db.Exec(
 		`UPDATE invites SET redeemed_by = ?, redeemed_at = ? WHERE id = ?`,

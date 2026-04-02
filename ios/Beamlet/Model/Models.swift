@@ -26,6 +26,7 @@ struct BeamletFile: Codable, Identifiable, Hashable {
     let expiresAt: Date?
     let createdAt: Date?
     let senderName: String?
+    let recipientName: String?
 
     enum CodingKeys: String, CodingKey {
         case id, filename, message, read, pinned
@@ -38,6 +39,7 @@ struct BeamletFile: Codable, Identifiable, Hashable {
         case expiresAt = "expires_at"
         case createdAt = "created_at"
         case senderName = "sender_name"
+        case recipientName = "recipient_name"
     }
 
     var isImage: Bool { fileType.hasPrefix("image/") }

@@ -44,7 +44,7 @@ func TestRunOnce(t *testing.T) {
 		ExpiresAt:   time.Now().Add(30 * 24 * time.Hour),
 	})
 
-	deleted, err := cleanup.RunOnce(fs, ds)
+	deleted, err := cleanup.RunOnce(fs, ds, nil)
 	if err != nil {
 		t.Fatalf("run once: %v", err)
 	}
