@@ -23,10 +23,10 @@ func (s *FileStore) Create(f *model.File) (*model.File, error) {
 
 	_, err := s.db.Exec(
 		`INSERT INTO files (id, sender_id, recipient_id, filename, file_path, thumbnail_path,
-			file_type, file_size, content_type, text_content, message, read, expires_at, created_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			file_type, file_size, content_type, text_content, message, read, pinned, expires_at, created_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		f.ID, f.SenderID, f.RecipientID, f.Filename, f.FilePath, f.ThumbnailPath,
-		f.FileType, f.FileSize, f.ContentType, f.TextContent, f.Message, f.Read, f.ExpiresAt, f.CreatedAt,
+		f.FileType, f.FileSize, f.ContentType, f.TextContent, f.Message, f.Read, f.Pinned, f.ExpiresAt, f.CreatedAt,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("insert file: %w", err)

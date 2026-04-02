@@ -231,9 +231,19 @@ class BeamletAPI {
         var request = URLRequest(url: url)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, 200..<300 ~= http.statusCode else {
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
+        guard let http = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
+        }
+        guard 200..<300 ~= http.statusCode else {
+            let message = String(data: data, encoding: .utf8)
+            throw APIError.httpError(statusCode: http.statusCode, message: message)
         }
         return data
     }

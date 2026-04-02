@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 struct SetupView: View {
     @Environment(AuthRepository.self) private var authRepository
@@ -68,8 +69,8 @@ struct SetupView: View {
                             TextField("https://beamlet.example.com", text: $serverURL)
                                 .textFieldStyle(.roundedBorder)
                                 .textContentType(.URL)
-                                .autocapitalization(.none)
-                                .disableAutocorrection(true)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
                                 .keyboardType(.URL)
                         }
 
@@ -104,7 +105,7 @@ struct SetupView: View {
                     .padding(.horizontal)
                 }
             }
-            .navigationBarHidden(true)
+            .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showScanner) {
                 NavigationStack {
                     QRScannerView { value in
@@ -173,12 +174,30 @@ struct SetupView: View {
         isConnecting = true
         error = nil
 
+        let trimmedToken = token.trimmingCharacters(in: .whitespacesAndNewlines)
+
         Task {
-            authRepository.store(serverURL: url, token: token.trimmingCharacters(in: .whitespacesAndNewlines))
+            // Validate credentials before storing
+            var validationRequest = URLRequest(url: url.appendingPathComponent("api/contacts"))
+            validationRequest.setValue("Bearer \(trimmedToken)", forHTTPHeaderField: "Authorization")
 
             do {
-                let _ = try await api.listUsers()
+                let (_, response) = try await URLSession.shared.data(for: validationRequest)
+                guard let http = response as? HTTPURLResponse, 200..<300 ~= http.statusCode else {
+                    error = "Invalid token or server URL"
+                    isConnecting = false
+                    return
+                }
+            } catch {
+                self.error = "Could not connect to server"
+                isConnecting = false
+                return
+            }
 
+            // Only store after validation succeeds
+            authRepository.store(serverURL: url, token: trimmedToken)
+
+            do {
                 // Fetch and store user ID
                 if let me = try? await api.getMe() {
                     authRepository.storeUserID(me.id)
