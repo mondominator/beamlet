@@ -55,10 +55,14 @@ struct BeamletFile: Codable, Identifiable, Hashable {
         return "File"
     }
 
+    private static let byteFormatter: ByteCountFormatter = {
+        let f = ByteCountFormatter()
+        f.countStyle = .file
+        return f
+    }()
+
     var formattedSize: String {
-        let formatter = ByteCountFormatter()
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: fileSize)
+        Self.byteFormatter.string(fromByteCount: fileSize)
     }
 }
 

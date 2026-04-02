@@ -67,20 +67,26 @@ func (s *UserStore) Authenticate(token string) (*model.User, error) {
 	}
 	prefix := token[:8]
 
-	// Fast path: lookup by prefix (O(1) instead of O(n) bcrypt)
-	var u model.User
-	err := s.db.QueryRow(
+	// Fast path: lookup by prefix (handles collisions by iterating all matches)
+	rows, err := s.db.Query(
 		"SELECT id, name, token_hash, created_at FROM users WHERE token_prefix = ?", prefix,
-	).Scan(&u.ID, &u.Name, &u.TokenHash, &u.CreatedAt)
+	)
 	if err == nil {
-		if bcrypt.CompareHashAndPassword([]byte(u.TokenHash), []byte(token)) == nil {
-			return &u, nil
+		for rows.Next() {
+			var u model.User
+			if err := rows.Scan(&u.ID, &u.Name, &u.TokenHash, &u.CreatedAt); err != nil {
+				continue
+			}
+			if bcrypt.CompareHashAndPassword([]byte(u.TokenHash), []byte(token)) == nil {
+				rows.Close()
+				return &u, nil
+			}
 		}
-		return nil, errAuthFailed
+		rows.Close()
 	}
 
 	// Fallback: scan for users without token_prefix (pre-migration rows)
-	rows, err := s.db.Query(
+	rows, err = s.db.Query(
 		"SELECT id, name, token_hash, created_at FROM users WHERE token_prefix IS NULL",
 	)
 	if err != nil {

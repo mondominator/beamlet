@@ -30,24 +30,33 @@ class BeamletAPI {
         self.authRepository = authRepository
         self.session = session
         self.decoder = JSONDecoder()
+
+        let iso = ISO8601DateFormatter()
+        let isoFrac: ISO8601DateFormatter = {
+            let f = ISO8601DateFormatter()
+            f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            return f
+        }()
+        let goNano: DateFormatter = {
+            let f = DateFormatter()
+            f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSZ"
+            f.locale = Locale(identifier: "en_US_POSIX")
+            return f
+        }()
+        let goSpace: DateFormatter = {
+            let f = DateFormatter()
+            f.dateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSSSSS Z"
+            f.locale = Locale(identifier: "en_US_POSIX")
+            return f
+        }()
+
         self.decoder.dateDecodingStrategy = .custom { decoder in
             let container = try decoder.singleValueContainer()
             let string = try container.decode(String.self)
-            // Try ISO 8601 with fractional seconds first, then without
-            let formatters = [
-                ISO8601DateFormatter(),
-                { let f = ISO8601DateFormatter(); f.formatOptions = [.withInternetDateTime]; return f }()
-            ]
-            for formatter in formatters {
-                if let date = formatter.date(from: string) { return date }
-            }
-            // Try Go's default time format
-            let df = DateFormatter()
-            df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSZ"
-            df.locale = Locale(identifier: "en_US_POSIX")
-            if let date = df.date(from: string) { return date }
-            df.dateFormat = "yyyy-MM-dd HH:mm:ss.SSSSSSSSS Z"
-            if let date = df.date(from: string) { return date }
+            if let date = isoFrac.date(from: string) { return date }
+            if let date = iso.date(from: string) { return date }
+            if let date = goNano.date(from: string) { return date }
+            if let date = goSpace.date(from: string) { return date }
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot decode date: \(string)")
         }
     }

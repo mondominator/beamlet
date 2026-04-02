@@ -88,6 +88,7 @@ class SendViewModel {
                 return
             }
             fileURL.stopAccessingSecurityScopedResource()
+            selectedFileURL = nil
             fileName = selectedFileName ?? fileURL.lastPathComponent
             fileMimeType = selectedFileMimeType ?? "application/octet-stream"
         }
