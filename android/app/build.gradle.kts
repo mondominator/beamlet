@@ -24,10 +24,20 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("../beamlet-release.keystore")
+            storePassword = "beamlet2026"
+            keyAlias = "beamlet"
+            keyPassword = "beamlet2026"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
