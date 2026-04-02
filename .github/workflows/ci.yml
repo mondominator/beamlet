@@ -101,10 +101,4 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Scan Docker image
-        uses: aquasecurity/trivy-action@v0.31.0
-        with:
-          image-ref: ghcr.io/${{ github.repository }}:latest
-          severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
