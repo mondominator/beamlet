@@ -155,8 +155,8 @@ func (f *FCMNotifier) Send(device model.Device, pl Payload) error {
 	if resp.StatusCode != http.StatusOK {
 		var errResp struct {
 			Error struct {
-				Code    int    `json:"code"`
-				Status  string `json:"status"`
+				Code   int    `json:"code"`
+				Status string `json:"status"`
 			} `json:"error"`
 		}
 		if json.Unmarshal(respBody, &errResp) == nil {
