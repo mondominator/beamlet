@@ -118,3 +118,58 @@ func TestListUsersLegacyRoute(t *testing.T) {
 		t.Fatalf("legacy /api/users route should return 200, got %d", rec.Code)
 	}
 }
+
+func TestDeleteContact(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+
+	// Add Bob as a contact of Alice
+	srv.ContactStore.Add(aliceID, bobID)
+
+	// Verify they are contacts
+	areContacts, _ := srv.ContactStore.AreContacts(aliceID, bobID)
+	if !areContacts {
+		t.Fatal("expected Alice and Bob to be contacts before delete")
+	}
+
+	// Delete contact
+	req := httptest.NewRequest("DELETE", "/api/contacts/"+bobID, nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNoContent {
+		t.Fatalf("expected 204, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	// Verify they are no longer contacts
+	areContacts, _ = srv.ContactStore.AreContacts(aliceID, bobID)
+	if areContacts {
+		t.Fatal("expected Alice and Bob to NOT be contacts after delete")
+	}
+}
+
+func TestDeleteContactNonExistent(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	// Delete a contact that doesn't exist - should still return 204
+	req := httptest.NewRequest("DELETE", "/api/contacts/nonexistent-id", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNoContent {
+		t.Fatalf("expected 204, got %d: %s", rec.Code, rec.Body.String())
+	}
+}

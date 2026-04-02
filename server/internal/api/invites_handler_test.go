@@ -240,6 +240,32 @@ func TestRedeemInviteSelfRedeem(t *testing.T) {
 	}
 }
 
+func TestRedeemInviteNewUserMissingName(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	// Create an invite as Alice
+	req := httptest.NewRequest("POST", "/api/invites", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	var createResp map[string]string
+	json.NewDecoder(rec.Body).Decode(&createResp)
+	inviteToken := createResp["invite_token"]
+
+	// Redeem as new user but with no name
+	body := `{"invite_token":"` + inviteToken + `"}`
+	req = httptest.NewRequest("POST", "/api/invites/redeem", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	rec = httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for missing name, got %d: %s", rec.Code, rec.Body.String())
+	}
+}
+
 func TestRedeemInviteBodyTooLarge(t *testing.T) {
 	srv, _ := setupTestServer(t)
 	router := api.NewRouter(srv)

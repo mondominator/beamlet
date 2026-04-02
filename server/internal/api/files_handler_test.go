@@ -6,7 +6,9 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/mondominator/beamlet/server/internal/api"
 	"github.com/mondominator/beamlet/server/internal/model"
@@ -555,5 +557,712 @@ func TestDeleteFileIDOR(t *testing.T) {
 	got, err := srv.FileStore.GetByID(f.ID)
 	if err != nil || got == nil {
 		t.Fatal("file should still exist after unauthorized delete attempt")
+	}
+}
+
+func TestUploadFileMissingRecipientID(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	// No recipient_id field
+	part, _ := writer.CreateFormFile("file", "photo.jpg")
+	part.Write([]byte("fake image data"))
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/api/files", body)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for missing recipient_id, got %d: %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestUploadFileMissingFile(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+	srv.ContactStore.Add(aliceID, bobID)
+
+	// Send content_type=file (default) but no file attachment
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	writer.WriteField("recipient_id", bobID)
+	// No file field, no content_type override
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/api/files", body)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for missing file, got %d: %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestUploadLinkContentType(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+	srv.ContactStore.Add(aliceID, bobID)
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	writer.WriteField("recipient_id", bobID)
+	writer.WriteField("content_type", "link")
+	writer.WriteField("text_content", "https://example.com")
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/api/files", body)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	var f model.File
+	json.NewDecoder(rec.Body).Decode(&f)
+	if f.ContentType != "link" {
+		t.Fatalf("expected content_type 'link', got %s", f.ContentType)
+	}
+	if f.TextContent != "https://example.com" {
+		t.Fatalf("expected text_content, got %s", f.TextContent)
+	}
+}
+
+func TestUploadFileWithExpiryDays(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+	srv.ContactStore.Add(aliceID, bobID)
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	writer.WriteField("recipient_id", bobID)
+	writer.WriteField("content_type", "text")
+	writer.WriteField("text_content", "test expiry")
+	writer.WriteField("expiry_days", "7")
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/api/files", body)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	var f model.File
+	json.NewDecoder(rec.Body).Decode(&f)
+	// Should expire in about 7 days, not 30
+	expiryHours := time.Until(f.ExpiresAt).Hours()
+	if expiryHours < 6*24 || expiryHours > 8*24 {
+		t.Fatalf("expected expiry around 7 days, got %.0f hours", expiryHours)
+	}
+}
+
+func TestUploadFileWithInvalidExpiryDays(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+	srv.ContactStore.Add(aliceID, bobID)
+
+	// Test with out-of-range expiry (>365)
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	writer.WriteField("recipient_id", bobID)
+	writer.WriteField("content_type", "text")
+	writer.WriteField("text_content", "test expiry")
+	writer.WriteField("expiry_days", "999")
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/api/files", body)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	var f model.File
+	json.NewDecoder(rec.Body).Decode(&f)
+	// Should use default 30 days since 999 is out of range
+	expiryHours := time.Until(f.ExpiresAt).Hours()
+	if expiryHours < 29*24 || expiryHours > 31*24 {
+		t.Fatalf("expected default 30 day expiry, got %.0f hours", expiryHours)
+	}
+}
+
+func TestUploadFileWithExpiryDaysZero(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+	srv.ContactStore.Add(aliceID, bobID)
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	writer.WriteField("recipient_id", bobID)
+	writer.WriteField("content_type", "text")
+	writer.WriteField("text_content", "zero expiry")
+	writer.WriteField("expiry_days", "0")
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/api/files", body)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d: %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestListFilesEmpty(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	req := httptest.NewRequest("GET", "/api/files", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+
+	// Should return [] not null
+	body := strings.TrimSpace(rec.Body.String())
+	if body != "[]" {
+		t.Fatalf("expected empty array [], got %s", body)
+	}
+}
+
+func TestListSentFilesEmpty(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	req := httptest.NewRequest("GET", "/api/files/sent", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+
+	body := strings.TrimSpace(rec.Body.String())
+	if body != "[]" {
+		t.Fatalf("expected empty array [], got %s", body)
+	}
+}
+
+func TestListFilesDefaultLimit(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	// No limit/offset params -- should use defaults
+	req := httptest.NewRequest("GET", "/api/files", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+}
+
+func TestListFilesNegativeOffset(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	req := httptest.NewRequest("GET", "/api/files?limit=10&offset=-5", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+}
+
+func TestListFilesExcessiveLimit(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	// limit > 100 should be clamped to 20
+	req := httptest.NewRequest("GET", "/api/files?limit=500", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+}
+
+func TestDownloadFileNotFound(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	req := httptest.NewRequest("GET", "/api/files/nonexistent-id", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", rec.Code)
+	}
+}
+
+func TestDownloadTextFile(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+
+	// Create a text content type file
+	f, _ := srv.FileStore.Create(&model.File{
+		SenderID:    bobID,
+		RecipientID: aliceID,
+		Filename:    "text",
+		FileType:    "text/plain",
+		ContentType: "text",
+		TextContent: "Hello, world!",
+	})
+
+	req := httptest.NewRequest("GET", "/api/files/"+f.ID, nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	// Text content type should return JSON, not file download
+	if ct := rec.Header().Get("Content-Type"); !strings.Contains(ct, "application/json") {
+		t.Fatalf("expected application/json, got %s", ct)
+	}
+}
+
+func TestDownloadLinkFile(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+
+	f, _ := srv.FileStore.Create(&model.File{
+		SenderID:    bobID,
+		RecipientID: aliceID,
+		Filename:    "link",
+		FileType:    "text/plain",
+		ContentType: "link",
+		TextContent: "https://example.com",
+	})
+
+	req := httptest.NewRequest("GET", "/api/files/"+f.ID, nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+	if ct := rec.Header().Get("Content-Type"); !strings.Contains(ct, "application/json") {
+		t.Fatalf("expected application/json for link, got %s", ct)
+	}
+}
+
+func TestDownloadThumbnailNotFound(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	req := httptest.NewRequest("GET", "/api/files/nonexistent-id/thumbnail", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", rec.Code)
+	}
+}
+
+func TestDownloadThumbnailNoThumbnail(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+
+	// File with no thumbnail
+	f, _ := srv.FileStore.Create(&model.File{
+		SenderID:    bobID,
+		RecipientID: aliceID,
+		Filename:    "nothumbs.txt",
+		FileType:    "text/plain",
+		ContentType: "file",
+	})
+
+	req := httptest.NewRequest("GET", "/api/files/"+f.ID+"/thumbnail", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for no thumbnail, got %d", rec.Code)
+	}
+}
+
+func TestDownloadThumbnailIDOR(t *testing.T) {
+	srv, _ := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	_, charlieToken, _ := srv.UserStore.Create("Charlie")
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+
+	thumbContent := []byte("thumb data")
+	thumbPath, _ := srv.Storage.Save("thumb.jpg", "image/jpeg", bytes.NewReader(thumbContent))
+
+	f, _ := srv.FileStore.Create(&model.File{
+		SenderID:      bobID,
+		RecipientID:   aliceID,
+		Filename:      "private.jpg",
+		ThumbnailPath: thumbPath,
+		FileType:      "image/jpeg",
+		ContentType:   "file",
+	})
+
+	// Charlie tries to access Alice's thumbnail
+	req := httptest.NewRequest("GET", "/api/files/"+f.ID+"/thumbnail", nil)
+	req.Header.Set("Authorization", "Bearer "+charlieToken)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for IDOR thumbnail, got %d", rec.Code)
+	}
+}
+
+func TestDeleteFileNotFound(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	req := httptest.NewRequest("DELETE", "/api/files/nonexistent-id", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", rec.Code)
+	}
+}
+
+func TestDeleteFileWithDiskFiles(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+
+	fileContent := []byte("file to delete")
+	filePath, _ := srv.Storage.Save("deleteme.txt", "text/plain", bytes.NewReader(fileContent))
+	thumbContent := []byte("thumb to delete")
+	thumbPath, _ := srv.Storage.Save("deletethumb.jpg", "image/jpeg", bytes.NewReader(thumbContent))
+
+	f, _ := srv.FileStore.Create(&model.File{
+		SenderID:      bobID,
+		RecipientID:   aliceID,
+		Filename:      "deleteme.txt",
+		FilePath:      filePath,
+		ThumbnailPath: thumbPath,
+		FileType:      "text/plain",
+		ContentType:   "file",
+	})
+
+	req := httptest.NewRequest("DELETE", "/api/files/"+f.ID, nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+}
+
+func TestMarkFileReadNotFound(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	req := httptest.NewRequest("PUT", "/api/files/nonexistent-id/read", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", rec.Code)
+	}
+}
+
+func TestTogglePinNotFound(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	req := httptest.NewRequest("PUT", "/api/files/nonexistent-id/pin", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", rec.Code)
+	}
+}
+
+func TestTogglePinIDOR(t *testing.T) {
+	srv, _ := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	_, charlieToken, _ := srv.UserStore.Create("Charlie")
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+
+	f, _ := srv.FileStore.Create(&model.File{
+		SenderID:    bobID,
+		RecipientID: aliceID,
+		Filename:    "nopin.txt",
+		FileType:    "text/plain",
+		ContentType: "file",
+	})
+
+	// Charlie tries to toggle pin on Alice's file
+	req := httptest.NewRequest("PUT", "/api/files/"+f.ID+"/pin", nil)
+	req.Header.Set("Authorization", "Bearer "+charlieToken)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for IDOR pin, got %d", rec.Code)
+	}
+}
+
+func TestDownloadFileWithMissingDiskFile(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+
+	// Create file record pointing to non-existent disk path
+	f, _ := srv.FileStore.Create(&model.File{
+		SenderID:    bobID,
+		RecipientID: aliceID,
+		Filename:    "ghost.txt",
+		FilePath:    "/nonexistent/path/ghost.txt",
+		FileType:    "text/plain",
+		ContentType: "file",
+	})
+
+	req := httptest.NewRequest("GET", "/api/files/"+f.ID, nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for missing disk file, got %d: %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestListSentFilesDefaultParams(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	// No limit/offset params
+	req := httptest.NewRequest("GET", "/api/files/sent", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+}
+
+func TestListSentFilesNegativeOffset(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	req := httptest.NewRequest("GET", "/api/files/sent?limit=10&offset=-1", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+}
+
+func TestListSentFilesExcessiveLimit(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	req := httptest.NewRequest("GET", "/api/files/sent?limit=999", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+}
+
+func TestUploadFileWithMessage(t *testing.T) {
+	srv, token := setupTestServer(t)
+	router := api.NewRouter(srv)
+
+	users, _ := srv.UserStore.List()
+	var aliceID, bobID string
+	for _, u := range users {
+		if u.Name == "Alice" {
+			aliceID = u.ID
+		} else if u.Name == "Bob" {
+			bobID = u.ID
+		}
+	}
+	srv.ContactStore.Add(aliceID, bobID)
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	writer.WriteField("recipient_id", bobID)
+	writer.WriteField("content_type", "text")
+	writer.WriteField("text_content", "hello")
+	writer.WriteField("message", "check this out!")
+	writer.Close()
+
+	req := httptest.NewRequest("POST", "/api/files", body)
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusCreated {
+		t.Fatalf("expected 201, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	var f model.File
+	json.NewDecoder(rec.Body).Decode(&f)
+	if f.Message != "check this out!" {
+		t.Fatalf("expected message 'check this out!', got %s", f.Message)
 	}
 }
