@@ -32,10 +32,10 @@ func Load() Config {
 	}
 
 	return Config{
-		DBPath:      getEnv("BEAMLET_DB_PATH", "/data/beamlet.db"),
-		DataDir:     getEnv("BEAMLET_DATA_DIR", "/data/files"),
-		Port:        getEnv("BEAMLET_PORT", "8080"),
-		ExternalURL: getEnv("BEAMLET_EXTERNAL_URL", ""),
+		DBPath:       getEnv("BEAMLET_DB_PATH", "/data/beamlet.db"),
+		DataDir:      getEnv("BEAMLET_DATA_DIR", "/data/files"),
+		Port:         getEnv("BEAMLET_PORT", "8080"),
+		ExternalURL:  getEnv("BEAMLET_EXTERNAL_URL", ""),
 		APNsKeyPath:  getEnv("BEAMLET_APNS_KEY_PATH", ""),
 		APNsKeyID:    getEnv("BEAMLET_APNS_KEY_ID", ""),
 		APNsTeamID:   getEnv("BEAMLET_APNS_TEAM_ID", ""),
