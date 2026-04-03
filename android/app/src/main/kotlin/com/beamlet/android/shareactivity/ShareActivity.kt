@@ -94,7 +94,7 @@ private fun ShareSheet(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.4f))
-            .clickable(interactionSource = null, indication = null) { onClose() },
+            .clickable(indication = null, interactionSource = androidx.compose.foundation.interaction.MutableInteractionSource()) { onClose() },
         contentAlignment = Alignment.BottomCenter,
     ) {
         Column(
@@ -102,7 +102,7 @@ private fun ShareSheet(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                 .background(MaterialTheme.colorScheme.surface)
-                .clickable(interactionSource = null, indication = null) { /* consume clicks */ }
+                .clickable(indication = null, interactionSource = androidx.compose.foundation.interaction.MutableInteractionSource()) { /* consume clicks */ }
                 .padding(top = 12.dp, bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
