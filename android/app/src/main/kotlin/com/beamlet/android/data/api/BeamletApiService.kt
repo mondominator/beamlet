@@ -92,6 +92,9 @@ interface BeamletApiService {
     @GET("api/me")
     suspend fun getMe(): MeResponse
 
+    @PUT("api/me/discoverability")
+    suspend fun updateDiscoverability(@Body request: UpdateDiscoverabilityRequest): Response<Unit>
+
     @GET("api/users/{id}/profile")
     suspend fun getProfile(@Path("id") userId: String): MeResponse
 }

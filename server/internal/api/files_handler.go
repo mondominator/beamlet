@@ -34,10 +34,19 @@ func (s *Server) UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	areContacts, err := s.ContactStore.AreContacts(user.ID, recipientID)
-	if err != nil || !areContacts {
-		http.Error(w, "not a contact", http.StatusForbidden)
+	// Check if recipient allows receiving from everyone (nearby/discoverable mode).
+	// If so, skip the mutual-contact requirement.
+	recipientDisc, err := s.UserStore.GetDiscoverability(recipientID)
+	if err != nil {
+		http.Error(w, "recipient not found", http.StatusNotFound)
 		return
+	}
+	if recipientDisc != model.DiscoverabilityEveryone {
+		areContacts, err := s.ContactStore.AreContacts(user.ID, recipientID)
+		if err != nil || !areContacts {
+			http.Error(w, "not a contact", http.StatusForbidden)
+			return
+		}
 	}
 
 	contentType := r.FormValue("content_type")

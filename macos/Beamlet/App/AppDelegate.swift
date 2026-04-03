@@ -51,11 +51,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         nearbyService = service
         service.start()
 
-        // Load contacts for hash-based discovery
+        // Load contacts for hash-based discovery, and sync discoverability from server
         Task {
             if let contacts = try? await api.listUsers() {
                 await MainActor.run {
                     service.updateContacts(contacts)
+                }
+            }
+            if let me = try? await api.getMe(),
+               let serverMode = me.discoverability,
+               let mode = DiscoverabilityMode(rawValue: serverMode) {
+                await MainActor.run {
+                    mode.save()
+                    service.mode = mode
                 }
             }
         }

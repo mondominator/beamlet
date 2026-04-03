@@ -34,18 +34,19 @@ func (s *UserStore) Create(name string) (*model.User, string, error) {
 	prefix := token[:8]
 	now := time.Now().UTC()
 	_, err = s.db.Exec(
-		"INSERT INTO users (id, name, token_hash, token_prefix, created_at) VALUES (?, ?, ?, ?, ?)",
-		id, name, string(hash), prefix, now,
+		"INSERT INTO users (id, name, token_hash, token_prefix, discoverability, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+		id, name, string(hash), prefix, model.DiscoverabilityContactsOnly, now,
 	)
 	if err != nil {
 		return nil, "", fmt.Errorf("insert user: %w", err)
 	}
 
 	user := &model.User{
-		ID:        id,
-		Name:      name,
-		TokenHash: string(hash),
-		CreatedAt: now,
+		ID:              id,
+		Name:            name,
+		TokenHash:       string(hash),
+		Discoverability: model.DiscoverabilityContactsOnly,
+		CreatedAt:       now,
 	}
 	return user, token, nil
 }
@@ -53,8 +54,8 @@ func (s *UserStore) Create(name string) (*model.User, string, error) {
 func (s *UserStore) GetByID(id string) (*model.User, error) {
 	var u model.User
 	err := s.db.QueryRow(
-		"SELECT id, name, token_hash, created_at FROM users WHERE id = ?", id,
-	).Scan(&u.ID, &u.Name, &u.TokenHash, &u.CreatedAt)
+		"SELECT id, name, token_hash, COALESCE(discoverability, 'contactsOnly'), created_at FROM users WHERE id = ?", id,
+	).Scan(&u.ID, &u.Name, &u.TokenHash, &u.Discoverability, &u.CreatedAt)
 	if err != nil {
 		return nil, fmt.Errorf("get user: %w", err)
 	}
@@ -69,12 +70,12 @@ func (s *UserStore) Authenticate(token string) (*model.User, error) {
 
 	// Fast path: lookup by prefix (handles collisions by iterating all matches)
 	rows, err := s.db.Query(
-		"SELECT id, name, token_hash, created_at FROM users WHERE token_prefix = ?", prefix,
+		"SELECT id, name, token_hash, COALESCE(discoverability, 'contactsOnly'), created_at FROM users WHERE token_prefix = ?", prefix,
 	)
 	if err == nil {
 		for rows.Next() {
 			var u model.User
-			if err := rows.Scan(&u.ID, &u.Name, &u.TokenHash, &u.CreatedAt); err != nil {
+			if err := rows.Scan(&u.ID, &u.Name, &u.TokenHash, &u.Discoverability, &u.CreatedAt); err != nil {
 				continue
 			}
 			if bcrypt.CompareHashAndPassword([]byte(u.TokenHash), []byte(token)) == nil {
@@ -91,7 +92,7 @@ func (s *UserStore) Authenticate(token string) (*model.User, error) {
 
 	// Fallback: scan for users without token_prefix (pre-migration rows)
 	rows, err = s.db.Query(
-		"SELECT id, name, token_hash, created_at FROM users WHERE token_prefix IS NULL",
+		"SELECT id, name, token_hash, COALESCE(discoverability, 'contactsOnly'), created_at FROM users WHERE token_prefix IS NULL",
 	)
 	if err != nil {
 		return nil, errAuthFailed
@@ -99,7 +100,7 @@ func (s *UserStore) Authenticate(token string) (*model.User, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var candidate model.User
-		if err := rows.Scan(&candidate.ID, &candidate.Name, &candidate.TokenHash, &candidate.CreatedAt); err != nil {
+		if err := rows.Scan(&candidate.ID, &candidate.Name, &candidate.TokenHash, &candidate.Discoverability, &candidate.CreatedAt); err != nil {
 			continue
 		}
 		if bcrypt.CompareHashAndPassword([]byte(candidate.TokenHash), []byte(token)) == nil {
@@ -161,6 +162,29 @@ func (s *UserStore) RevokeToken(userID string) (string, error) {
 		return "", fmt.Errorf("user not found: %s", userID)
 	}
 	return token, nil
+}
+
+func (s *UserStore) GetDiscoverability(userID string) (string, error) {
+	var disc string
+	err := s.db.QueryRow(
+		"SELECT COALESCE(discoverability, 'contactsOnly') FROM users WHERE id = ?", userID,
+	).Scan(&disc)
+	if err != nil {
+		return "", fmt.Errorf("get discoverability: %w", err)
+	}
+	return disc, nil
+}
+
+func (s *UserStore) UpdateDiscoverability(userID, value string) error {
+	result, err := s.db.Exec("UPDATE users SET discoverability = ? WHERE id = ?", value, userID)
+	if err != nil {
+		return fmt.Errorf("update discoverability: %w", err)
+	}
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return fmt.Errorf("user not found: %s", userID)
+	}
+	return nil
 }
 
 func (s *UserStore) RegisterDevice(userID, apnsToken, platform string) error {

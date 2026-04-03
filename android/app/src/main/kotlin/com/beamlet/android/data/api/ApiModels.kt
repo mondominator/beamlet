@@ -83,6 +83,11 @@ data class MeResponse(
     @SerializedName("files_sent") val filesSent: Int?,
     @SerializedName("files_received") val filesReceived: Int?,
     @SerializedName("storage_used") val storageUsed: Long?,
+    @SerializedName("discoverability") val discoverability: String? = null,
+)
+
+data class UpdateDiscoverabilityRequest(
+    @SerializedName("discoverability") val discoverability: String,
 )
 
 data class PinResponse(

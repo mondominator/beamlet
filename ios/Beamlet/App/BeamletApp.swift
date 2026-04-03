@@ -42,6 +42,7 @@ struct BeamletApp: App {
                         await requestNotificationPermission()
                         await registerExistingDeviceToken()
                         await startNearbyService()
+                        await syncDiscoverabilityFromServer()
                     }
                 }
                 .onChange(of: authRepository.isAuthenticated) { _, isAuth in
@@ -50,6 +51,7 @@ struct BeamletApp: App {
                             await requestNotificationPermission()
                             await registerExistingDeviceToken()
                             await startNearbyService()
+                            await syncDiscoverabilityFromServer()
                         }
                     }
                 }
@@ -63,6 +65,15 @@ struct BeamletApp: App {
                         try? await api.registerDevice(apnsToken: token)
                     }
                 }
+        }
+    }
+
+    private func syncDiscoverabilityFromServer() async {
+        if let me = try? await api.getMe(),
+           let serverMode = me.discoverability,
+           let mode = DiscoverabilityMode(rawValue: serverMode) {
+            mode.save()
+            nearbyService?.mode = mode
         }
     }
 

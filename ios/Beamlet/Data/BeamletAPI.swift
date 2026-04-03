@@ -454,9 +454,10 @@ class BeamletAPI {
         let filesSent: Int?
         let filesReceived: Int?
         let storageUsed: Int64?
+        let discoverability: String?
 
         enum CodingKeys: String, CodingKey {
-            case id, name
+            case id, name, discoverability
             case filesSent = "files_sent"
             case filesReceived = "files_received"
             case storageUsed = "storage_used"
@@ -465,6 +466,11 @@ class BeamletAPI {
 
     func getMe() async throws -> MeResponse {
         try await request("/api/me")
+    }
+
+    func updateDiscoverability(_ mode: String) async throws {
+        let body = try JSONSerialization.data(withJSONObject: ["discoverability": mode])
+        try await requestVoid("/api/me/discoverability", method: "PUT", body: body)
     }
 
     func getProfile(userID: String) async throws -> MeResponse {
