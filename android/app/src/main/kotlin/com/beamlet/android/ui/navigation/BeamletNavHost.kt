@@ -1,5 +1,11 @@
 package com.beamlet.android.ui.navigation
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.draw.rotate
 import androidx.compose.material.icons.Icons
@@ -12,9 +18,11 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -80,6 +88,20 @@ fun BeamletNavHost(
     setupViewModel: SetupViewModel,
 ) {
     val navController = rememberNavController()
+
+    // React to auth state changes (e.g., logout navigates to setup)
+    LaunchedEffect(isAuthenticated) {
+        val currentRoute = navController.currentBackStackEntry?.destination?.route
+        if (!isAuthenticated && currentRoute != Routes.SETUP) {
+            navController.navigate(Routes.SETUP) {
+                popUpTo(0) { inclusive = true }
+            }
+        } else if (isAuthenticated && currentRoute == Routes.SETUP) {
+            navController.navigate(Routes.MAIN) {
+                popUpTo(Routes.SETUP) { inclusive = true }
+            }
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -190,9 +212,25 @@ private fun MainScreenWithBottomNav(
             modifier = Modifier.padding(innerPadding),
         ) {
             composable(Routes.INBOX) {
+                val context = LocalContext.current
                 InboxScreen(
                     onFileClick = { file ->
-                        // For non-image files, handle inline (links open browser, text copies)
+                        when {
+                            file.isLink -> {
+                                val url = file.textContent ?: return@InboxScreen
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                context.startActivity(intent)
+                            }
+                            file.isText -> {
+                                val text = file.textContent ?: return@InboxScreen
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                clipboard.setPrimaryClip(ClipData.newPlainText("text", text))
+                                Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+                            }
+                            else -> {
+                                Toast.makeText(context, "File received", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     },
                     onImageClick = { fileId ->
                         navController.navigate(Routes.imageViewer(fileId))

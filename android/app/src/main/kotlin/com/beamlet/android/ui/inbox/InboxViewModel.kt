@@ -1,16 +1,21 @@
 package com.beamlet.android.ui.inbox
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.beamlet.android.data.api.FileDto
 import com.beamlet.android.data.files.FileRepository
+import com.beamlet.android.ui.settings.SettingsViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 data class InboxUiState(
@@ -28,7 +33,10 @@ enum class InboxTab { RECEIVED, SENT }
 @HiltViewModel
 class InboxViewModel @Inject constructor(
     private val fileRepository: FileRepository,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
+
+    private val prefs = context.getSharedPreferences("beamlet_prefs", Context.MODE_PRIVATE)
 
     private val _uiState = MutableStateFlow(InboxUiState())
     val uiState: StateFlow<InboxUiState> = _uiState.asStateFlow()
@@ -49,8 +57,9 @@ class InboxViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val files = fileRepository.listFiles()
+                val filtered = cleanupOldFiles(files)
                 _uiState.value = _uiState.value.copy(
-                    receivedFiles = files,
+                    receivedFiles = filtered,
                     isLoadingReceived = false,
                     isRefreshing = false,
                     error = null,
@@ -63,6 +72,36 @@ class InboxViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    /**
+     * Auto-delete received files older than the user's cleanup preference.
+     * Pinned files are preserved. Deletes happen in the background.
+     */
+    private fun cleanupOldFiles(files: List<FileDto>): List<FileDto> {
+        val expiryDays = prefs.getInt(SettingsViewModel.PREF_FILE_EXPIRY_DAYS, 1)
+        if (expiryDays <= 0) return files
+
+        val cutoff = Instant.now().minus(expiryDays.toLong(), ChronoUnit.DAYS)
+        val expiredIds = mutableSetOf<String>()
+
+        for (file in files) {
+            if (file.pinned) continue
+            val created = file.createdAt ?: continue
+            if (created.isBefore(cutoff)) {
+                expiredIds.add(file.id)
+            }
+        }
+
+        if (expiredIds.isNotEmpty()) {
+            viewModelScope.launch {
+                for (id in expiredIds) {
+                    try { fileRepository.deleteFile(id) } catch (_: Exception) { }
+                }
+            }
+        }
+
+        return files.filter { it.id !in expiredIds }
     }
 
     fun loadSentFiles() {
@@ -146,7 +185,8 @@ class InboxViewModel @Inject constructor(
                 delay(10_000)
                 try {
                     val files = fileRepository.listFiles()
-                    _uiState.value = _uiState.value.copy(receivedFiles = files)
+                    val filtered = cleanupOldFiles(files)
+                    _uiState.value = _uiState.value.copy(receivedFiles = filtered)
                     // Also refresh sent if on that tab
                     if (_uiState.value.selectedTab == InboxTab.SENT) {
                         val sentFiles = fileRepository.listSentFiles()

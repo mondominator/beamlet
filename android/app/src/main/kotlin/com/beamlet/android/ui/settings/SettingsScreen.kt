@@ -162,7 +162,7 @@ fun SettingsScreen(
             "${state.fileExpiryDays} day${if (state.fileExpiryDays != 1) "s" else ""}",
         )
         Text(
-            text = "Files you send will be automatically deleted from the server after this period.",
+            text = "Files you send and receive will be automatically cleaned up after this period. Pinned files are kept.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),

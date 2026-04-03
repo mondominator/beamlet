@@ -1,5 +1,6 @@
 package com.beamlet.android.ui.settings
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.beamlet.android.data.auth.AuthRepository
@@ -7,6 +8,7 @@ import com.beamlet.android.data.contacts.ContactRepository
 import com.beamlet.android.data.nearby.DiscoverabilityMode
 import com.beamlet.android.data.nearby.NearbyService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,15 +32,20 @@ class SettingsViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val contactRepository: ContactRepository,
     private val nearbyService: NearbyService,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
+
+    private val prefs = context.getSharedPreferences("beamlet_prefs", Context.MODE_PRIVATE)
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     init {
+        val savedExpiry = prefs.getInt(PREF_FILE_EXPIRY_DAYS, 1)
         _uiState.value = _uiState.value.copy(
             serverUrl = authRepository.serverUrl,
             fcmToken = authRepository.fcmToken,
+            fileExpiryDays = savedExpiry,
         )
         loadStats()
         viewModelScope.launch {
@@ -71,6 +78,7 @@ class SettingsViewModel @Inject constructor(
 
     fun setFileExpiryDays(days: Int) {
         _uiState.value = _uiState.value.copy(fileExpiryDays = days)
+        prefs.edit().putInt(PREF_FILE_EXPIRY_DAYS, days).apply()
     }
 
     fun showDisconnectDialog() {
@@ -93,5 +101,9 @@ class SettingsViewModel @Inject constructor(
             bytes < 1024 * 1024 * 1024 -> String.format("%.1f MB", bytes / (1024.0 * 1024.0))
             else -> String.format("%.1f GB", bytes / (1024.0 * 1024.0 * 1024.0))
         }
+    }
+
+    companion object {
+        const val PREF_FILE_EXPIRY_DAYS = "file_expiry_days"
     }
 }
