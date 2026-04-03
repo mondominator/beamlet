@@ -63,9 +63,10 @@ fun AddContactScreen(
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var initialContactCount by remember { mutableIntStateOf(0) }
+    var retryTrigger by remember { mutableIntStateOf(0) }
 
     // Create invite and poll for new contact
-    LaunchedEffect(Unit) {
+    LaunchedEffect(retryTrigger) {
         try {
             val contacts = contactRepository.listContacts()
             initialContactCount = contacts.size
@@ -126,9 +127,9 @@ fun AddContactScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
-                    // Re-trigger by clearing error
                     error = null
                     isLoading = true
+                    retryTrigger++
                 }) {
                     Text("Retry")
                 }

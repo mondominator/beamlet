@@ -30,8 +30,30 @@ class InboxViewModel {
             }
             previousUnreadCount = newUnreadCount
 
-            files = newFiles
-            updateWidgetData(newFiles)
+            // Auto-delete received files older than user's cleanup preference
+            let expiryDays = UserDefaults.standard.integer(forKey: "fileExpiryDays")
+            let maxAge = expiryDays > 0 ? expiryDays : 1
+            let cutoff = Date().addingTimeInterval(-Double(maxAge) * 86400)
+
+            var expiredIDs: [String] = []
+            for file in newFiles {
+                if file.pinned == true { continue }
+                if let created = file.createdAt, created < cutoff {
+                    expiredIDs.append(file.id)
+                }
+            }
+
+            if !expiredIDs.isEmpty {
+                let api = self.api
+                Task.detached {
+                    for id in expiredIDs {
+                        try? await api.deleteFile(id)
+                    }
+                }
+            }
+
+            files = newFiles.filter { !expiredIDs.contains($0.id) }
+            updateWidgetData(files)
             isLoading = false
             error = nil
         } catch {

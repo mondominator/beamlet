@@ -98,7 +98,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Storage")
                 } footer: {
-                    Text("Files you send will be automatically deleted from the server after this period.")
+                    Text("Files you send and receive will be automatically cleaned up after this period. Pinned files are kept.")
                 }
 
                 Section("Appearance") {
