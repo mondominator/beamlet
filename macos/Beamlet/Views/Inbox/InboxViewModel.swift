@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 
 @Observable
 @MainActor
@@ -10,6 +11,7 @@ class InboxViewModel {
     var error: String?
 
     private var refreshTimer: Timer?
+    private var previousUnreadCount: Int = 0
 
     init(api: BeamletAPI) {
         self.api = api
@@ -41,12 +43,57 @@ class InboxViewModel {
                 }
             }
 
+            // Feature 4: Play sound when new unread files arrive
+            let newUnreadCount = newFiles.filter { !$0.read }.count
+            if newUnreadCount > previousUnreadCount && previousUnreadCount >= 0 && !isLoading {
+                NSSound(named: "Tink")?.play()
+            }
+            previousUnreadCount = newUnreadCount
+
             files = newFiles
             isLoading = false
             error = nil
+
+            // Feature 1: Auto-save new files to ~/Downloads/Beamlet/
+            autoSaveNewFiles(newFiles)
+
+            // Feature 7: Notify StatusBarController of unread count
+            NotificationCenter.default.post(
+                name: .beamletUnreadCountChanged,
+                object: nil,
+                userInfo: ["count": newUnreadCount]
+            )
         } catch {
             self.error = error.localizedDescription
             isLoading = false
+        }
+    }
+
+    // MARK: - Auto-save received files to ~/Downloads/Beamlet/
+
+    private func autoSaveNewFiles(_ files: [BeamletFile]) {
+        let savedIDs = Set(UserDefaults.standard.stringArray(forKey: "autoSavedFileIDs") ?? [])
+        let downloadDir = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Downloads/Beamlet")
+        try? FileManager.default.createDirectory(at: downloadDir, withIntermediateDirectories: true)
+
+        let autoOpen = UserDefaults.standard.bool(forKey: "autoOpenFiles")
+
+        for file in files where !file.read && !savedIDs.contains(file.id) && !file.isText && !file.isLink {
+            Task {
+                if let data = try? await api.downloadFile(file.id) {
+                    let dest = downloadDir.appendingPathComponent(file.filename)
+                    try? data.write(to: dest)
+                    var ids = UserDefaults.standard.stringArray(forKey: "autoSavedFileIDs") ?? []
+                    ids.append(file.id)
+                    UserDefaults.standard.set(ids, forKey: "autoSavedFileIDs")
+
+                    // Feature 6: Auto-open if enabled
+                    if autoOpen {
+                        NSWorkspace.shared.open(dest)
+                    }
+                }
+            }
         }
     }
 

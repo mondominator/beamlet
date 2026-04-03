@@ -12,6 +12,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         // Set up notification center delegate
         UNUserNotificationCenter.current().delegate = self
 
+        // Feature 3: Define notification category with Save and Open actions
+        let saveAction = UNNotificationAction(identifier: "SAVE", title: "Save", options: [])
+        let openAction = UNNotificationAction(identifier: "OPEN", title: "Open", options: [.foreground])
+        let category = UNNotificationCategory(
+            identifier: "FILE_RECEIVED",
+            actions: [saveAction, openAction],
+            intentIdentifiers: []
+        )
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+
         // Start nearby service if authenticated
         startNearbyServiceIfNeeded()
 
@@ -125,8 +135,42 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        // User tapped the notification -- show the popover
-        statusBarController?.showPopover()
+        let userInfo = response.notification.request.content.userInfo
+        let fileID = userInfo["fileID"] as? String
+        let filename = userInfo["filename"] as? String ?? "file"
+
+        switch response.actionIdentifier {
+        case "SAVE":
+            // Feature 3: Download and save to ~/Downloads/Beamlet/
+            if let fileID = fileID {
+                Task {
+                    let downloadDir = FileManager.default.homeDirectoryForCurrentUser
+                        .appendingPathComponent("Downloads/Beamlet")
+                    try? FileManager.default.createDirectory(at: downloadDir, withIntermediateDirectories: true)
+                    if let data = try? await api.downloadFile(fileID) {
+                        let dest = downloadDir.appendingPathComponent(filename)
+                        try? data.write(to: dest)
+                    }
+                }
+            }
+        case "OPEN":
+            // Feature 3: Download and open with default app
+            if let fileID = fileID {
+                Task {
+                    let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+                    if let data = try? await api.downloadFile(fileID) {
+                        try? data.write(to: tempURL)
+                        await MainActor.run {
+                            NSWorkspace.shared.open(tempURL)
+                        }
+                    }
+                }
+            }
+        default:
+            // Default tap -- show the popover
+            statusBarController?.showPopover()
+        }
+
         completionHandler()
     }
 }

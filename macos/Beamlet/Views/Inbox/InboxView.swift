@@ -14,6 +14,7 @@ struct InboxView: View {
     @State private var isLoadingSent = false
     @State private var quickLookURL: URL?
     @State private var showQuickLook = false
+    @State private var selectedFileID: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -83,14 +84,28 @@ struct InboxView: View {
                             file: file,
                             thumbnailURL: vm.thumbnailURL(for: file.id),
                             authHeaders: vm.authHeaders,
-                            onTap: { handleTap(file: file, vm: vm) },
+                            onTap: {
+                                selectedFileID = file.id
+                                handleTap(file: file, vm: vm)
+                            },
                             onPin: { Task { await vm.togglePin(file.id) } },
                             onDelete: { vm.deleteFile(file) }
                         )
+                        .background(selectedFileID == file.id ? Color.accentColor.opacity(0.1) : Color.clear)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
                     }
                 }
                 .padding(.horizontal, 8)
                 .padding(.vertical, 6)
+            }
+            // Feature 5: Quick Look on spacebar
+            .onKeyPress(.space) {
+                if let selectedID = selectedFileID,
+                   let file = vm.files.first(where: { $0.id == selectedID }) {
+                    quickLookFile(file)
+                    return .handled
+                }
+                return .ignored
             }
         }
     }
@@ -183,6 +198,30 @@ struct InboxView: View {
                     quickLookURL = tempURL
                     showQuickLook = true
                 }
+            }
+        }
+    }
+
+    // MARK: - Quick Look (spacebar)
+
+    private func quickLookFile(_ file: BeamletFile) {
+        if file.isText || file.isLink { return }
+        // Check if already saved in ~/Downloads/Beamlet/
+        let downloadDir = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Downloads/Beamlet")
+            .appendingPathComponent(file.filename)
+        if FileManager.default.fileExists(atPath: downloadDir.path) {
+            quickLookURL = downloadDir
+            showQuickLook = true
+            return
+        }
+        // Otherwise download to temp
+        Task {
+            if let data = try? await api.downloadFile(file.id) {
+                let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(file.filename)
+                try? data.write(to: tempURL)
+                quickLookURL = tempURL
+                showQuickLook = true
             }
         }
     }

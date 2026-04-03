@@ -13,6 +13,7 @@ struct SettingsView: View {
     @State private var launchAtLogin = false
     @AppStorage("fileExpiryDays") private var fileExpiryDays: Int = 7
     @AppStorage("inboxCleanupDays") private var inboxCleanupDays: Int = 1
+    @AppStorage("autoOpenFiles") private var autoOpenFiles: Bool = false
 
     var body: some View {
         @Bindable var nearby = nearbyService
@@ -124,7 +125,7 @@ struct SettingsView: View {
                 .background(Color(nsColor: .windowBackgroundColor))
                 .clipShape(RoundedRectangle(cornerRadius: 6))
 
-                // Launch at login
+                // Launch at login & auto-open
                 sectionHeader("General")
                 VStack(alignment: .leading, spacing: 6) {
                     Toggle("Launch at Login", isOn: $launchAtLogin)
@@ -134,6 +135,17 @@ struct SettingsView: View {
                         .onChange(of: launchAtLogin) { _, newValue in
                             setLaunchAtLogin(newValue)
                         }
+
+                    Divider()
+
+                    Toggle("Auto-open Received Files", isOn: $autoOpenFiles)
+                        .toggleStyle(.switch)
+                        .controlSize(.small)
+                        .font(.system(size: 11))
+
+                    Text("When enabled, new files are automatically opened in their default app after being saved to ~/Downloads/Beamlet/.")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.tertiary)
                 }
                 .padding(10)
                 .background(Color(nsColor: .windowBackgroundColor))
