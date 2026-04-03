@@ -79,7 +79,7 @@ class InboxViewModel @Inject constructor(
      * Pinned files are preserved. Deletes happen in the background.
      */
     private fun cleanupOldFiles(files: List<FileDto>): List<FileDto> {
-        val expiryDays = prefs.getInt(SettingsViewModel.PREF_FILE_EXPIRY_DAYS, 1)
+        val expiryDays = prefs.getInt(SettingsViewModel.PREF_INBOX_CLEANUP_DAYS, 1)
         if (expiryDays <= 0) return files
 
         val cutoff = Instant.now().minus(expiryDays.toLong(), ChronoUnit.DAYS)

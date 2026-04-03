@@ -19,7 +19,7 @@ class InboxViewModel {
 
     func loadFiles() async {
         do {
-            let newFiles = try await api.listFiles()
+            var newFiles = try await api.listFiles()
             let newUnreadCount = newFiles.filter { !$0.read }.count
 
             // Haptic on new unread files
@@ -30,29 +30,29 @@ class InboxViewModel {
             }
             previousUnreadCount = newUnreadCount
 
-            // Auto-delete received files older than user's cleanup preference
-            let expiryDays = UserDefaults.standard.integer(forKey: "fileExpiryDays")
-            let maxAge = expiryDays > 0 ? expiryDays : 1
-            let cutoff = Date().addingTimeInterval(-Double(maxAge) * 86400)
-
-            var expiredIDs: [String] = []
-            for file in newFiles {
-                if file.pinned == true { continue }
-                if let created = file.createdAt, created < cutoff {
-                    expiredIDs.append(file.id)
-                }
-            }
-
-            if !expiredIDs.isEmpty {
-                let api = self.api
-                Task.detached {
-                    for id in expiredIDs {
-                        try? await api.deleteFile(id)
+            // Auto-delete received files older than user's inbox cleanup preference
+            let cleanupDays = UserDefaults.standard.integer(forKey: "inboxCleanupDays")
+            if cleanupDays > 0 {
+                let cutoff = Date().addingTimeInterval(-Double(cleanupDays) * 86400)
+                var expiredIDs: [String] = []
+                for file in newFiles {
+                    if file.pinned == true { continue }
+                    if let created = file.createdAt, created < cutoff {
+                        expiredIDs.append(file.id)
                     }
                 }
+                if !expiredIDs.isEmpty {
+                    let api = self.api
+                    Task.detached {
+                        for id in expiredIDs {
+                            try? await api.deleteFile(id)
+                        }
+                    }
+                    newFiles = newFiles.filter { !expiredIDs.contains($0.id) }
+                }
             }
 
-            files = newFiles.filter { !expiredIDs.contains($0.id) }
+            files = newFiles
             updateWidgetData(files)
             isLoading = false
             error = nil
