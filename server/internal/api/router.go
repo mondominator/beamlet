@@ -45,6 +45,7 @@ func NewRouter(s *Server) *chi.Mux {
 			r.Use(auth.Middleware(s.UserStore))
 
 			r.Get("/me", s.GetMe)
+			r.Put("/me/discoverability", s.UpdateDiscoverability)
 			r.Get("/users/{id}/profile", s.GetUserProfile)
 			r.Post("/auth/register-device", s.RegisterDevice)
 			r.Post("/files", s.UploadFile)

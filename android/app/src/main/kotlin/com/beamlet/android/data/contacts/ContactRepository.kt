@@ -6,6 +6,7 @@ import com.beamlet.android.data.api.InviteResponse
 import com.beamlet.android.data.api.MeResponse
 import com.beamlet.android.data.api.RedeemRequest
 import com.beamlet.android.data.api.RedeemResponse
+import com.beamlet.android.data.api.UpdateDiscoverabilityRequest
 import com.beamlet.android.data.auth.AuthRepository
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -87,6 +88,10 @@ class ContactRepository @Inject constructor(
 
     suspend fun getProfile(userId: String): MeResponse {
         return api.getProfile(userId)
+    }
+
+    suspend fun updateDiscoverability(mode: String) {
+        api.updateDiscoverability(UpdateDiscoverabilityRequest(discoverability = mode))
     }
 
     suspend fun registerDevice(fcmToken: String) {

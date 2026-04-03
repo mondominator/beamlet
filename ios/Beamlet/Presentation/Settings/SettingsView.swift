@@ -25,6 +25,7 @@ struct SettingsView: View {
                     }
                     .onChange(of: discoverability) {
                         nearbyService?.mode = discoverability
+                        Task { try? await api.updateDiscoverability(discoverability.rawValue) }
                     }
                 } header: {
                     Text("Discoverability")

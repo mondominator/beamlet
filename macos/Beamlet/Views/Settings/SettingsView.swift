@@ -28,6 +28,9 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.segmented)
                     .font(.system(size: 11))
+                    .onChange(of: nearbyService.mode) {
+                        Task { try? await api.updateDiscoverability(nearbyService.mode) }
+                    }
 
                     Text(nearbyService.mode.description)
                         .font(.system(size: 9))

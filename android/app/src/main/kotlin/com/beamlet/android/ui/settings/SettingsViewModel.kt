@@ -67,12 +67,34 @@ class SettingsViewModel @Inject constructor(
                     filesReceived = me.filesReceived,
                     storageUsed = me.storageUsed,
                 )
+                // Sync discoverability from server
+                me.discoverability?.let { serverMode ->
+                    val mode = when (serverMode) {
+                        "off" -> DiscoverabilityMode.OFF
+                        "contactsOnly" -> DiscoverabilityMode.CONTACTS_ONLY
+                        "everyone" -> DiscoverabilityMode.EVERYONE
+                        else -> null
+                    }
+                    if (mode != null) {
+                        nearbyService.setMode(mode)
+                    }
+                }
             } catch (_: Exception) { }
         }
     }
 
     fun setDiscoverabilityMode(mode: DiscoverabilityMode) {
         nearbyService.setMode(mode)
+        viewModelScope.launch {
+            try {
+                val serverValue = when (mode) {
+                    DiscoverabilityMode.OFF -> "off"
+                    DiscoverabilityMode.CONTACTS_ONLY -> "contactsOnly"
+                    DiscoverabilityMode.EVERYONE -> "everyone"
+                }
+                contactRepository.updateDiscoverability(serverValue)
+            } catch (_: Exception) { }
+        }
     }
 
     fun setAppTheme(theme: String) {
