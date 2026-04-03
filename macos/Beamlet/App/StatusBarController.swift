@@ -26,6 +26,7 @@ class StatusBarController: NSObject {
         setupStatusItem()
         setupPopover()
         setupEventMonitor()
+        setupUnreadObserver()
     }
 
     func updateNearbyService(_ service: NearbyService) {
@@ -73,6 +74,20 @@ class StatusBarController: NSObject {
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
             if let self = self, self.popover.isShown {
                 self.popover.performClose(nil)
+            }
+        }
+    }
+
+    // MARK: - Unread Count Observer
+
+    private func setupUnreadObserver() {
+        NotificationCenter.default.addObserver(
+            forName: .beamletUnreadCountChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            if let count = notification.userInfo?["count"] as? Int {
+                self?.updateBadgeCount(count)
             }
         }
     }
@@ -170,6 +185,7 @@ class StatusBarController: NSObject {
 extension Notification.Name {
     static let beamletFilesDropped = Notification.Name("beamletFilesDropped")
     static let beamletTextDropped = Notification.Name("beamletTextDropped")
+    static let beamletUnreadCountChanged = Notification.Name("beamletUnreadCountChanged")
 }
 
 // MARK: - Dragging View (overlay on status bar button)

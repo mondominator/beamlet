@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct InboxItemRow: View {
     let file: BeamletFile
@@ -7,6 +8,14 @@ struct InboxItemRow: View {
     let onTap: () -> Void
     let onPin: () -> Void
     let onDelete: () -> Void
+
+    /// Returns the auto-saved file URL in ~/Downloads/Beamlet/ if it exists
+    private var autoSavedURL: URL? {
+        let downloadDir = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Downloads/Beamlet")
+            .appendingPathComponent(file.filename)
+        return FileManager.default.fileExists(atPath: downloadDir.path) ? downloadDir : nil
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -67,6 +76,27 @@ struct InboxItemRow: View {
         .contextMenu { contextMenuItems }
         .background(Color(nsColor: .controlBackgroundColor))
         .clipShape(RoundedRectangle(cornerRadius: 6))
+        // Feature 2: Drag files out of inbox
+        .onDrag {
+            let provider = NSItemProvider()
+            if let savedURL = autoSavedURL {
+                // File already saved locally, provide it directly
+                provider.registerFileRepresentation(
+                    forTypeIdentifier: UTType.data.identifier,
+                    visibility: .all
+                ) { completion in
+                    completion(savedURL, true, nil)
+                    return nil
+                }
+            } else if file.isText, let text = file.textContent {
+                // For text items, provide as string
+                provider.registerObject(ofClass: NSString.self, visibility: .all) { completion in
+                    completion(text as NSString, nil)
+                    return nil
+                }
+            }
+            return provider
+        }
     }
 
     // MARK: - Image

@@ -35,7 +35,7 @@ struct PopoverContentView: View {
         VStack(spacing: 0) {
             // Tab bar
             HStack(spacing: 0) {
-                ForEach(PopoverTab.allCases) { tab in
+                ForEach(Array(PopoverTab.allCases.enumerated()), id: \.element.id) { index, tab in
                     Button {
                         withAnimation(.easeInOut(duration: 0.15)) {
                             selectedTab = tab
@@ -58,6 +58,8 @@ struct PopoverContentView: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    // Feature 8: Cmd+1/2/3 to switch tabs
+                    .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")), modifiers: .command)
                 }
             }
             .background(Color(nsColor: .windowBackgroundColor))
@@ -76,6 +78,32 @@ struct PopoverContentView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        // Feature 8: Cmd+N to jump to Send, Cmd+, for Settings, Escape to close popover
+        .onKeyPress(keys: [.escape]) { _ in
+            NSApp.keyWindow?.close()
+            return .handled
+        }
+        .background {
+            // Hidden buttons for additional keyboard shortcuts
+            Group {
+                Button("") {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        selectedTab = .send
+                    }
+                }
+                .keyboardShortcut("n", modifiers: .command)
+                .hidden()
+
+                Button("") {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        selectedTab = .settings
+                    }
+                }
+                .keyboardShortcut(",", modifiers: .command)
+                .hidden()
+            }
+            .frame(width: 0, height: 0)
         }
     }
 }
