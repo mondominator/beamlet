@@ -446,7 +446,7 @@ func TestFileStore_GetUserStats(t *testing.T) {
 		ExpiresAt:   time.Now().Add(24 * time.Hour).UTC(),
 	})
 
-	// Alice's stats: sent 2, received 1, storage = 500+500+300 = 1300
+	// Alice's stats: sent 2, received 1, storage = 500+500 = 1000 (only sent files)
 	stats, err := env.fileStore.GetUserStats(env.alice.ID)
 	if err != nil {
 		t.Fatalf("get stats: %v", err)
@@ -457,11 +457,11 @@ func TestFileStore_GetUserStats(t *testing.T) {
 	if stats.FilesReceived != 1 {
 		t.Fatalf("expected 1 file received, got %d", stats.FilesReceived)
 	}
-	if stats.StorageUsed != 1300 {
-		t.Fatalf("expected 1300 storage, got %d", stats.StorageUsed)
+	if stats.StorageUsed != 1000 {
+		t.Fatalf("expected 1000 storage (sent only), got %d", stats.StorageUsed)
 	}
 
-	// Bob's stats: sent 1, received 2, storage = 300+500+500 = 1300
+	// Bob's stats: sent 1, received 2, storage = 300 (only sent files)
 	bobStats, err := env.fileStore.GetUserStats(env.bob.ID)
 	if err != nil {
 		t.Fatalf("get bob stats: %v", err)
@@ -471,6 +471,9 @@ func TestFileStore_GetUserStats(t *testing.T) {
 	}
 	if bobStats.FilesReceived != 2 {
 		t.Fatalf("expected 2 files received for Bob, got %d", bobStats.FilesReceived)
+	}
+	if bobStats.StorageUsed != 300 {
+		t.Fatalf("expected 300 storage (sent only) for Bob, got %d", bobStats.StorageUsed)
 	}
 }
 
