@@ -140,6 +140,13 @@ class NearbyService @Inject constructor(
         contactNames = contacts.associate { it.id to it.name }
     }
 
+    fun forceRescan() {
+        if (scope != null) {
+            Log.d(TAG, "Force rescan triggered")
+            restartScanning()
+        }
+    }
+
     fun setMode(mode: DiscoverabilityMode) {
         _mode.value = mode
         restartAdvertising()

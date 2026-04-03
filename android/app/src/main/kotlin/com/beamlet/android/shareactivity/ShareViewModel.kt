@@ -44,14 +44,17 @@ class ShareViewModel @Inject constructor(
 
     init {
         loadContacts()
-        // Start nearby if not already running and load contacts for hash discovery
+
+        // Start nearby service and force a rescan
         nearbyService.start()
+        nearbyService.forceRescan()
         viewModelScope.launch {
             try {
                 val contacts = contactRepository.listContacts()
                 nearbyService.updateContacts(contacts)
             } catch (_: Exception) { }
         }
+
         // Collect nearby users
         viewModelScope.launch {
             nearbyService.nearbyUsers.collect { users ->
