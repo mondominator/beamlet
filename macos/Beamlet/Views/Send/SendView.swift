@@ -4,6 +4,7 @@ import UniformTypeIdentifiers
 
 struct SendView: View {
     @Environment(BeamletAPI.self) private var api
+    @Environment(NearbyService.self) private var nearbyService
     @State private var viewModel: SendViewModel?
     @State private var showPhotoPicker = false
     @State private var showSendAnimation = false
@@ -16,6 +17,11 @@ struct SendView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: 16) {
+                        // MARK: - Nearby users
+                        if !nearbyService.nearbyUsers.isEmpty {
+                            nearbySection(vm: vm)
+                        }
+
                         // MARK: - Drop zone / attachment area
                         if let name = vm.attachmentDisplayName {
                             attachmentPreview(name: name, vm: vm)
@@ -125,6 +131,54 @@ struct SendView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .task { viewModel = SendViewModel(api: api) }
         }
+    }
+
+    // MARK: - Nearby Section
+
+    private func nearbySection(vm: SendViewModel) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 4) {
+                Image(systemName: "antenna.radiowaves.left.and.right")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.blue)
+                Text("Nearby")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.secondary)
+            }
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(nearbyService.nearbyUsers) { user in
+                        Button {
+                            vm.toggleUser(BeamletUser(id: user.id, name: user.name, createdAt: nil))
+                        } label: {
+                            VStack(spacing: 4) {
+                                ZStack(alignment: .bottomTrailing) {
+                                    AvatarView(name: user.name, size: 40)
+                                    Circle()
+                                        .fill(.green)
+                                        .frame(width: 8, height: 8)
+                                        .overlay(
+                                            Circle().stroke(Color(nsColor: .controlBackgroundColor), lineWidth: 1.5)
+                                        )
+                                        .offset(x: 1, y: 1)
+                                }
+                                Text(user.name)
+                                    .font(.system(size: 10))
+                                    .foregroundStyle(.primary)
+                                    .lineLimit(1)
+                            }
+                            .frame(width: 56)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 2)
+            }
+        }
+        .padding(10)
+        .background(Color(nsColor: .windowBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     // MARK: - Drop Zone

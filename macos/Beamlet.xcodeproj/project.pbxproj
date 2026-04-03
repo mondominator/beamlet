@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		07D08518CD88834985A61C4B /* NearbyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23B6D2DABDCC187F0F2EAE2E /* NearbyService.swift */; };
 		0EF157F732724B1851E91CFF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 278215F1257F5E2BC5625437 /* Assets.xcassets */; };
 		399FD3C0E55879C990F62767 /* SendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83957F3BC65FA5A7FDF2B52F /* SendView.swift */; };
 		82AA0BA45FCBB123FE61CE96 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE34458EA45FD96272D460F0 /* SettingsView.swift */; };
@@ -15,6 +16,7 @@
 		AC6A8C4B87482D81075016BE /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0D3990B57D715D887347F1 /* Models.swift */; };
 		BB96231714088FA96B823848 /* AuthenticatedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9BB539FDD65B2346BB8C0B /* AuthenticatedImage.swift */; };
 		C0567E5C17D1136EBFF9A1E7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 137C3544D8943205884E4749 /* AppDelegate.swift */; };
+		C9216E428A880CB19658B872 /* NearbyUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23EDCBE8041A965911D7A9B1 /* NearbyUser.swift */; };
 		CD2A6373E73A7873C8436BD0 /* BeamletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */; };
 		D3898CC56A457383E93E8C61 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76FDB5D25FED56A390F5C4FA /* SetupView.swift */; };
 		D7648B6CF4D20EC10287FE72 /* AuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */; };
@@ -29,6 +31,8 @@
 /* Begin PBXFileReference section */
 		137C3544D8943205884E4749 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1C33D04EF4A869D0305BAA54 /* InboxItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxItemRow.swift; sourceTree = "<group>"; };
+		23B6D2DABDCC187F0F2EAE2E /* NearbyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyService.swift; sourceTree = "<group>"; };
+		23EDCBE8041A965911D7A9B1 /* NearbyUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyUser.swift; sourceTree = "<group>"; };
 		24B07CC29B2730401C1FD1BC /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
 		278215F1257F5E2BC5625437 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		43964F7A04E6F6762BDA8756 /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarView.swift; sourceTree = "<group>"; };
@@ -115,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				5E0D3990B57D715D887347F1 /* Models.swift */,
+				23EDCBE8041A965911D7A9B1 /* NearbyUser.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -132,6 +137,7 @@
 			children = (
 				C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */,
 				B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */,
+				23B6D2DABDCC187F0F2EAE2E /* NearbyService.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -261,6 +267,8 @@
 				ECFA0A35CF33D0C2F0E8F7D1 /* InboxView.swift in Sources */,
 				E41E65CB4878F2858261BFC2 /* InboxViewModel.swift in Sources */,
 				AC6A8C4B87482D81075016BE /* Models.swift in Sources */,
+				07D08518CD88834985A61C4B /* NearbyService.swift in Sources */,
+				C9216E428A880CB19658B872 /* NearbyUser.swift in Sources */,
 				F29255F38090CF3E61893F97 /* PopoverContentView.swift in Sources */,
 				399FD3C0E55879C990F62767 /* SendView.swift in Sources */,
 				EBC8CC415DBC7013590661F9 /* SendViewModel.swift in Sources */,

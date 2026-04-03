@@ -8,14 +8,16 @@ class StatusBarController: NSObject {
 
     private let authRepository: AuthRepository
     private let api: BeamletAPI
+    private var nearbyService: NearbyService?
 
     private var badgeCount: Int = 0 {
         didSet { updateIcon() }
     }
 
-    init(authRepository: AuthRepository, api: BeamletAPI) {
+    init(authRepository: AuthRepository, api: BeamletAPI, nearbyService: NearbyService?) {
         self.authRepository = authRepository
         self.api = api
+        self.nearbyService = nearbyService
 
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
@@ -24,6 +26,11 @@ class StatusBarController: NSObject {
         setupStatusItem()
         setupPopover()
         setupEventMonitor()
+    }
+
+    func updateNearbyService(_ service: NearbyService) {
+        self.nearbyService = service
+        setupPopover()
     }
 
     // MARK: - Setup
@@ -50,10 +57,14 @@ class StatusBarController: NSObject {
         popover.behavior = .transient
         popover.animates = true
 
-        // Use the existing PopoverContentView, injecting dependencies via environment
+        // Use the existing PopoverContentView, injecting dependencies via environment.
+        // Always provide a NearbyService (placeholder if not yet authenticated)
+        // so child views can safely read the environment object.
+        let service = nearbyService ?? NearbyService(userID: "", api: api)
         let contentView = PopoverContentView()
             .environment(authRepository)
             .environment(api)
+            .environment(service)
         popover.contentViewController = NSHostingController(rootView: contentView)
     }
 
