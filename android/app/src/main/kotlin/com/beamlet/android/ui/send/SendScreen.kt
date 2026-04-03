@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -263,7 +264,7 @@ fun SendScreen(
                                         modifier = Modifier
                                             .width(72.dp)
                                             .clickable {
-                                                viewModel.toggleContact(user.id)
+                                                viewModel.toggleUser(user.id)
                                             },
                                     ) {
                                         Box(contentAlignment = Alignment.BottomEnd) {
@@ -294,7 +295,7 @@ fun SendScreen(
                                     }
                                 }
                             }
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(24.dp))
                         }
 
                         // Contacts header
