@@ -262,7 +262,8 @@ extension NearbyService: CBPeripheralManagerDelegate {
     func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
         if error == nil {
             peripheral.startAdvertising([
-                CBAdvertisementDataServiceUUIDsKey: [Self.serviceUUID]
+                CBAdvertisementDataServiceUUIDsKey: [Self.serviceUUID],
+                CBAdvertisementDataLocalNameKey: "Beamlet"
             ])
         }
     }
