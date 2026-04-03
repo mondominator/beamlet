@@ -1,0 +1,440 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		399FD3C0E55879C990F62767 /* SendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83957F3BC65FA5A7FDF2B52F /* SendView.swift */; };
+		82AA0BA45FCBB123FE61CE96 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE34458EA45FD96272D460F0 /* SettingsView.swift */; };
+		85E4B2D21837F96B595E6C56 /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24B07CC29B2730401C1FD1BC /* StatusBarController.swift */; };
+		A049966F9AD6DE2C051644DC /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43964F7A04E6F6762BDA8756 /* AvatarView.swift */; };
+		AC6A8C4B87482D81075016BE /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0D3990B57D715D887347F1 /* Models.swift */; };
+		BB96231714088FA96B823848 /* AuthenticatedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9BB539FDD65B2346BB8C0B /* AuthenticatedImage.swift */; };
+		C0567E5C17D1136EBFF9A1E7 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 137C3544D8943205884E4749 /* AppDelegate.swift */; };
+		CD2A6373E73A7873C8436BD0 /* BeamletAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */; };
+		D3898CC56A457383E93E8C61 /* SetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76FDB5D25FED56A390F5C4FA /* SetupView.swift */; };
+		D7648B6CF4D20EC10287FE72 /* AuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */; };
+		E41E65CB4878F2858261BFC2 /* InboxViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44D95E95A93C2F046EAA8988 /* InboxViewModel.swift */; };
+		E77A35A590A8D353FF3E7EAF /* BeamletApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C6EE27FC8312321F6EFCCA /* BeamletApp.swift */; };
+		EBC8CC415DBC7013590661F9 /* SendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E074CA492487BC0ED2E4DC38 /* SendViewModel.swift */; };
+		ECFA0A35CF33D0C2F0E8F7D1 /* InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A160BEDF96FE5E5EC64691AB /* InboxView.swift */; };
+		F29255F38090CF3E61893F97 /* PopoverContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55EB866C7C8FB5DD8E0031A /* PopoverContentView.swift */; };
+		F746C193E0AE963A7A0C7450 /* InboxItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C33D04EF4A869D0305BAA54 /* InboxItemRow.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		137C3544D8943205884E4749 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1C33D04EF4A869D0305BAA54 /* InboxItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxItemRow.swift; sourceTree = "<group>"; };
+		24B07CC29B2730401C1FD1BC /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
+		43964F7A04E6F6762BDA8756 /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarView.swift; sourceTree = "<group>"; };
+		44D95E95A93C2F046EAA8988 /* InboxViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxViewModel.swift; sourceTree = "<group>"; };
+		5E0D3990B57D715D887347F1 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		5F01C9962E9948A9ABC8E471 /* Beamlet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Beamlet.entitlements; sourceTree = "<group>"; };
+		6D9BB539FDD65B2346BB8C0B /* AuthenticatedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatedImage.swift; sourceTree = "<group>"; };
+		76FDB5D25FED56A390F5C4FA /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
+		83957F3BC65FA5A7FDF2B52F /* SendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendView.swift; sourceTree = "<group>"; };
+		97C6EE27FC8312321F6EFCCA /* BeamletApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamletApp.swift; sourceTree = "<group>"; };
+		A160BEDF96FE5E5EC64691AB /* InboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxView.swift; sourceTree = "<group>"; };
+		ACDBABB6512D7711A3364D9E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		AE34458EA45FD96272D460F0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B55EB866C7C8FB5DD8E0031A /* PopoverContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopoverContentView.swift; sourceTree = "<group>"; };
+		B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamletAPI.swift; sourceTree = "<group>"; };
+		C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRepository.swift; sourceTree = "<group>"; };
+		E074CA492487BC0ED2E4DC38 /* SendViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewModel.swift; sourceTree = "<group>"; };
+		E12E47C9B5F582AD6DA59E6D /* Beamlet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Beamlet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		19F24B47247E584E7E1D8D95 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E12E47C9B5F582AD6DA59E6D /* Beamlet.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2923C90894E2F8E7CD1F745B /* App */ = {
+			isa = PBXGroup;
+			children = (
+				137C3544D8943205884E4749 /* AppDelegate.swift */,
+				97C6EE27FC8312321F6EFCCA /* BeamletApp.swift */,
+				24B07CC29B2730401C1FD1BC /* StatusBarController.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		2F57B10CBB40766B8A12C7DF = {
+			isa = PBXGroup;
+			children = (
+				52EC7F6B66ADE530796ADA7F /* Beamlet */,
+				19F24B47247E584E7E1D8D95 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		52EC7F6B66ADE530796ADA7F /* Beamlet */ = {
+			isa = PBXGroup;
+			children = (
+				2923C90894E2F8E7CD1F745B /* App */,
+				8B5929FCEF9E857A08279468 /* Data */,
+				6B5CE3A3D20BA555969E0914 /* Model */,
+				61F61D262E4AEAC4C4EEB68F /* Resources */,
+				61C794C6531A64AE69808060 /* Views */,
+			);
+			path = Beamlet;
+			sourceTree = "<group>";
+		};
+		61C794C6531A64AE69808060 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DD95D2770A11EF1584C72584 /* Components */,
+				FAA2040F7537E18C27D79CC5 /* Inbox */,
+				883A17BD9C7A6B623F9914AF /* Popover */,
+				DD567CF2CBBDEEEB8D072C4D /* Send */,
+				A43082A049AAD9C42CADEABD /* Settings */,
+				FB2B98D67A82B3CC00402A71 /* Setup */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		61F61D262E4AEAC4C4EEB68F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				5F01C9962E9948A9ABC8E471 /* Beamlet.entitlements */,
+				ACDBABB6512D7711A3364D9E /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		6B5CE3A3D20BA555969E0914 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				5E0D3990B57D715D887347F1 /* Models.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		883A17BD9C7A6B623F9914AF /* Popover */ = {
+			isa = PBXGroup;
+			children = (
+				B55EB866C7C8FB5DD8E0031A /* PopoverContentView.swift */,
+			);
+			path = Popover;
+			sourceTree = "<group>";
+		};
+		8B5929FCEF9E857A08279468 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */,
+				B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		A43082A049AAD9C42CADEABD /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				AE34458EA45FD96272D460F0 /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		DD567CF2CBBDEEEB8D072C4D /* Send */ = {
+			isa = PBXGroup;
+			children = (
+				83957F3BC65FA5A7FDF2B52F /* SendView.swift */,
+				E074CA492487BC0ED2E4DC38 /* SendViewModel.swift */,
+			);
+			path = Send;
+			sourceTree = "<group>";
+		};
+		DD95D2770A11EF1584C72584 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				6D9BB539FDD65B2346BB8C0B /* AuthenticatedImage.swift */,
+				43964F7A04E6F6762BDA8756 /* AvatarView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		FAA2040F7537E18C27D79CC5 /* Inbox */ = {
+			isa = PBXGroup;
+			children = (
+				1C33D04EF4A869D0305BAA54 /* InboxItemRow.swift */,
+				A160BEDF96FE5E5EC64691AB /* InboxView.swift */,
+				44D95E95A93C2F046EAA8988 /* InboxViewModel.swift */,
+			);
+			path = Inbox;
+			sourceTree = "<group>";
+		};
+		FB2B98D67A82B3CC00402A71 /* Setup */ = {
+			isa = PBXGroup;
+			children = (
+				76FDB5D25FED56A390F5C4FA /* SetupView.swift */,
+			);
+			path = Setup;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		20A1F7C5DD3595D3FBDF64C2 /* Beamlet */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 55EBFA7A0697193D137252E7 /* Build configuration list for PBXNativeTarget "Beamlet" */;
+			buildPhases = (
+				DD27C0E08188BA6C19EA8314 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Beamlet;
+			packageProductDependencies = (
+			);
+			productName = Beamlet;
+			productReference = E12E47C9B5F582AD6DA59E6D /* Beamlet.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5E6FA225D02DE2722AE69022 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					20A1F7C5DD3595D3FBDF64C2 = {
+						DevelopmentTeam = S6WU9SVVDW;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 0C09CA65C57749E6A510D621 /* Build configuration list for PBXProject "Beamlet" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 2F57B10CBB40766B8A12C7DF;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				20A1F7C5DD3595D3FBDF64C2 /* Beamlet */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		DD27C0E08188BA6C19EA8314 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0567E5C17D1136EBFF9A1E7 /* AppDelegate.swift in Sources */,
+				D7648B6CF4D20EC10287FE72 /* AuthRepository.swift in Sources */,
+				BB96231714088FA96B823848 /* AuthenticatedImage.swift in Sources */,
+				A049966F9AD6DE2C051644DC /* AvatarView.swift in Sources */,
+				CD2A6373E73A7873C8436BD0 /* BeamletAPI.swift in Sources */,
+				E77A35A590A8D353FF3E7EAF /* BeamletApp.swift in Sources */,
+				F746C193E0AE963A7A0C7450 /* InboxItemRow.swift in Sources */,
+				ECFA0A35CF33D0C2F0E8F7D1 /* InboxView.swift in Sources */,
+				E41E65CB4878F2858261BFC2 /* InboxViewModel.swift in Sources */,
+				AC6A8C4B87482D81075016BE /* Models.swift in Sources */,
+				F29255F38090CF3E61893F97 /* PopoverContentView.swift in Sources */,
+				399FD3C0E55879C990F62767 /* SendView.swift in Sources */,
+				EBC8CC415DBC7013590661F9 /* SendViewModel.swift in Sources */,
+				82AA0BA45FCBB123FE61CE96 /* SettingsView.swift in Sources */,
+				D3898CC56A457383E93E8C61 /* SetupView.swift in Sources */,
+				85E4B2D21837F96B595E6C56 /* StatusBarController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		8A6DC1EE3CA6BB80227DFF2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = S6WU9SVVDW;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		8E937DC124F6376FE5254D6C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Beamlet/Resources/Beamlet.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Beamlet/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.beamlet.mac;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		8F77D8ADBC01A052AD78B93B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = S6WU9SVVDW;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		CB0BC821261BEE3A629911F0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Beamlet/Resources/Beamlet.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Beamlet/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.beamlet.mac;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0C09CA65C57749E6A510D621 /* Build configuration list for PBXProject "Beamlet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8F77D8ADBC01A052AD78B93B /* Debug */,
+				8A6DC1EE3CA6BB80227DFF2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		55EBFA7A0697193D137252E7 /* Build configuration list for PBXNativeTarget "Beamlet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8E937DC124F6376FE5254D6C /* Debug */,
+				CB0BC821261BEE3A629911F0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5E6FA225D02DE2722AE69022 /* Project object */;
+}
