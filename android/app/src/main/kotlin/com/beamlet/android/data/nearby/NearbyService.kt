@@ -51,11 +51,12 @@ import javax.inject.Singleton
 class NearbyService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val authRepository: AuthRepository,
+    private val contactRepository: com.beamlet.android.data.contacts.ContactRepository,
 ) {
     private val _nearbyUsers = MutableStateFlow<List<NearbyUser>>(emptyList())
     val nearbyUsers: StateFlow<List<NearbyUser>> = _nearbyUsers.asStateFlow()
 
-    private val _mode = MutableStateFlow(DiscoverabilityMode.CONTACTS_ONLY)
+    private val _mode = MutableStateFlow(DiscoverabilityMode.EVERYONE)
     val mode: StateFlow<DiscoverabilityMode> = _mode.asStateFlow()
 
     private var scope: CoroutineScope? = null
@@ -389,8 +390,10 @@ class NearbyService @Inject constructor(
 
         @SuppressLint("MissingPermission")
         override fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int) {
-            Log.d(TAG, "Remote RSSI for ${gatt.device.address}: rssi=$rssi, status=$status")
-            val data = pendingPayloads.remove(gatt.device.address)
+            val addr = gatt.device.address
+            Log.d(TAG, "Remote RSSI for $addr: rssi=$rssi, status=$status, pendingKeys=${pendingPayloads.keys}")
+            val data = pendingPayloads.remove(addr)
+            Log.d(TAG, "Pending data for $addr: ${data?.size ?: "null"}")
             if (data != null && status == BluetoothGatt.GATT_SUCCESS) {
                 handleDiscoveredPayload(data, rssi)
             }
@@ -405,7 +408,8 @@ class NearbyService @Inject constructor(
         if (data.isEmpty()) return
 
         val modeByte = data[0]
-        val userID = authRepository.userId ?: return
+        val userID = authRepository.userId // may be null, that's ok
+        Log.d(TAG, "handleDiscoveredPayload: mode=${modeByte}, rssi=$rssi, dataLen=${data.size}, myUserId=$userID")
 
         when (modeByte) {
             MODE_CONTACTS_ONLY -> {
@@ -420,19 +424,35 @@ class NearbyService @Inject constructor(
             }
             MODE_EVERYONE -> {
                 val peerID = String(data, 1, data.size - 1, Charsets.UTF_8)
-                if (peerID.isEmpty() || peerID == userID) return
+                Log.d(TAG, "MODE_EVERYONE: peerID='$peerID', myUserID='$userID', equal=${peerID == userID}")
+                if (peerID.isEmpty() || (userID != null && peerID == userID)) return
 
                 val contactName = contactNames[peerID]
                 if (contactName != null) {
                     addNearbyUser(NearbyUser(id = peerID, name = contactName, isContact = true))
                 } else {
-                    addNearbyUser(NearbyUser(id = peerID, name = peerID, isContact = false))
+                    // Check if we already have this peer with a resolved name
+                    val existing = discoveredPeers[peerID]
+                    if (existing != null && existing.name != peerID) {
+                        addNearbyUser(NearbyUser(id = peerID, name = existing.name, isContact = false))
+                    } else {
+                        // Add with placeholder name, then resolve via API
+                        addNearbyUser(NearbyUser(id = peerID, name = "Nearby", isContact = false))
+                        scope?.launch {
+                            try {
+                                val profile = contactRepository.getProfile(peerID)
+                                val name = profile.name ?: peerID
+                                addNearbyUser(NearbyUser(id = peerID, name = name, isContact = false))
+                            } catch (_: Exception) { }
+                        }
+                    }
                 }
             }
         }
     }
 
     private fun addNearbyUser(user: NearbyUser) {
+        Log.d(TAG, "Adding nearby user: ${user.name} (${user.id}), isContact=${user.isContact}")
         val updated = user.copy(lastSeen = Instant.now())
         discoveredPeers[user.id] = updated
         publishUsers()

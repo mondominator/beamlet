@@ -32,8 +32,8 @@ enum DiscoverabilityMode: String, CaseIterable {
     }
 
     static func load() -> DiscoverabilityMode {
-        let raw = UserDefaults(suiteName: "group.com.beamlet.shared")?.string(forKey: "discoverabilityMode") ?? "contactsOnly"
-        return DiscoverabilityMode(rawValue: raw) ?? .contactsOnly
+        let raw = UserDefaults(suiteName: "group.com.beamlet.shared")?.string(forKey: "discoverabilityMode") ?? "everyone"
+        return DiscoverabilityMode(rawValue: raw) ?? .everyone
     }
 
     func save() {
