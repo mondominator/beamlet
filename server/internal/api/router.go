@@ -39,13 +39,13 @@ func NewRouter(s *Server) *chi.Mux {
 	r.Route("/api", func(r chi.Router) {
 		// Public routes (no auth)
 		r.Post("/invites/redeem", s.RedeemInvite)
-		r.Get("/users/{id}/profile", s.GetUserProfile)
 
 		// Authenticated routes
 		r.Group(func(r chi.Router) {
 			r.Use(auth.Middleware(s.UserStore))
 
 			r.Get("/me", s.GetMe)
+			r.Get("/users/{id}/profile", s.GetUserProfile)
 			r.Post("/auth/register-device", s.RegisterDevice)
 			r.Post("/files", s.UploadFile)
 			r.Get("/files", s.ListFiles)

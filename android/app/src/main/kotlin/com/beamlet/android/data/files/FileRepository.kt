@@ -11,8 +11,12 @@ import com.beamlet.android.data.auth.AuthRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
+import okio.BufferedSink
+import okio.buffer
+import okio.source
 import java.io.InputStream
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -73,12 +77,19 @@ class FileRepository @Inject constructor(
         val mimeType = contentResolver.getType(uri) ?: "application/octet-stream"
         val filename = getFilename(uri) ?: "file"
 
-        val inputStream: InputStream = contentResolver.openInputStream(uri)
-            ?: throw IllegalStateException("Cannot open input stream for URI: $uri")
+        // Get file size for Content-Length header
+        val fileSize = contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length } ?: -1L
 
-        val bytes = inputStream.use { it.readBytes() }
-
-        val requestFile = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+        // Stream from ContentResolver instead of loading entire file into memory
+        val requestFile = object : RequestBody() {
+            override fun contentType() = mimeType.toMediaTypeOrNull()
+            override fun contentLength() = fileSize
+            override fun writeTo(sink: BufferedSink) {
+                contentResolver.openInputStream(uri)?.use { input ->
+                    sink.writeAll(input.source().buffer())
+                } ?: throw IllegalStateException("Cannot open input stream for URI: $uri")
+            }
+        }
 
         val filePart = MultipartBody.Part.createFormData("file", filename, requestFile)
 

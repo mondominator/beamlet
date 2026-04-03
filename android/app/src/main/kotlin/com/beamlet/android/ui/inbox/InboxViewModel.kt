@@ -1,6 +1,8 @@
 package com.beamlet.android.ui.inbox
 
 import android.content.Context
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.beamlet.android.data.api.FileDto
@@ -183,6 +185,10 @@ class InboxViewModel @Inject constructor(
         viewModelScope.launch {
             while (isActive) {
                 delay(10_000)
+                // Only poll when the app is in the foreground
+                if (!ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
+                    continue
+                }
                 try {
                     val files = fileRepository.listFiles()
                     val filtered = cleanupOldFiles(files)

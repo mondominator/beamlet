@@ -98,6 +98,17 @@ class ShareViewModel @Inject constructor(
         val uri = state.uri ?: return
         if (state.selectedUserIds.isEmpty()) return
 
+        // Check file size before loading into memory
+        val fileSize = try {
+            context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length } ?: -1L
+        } catch (_: Exception) { -1L }
+        if (fileSize > MAX_SHARE_FILE_SIZE) {
+            _uiState.value = _uiState.value.copy(
+                error = "File too large for share (max 100MB)",
+            )
+            return
+        }
+
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isSending = true, error = null)
             try {
@@ -118,6 +129,10 @@ class ShareViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    companion object {
+        private const val MAX_SHARE_FILE_SIZE = 100_000_000L // 100 MB
     }
 
     private fun getDisplayName(uri: Uri): String? {
