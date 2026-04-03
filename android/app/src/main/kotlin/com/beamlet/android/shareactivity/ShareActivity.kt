@@ -16,8 +16,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,27 +23,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -55,17 +43,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.beamlet.android.data.nearby.NearbyUser
 import com.beamlet.android.ui.components.AvatarView
 import com.beamlet.android.ui.theme.BeamletTheme
 import com.beamlet.android.ui.theme.BrandBlue
-import com.beamlet.android.ui.theme.BrandPurple
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -75,12 +62,11 @@ class ShareActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         viewModel.processIntent(intent)
 
         setContent {
             BeamletTheme {
-                ShareScreen(
+                ShareSheet(
                     viewModel = viewModel,
                     onClose = { finish() },
                 )
@@ -89,305 +75,226 @@ class ShareActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ShareScreen(
+private fun ShareSheet(
     viewModel: ShareViewModel,
     onClose: () -> Unit,
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    // Auto-close on success
     LaunchedEffect(state.sendComplete) {
         if (state.sendComplete) {
-            kotlinx.coroutines.delay(1000)
+            kotlinx.coroutines.delay(800)
             onClose()
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        TopAppBar(
-            title = { Text("Send via Beamlet") },
-            navigationIcon = {
-                IconButton(onClick = onClose) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
-                }
-            },
-        )
-
-        // Shared file info
-        if (state.displayName != null) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .padding(14.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Description,
-                    contentDescription = null,
-                    tint = BrandBlue,
-                    modifier = Modifier.size(28.dp),
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = state.displayName!!,
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Medium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        text = "Ready to send",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Nearby section
-        if (state.nearbyUsers.isNotEmpty()) {
-            Text(
-                text = "Nearby",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                items(state.nearbyUsers, key = { it.id }) { user ->
-                    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
-                    val pulseScale by infiniteTransition.animateFloat(
-                        initialValue = 1f,
-                        targetValue = 1.4f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(1200, easing = EaseOut),
-                            repeatMode = RepeatMode.Restart,
-                        ),
-                        label = "pulseScale",
-                    )
-                    val pulseAlpha by infiniteTransition.animateFloat(
-                        initialValue = 0.5f,
-                        targetValue = 0f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(1200, easing = EaseOut),
-                            repeatMode = RepeatMode.Restart,
-                        ),
-                        label = "pulseAlpha",
-                    )
-
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .width(72.dp)
-                            .clickable { viewModel.toggleUser(user.id) },
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            // Pulse ring
-                            Box(
-                                modifier = Modifier
-                                    .size(56.dp)
-                                    .scale(pulseScale)
-                                    .alpha(pulseAlpha)
-                                    .clip(CircleShape)
-                                    .border(2.dp, Color(0xFF14B8A6), CircleShape),
-                            )
-                            // Avatar
-                            AvatarView(name = user.name, size = 52.dp)
-                            // Selection or presence indicator
-                            if (state.selectedUserIds.contains(user.id)) {
-                                Icon(
-                                    imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = null,
-                                    tint = BrandBlue,
-                                    modifier = Modifier
-                                        .align(Alignment.BottomEnd)
-                                        .size(18.dp),
-                                )
-                            } else {
-                                Box(
-                                    modifier = Modifier
-                                        .align(Alignment.BottomEnd)
-                                        .size(10.dp)
-                                        .clip(CircleShape)
-                                        .background(Color(0xFF34C759)),
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = user.name,
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        // Contact selection
-        Text(
-            text = "Send to",
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp),
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        when {
-            state.isLoadingContacts -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 32.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                }
-            }
-
-            state.contacts.isEmpty() -> {
-                Text(
-                    text = "No contacts available",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(16.dp),
-                )
-            }
-
-            else -> {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(4),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.weight(1f),
-                ) {
-                    items(state.contacts) { contact ->
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable { viewModel.toggleUser(contact.id) }
-                                .padding(4.dp),
-                        ) {
-                            Box {
-                                AvatarView(name = contact.name, size = 52.dp)
-                                if (viewModel.isSelected(contact.id)) {
-                                    Box(
-                                        modifier = Modifier
-                                            .align(Alignment.BottomEnd)
-                                            .size(18.dp)
-                                            .clip(RoundedCornerShape(50))
-                                            .background(BrandBlue),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Text(
-                                            text = "\u2713",
-                                            color = Color.White,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                        )
-                                    }
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = contact.name,
-                                style = MaterialTheme.typography.bodySmall,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.Center,
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        // Error
-        if (state.error != null) {
-            Text(
-                text = state.error!!,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            )
-        }
-
-        // Send button
-        Button(
-            onClick = { viewModel.send() },
-            enabled = state.selectedUserIds.isNotEmpty() && state.uri != null && !state.isSending,
+    // Bottom-sheet style: dark scrim background, content at bottom
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.4f))
+            .clickable(interactionSource = null, indication = null) { onClose() },
+        contentAlignment = Alignment.BottomCenter,
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(14.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-            contentPadding = PaddingValues(),
+                .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .clickable(interactionSource = null, indication = null) { /* consume clicks */ }
+                .padding(top = 12.dp, bottom = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            // Handle bar
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        brush = if (state.selectedUserIds.isNotEmpty() && state.uri != null && !state.isSending) {
-                            Brush.horizontalGradient(listOf(BrandPurple, BrandBlue))
-                        } else {
-                            Brush.horizontalGradient(
-                                listOf(Color.Gray.copy(alpha = 0.3f), Color.Gray.copy(alpha = 0.3f))
-                            )
-                        },
-                        shape = RoundedCornerShape(14.dp),
-                    )
-                    .padding(vertical = 14.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (state.isSending) {
+                    .size(width = 40.dp, height = 4.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)),
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // File info
+            if (state.displayName != null) {
+                Text(
+                    text = state.displayName!!,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = 24.dp),
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Tap a contact to send",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+
+            // Status messages
+            when {
+                state.isSending -> {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(22.dp),
-                        color = Color.White,
+                        modifier = Modifier.size(32.dp).padding(8.dp),
                         strokeWidth = 2.dp,
                     )
-                } else if (state.sendComplete) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Sending...", style = MaterialTheme.typography.bodySmall)
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                state.sendComplete -> {
                     Text(
-                        text = "Sent!",
-                        color = Color.White,
+                        text = "✓ Sent!",
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 16.sp,
+                        color = Color(0xFF34C759),
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                state.error != null -> {
+                    Text(
+                        text = state.error!!,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+
+            // Combined grid: nearby + contacts
+            if (!state.isSending && !state.sendComplete) {
+                val allUsers = buildList {
+                    state.nearbyUsers.forEach { add(ShareTarget.Nearby(it)) }
+                    state.contacts.forEach { add(ShareTarget.Contact(it.id, it.name)) }
+                }
+
+                if (state.isLoadingContacts) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp).padding(vertical = 16.dp),
                     )
                 } else {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Send,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp),
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Send",
-                            color = Color.White,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 16.sp,
-                        )
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(4),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .height(280.dp),
+                    ) {
+                        items(allUsers, key = { it.id }) { target ->
+                            ShareTargetItem(
+                                target = target,
+                                isSelected = state.selectedUserIds.contains(target.id),
+                                onTap = {
+                                    viewModel.toggleUser(target.id)
+                                    // Auto-send on single tap if only one selected
+                                    if (!state.selectedUserIds.contains(target.id)) {
+                                        viewModel.send()
+                                    }
+                                },
+                            )
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+private sealed class ShareTarget {
+    abstract val id: String
+    abstract val name: String
+
+    data class Nearby(val user: NearbyUser) : ShareTarget() {
+        override val id = user.id
+        override val name = user.name
+    }
+
+    data class Contact(override val id: String, override val name: String) : ShareTarget()
+}
+
+@Composable
+private fun ShareTargetItem(
+    target: ShareTarget,
+    isSelected: Boolean,
+    onTap: () -> Unit,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { onTap() }
+            .padding(vertical = 6.dp, horizontal = 4.dp),
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            // Pulse ring for nearby users
+            if (target is ShareTarget.Nearby) {
+                val transition = rememberInfiniteTransition(label = "pulse")
+                val pulseScale by transition.animateFloat(
+                    initialValue = 1f,
+                    targetValue = 1.4f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(1200, easing = EaseOut),
+                        repeatMode = RepeatMode.Restart,
+                    ),
+                    label = "scale",
+                )
+                val pulseAlpha by transition.animateFloat(
+                    initialValue = 0.5f,
+                    targetValue = 0f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(1200, easing = EaseOut),
+                        repeatMode = RepeatMode.Restart,
+                    ),
+                    label = "alpha",
+                )
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .scale(pulseScale)
+                        .alpha(pulseAlpha)
+                        .border(2.dp, Color(0xFF14B8A6), CircleShape),
+                )
+            }
+
+            AvatarView(name = target.name, size = 52.dp)
+
+            // Selection indicator
+            if (isSelected) {
+                Icon(
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint = BrandBlue,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(18.dp),
+                )
+            } else if (target is ShareTarget.Nearby) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF34C759)),
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        Text(
+            text = target.name,
+            style = MaterialTheme.typography.labelSmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.width(72.dp),
+        )
     }
 }

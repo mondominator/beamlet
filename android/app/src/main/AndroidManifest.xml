@@ -56,7 +56,7 @@
             android:name=".shareactivity.ShareActivity"
             android:exported="true"
             android:label="Beamlet"
-            android:theme="@style/Theme.Beamlet">
+            android:theme="@style/Theme.Beamlet.Transparent">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
