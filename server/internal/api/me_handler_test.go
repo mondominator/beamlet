@@ -102,7 +102,7 @@ func TestGetUserProfile_NotFound(t *testing.T) {
 }
 
 func TestGetUserProfile_Exists(t *testing.T) {
-	srv, _ := setupTestServer(t)
+	srv, token := setupTestServer(t)
 	router := api.NewRouter(srv)
 
 	// Get Alice's ID
@@ -114,8 +114,9 @@ func TestGetUserProfile_Exists(t *testing.T) {
 		}
 	}
 
-	// Public endpoint - no auth required
+	// Authenticated endpoint
 	req := httptest.NewRequest("GET", "/api/users/"+aliceID+"/profile", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
 	rec := httptest.NewRecorder()
 	router.ServeHTTP(rec, req)
 
