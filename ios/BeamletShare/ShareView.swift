@@ -176,6 +176,17 @@ struct ShareView: View {
         }
     }
 
+    private static let maxShareFileSize = 100_000_000 // 100 MB
+
+    private func loadFileData(from url: URL) -> Data? {
+        let fileSize = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize
+        if let size = fileSize, size > Self.maxShareFileSize {
+            error = "File too large for share extension (max 100MB)"
+            return nil
+        }
+        return try? Data(contentsOf: url)
+    }
+
     private func extractItem(from provider: NSItemProvider) async -> SharedItem? {
         if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
             if let url = try? await provider.loadItem(forTypeIdentifier: UTType.url.identifier) as? URL {
@@ -189,19 +200,19 @@ struct ShareView: View {
         }
         if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
             if let url = try? await provider.loadItem(forTypeIdentifier: UTType.image.identifier) as? URL,
-               let data = try? Data(contentsOf: url) {
+               let data = loadFileData(from: url) {
                 return SharedItem(type: .image, data: data, filename: url.lastPathComponent)
             }
         }
         if provider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
             if let url = try? await provider.loadItem(forTypeIdentifier: UTType.movie.identifier) as? URL,
-               let data = try? Data(contentsOf: url) {
+               let data = loadFileData(from: url) {
                 return SharedItem(type: .video, data: data, filename: url.lastPathComponent)
             }
         }
         if provider.hasItemConformingToTypeIdentifier(UTType.data.identifier) {
             if let url = try? await provider.loadItem(forTypeIdentifier: UTType.data.identifier) as? URL,
-               let data = try? Data(contentsOf: url) {
+               let data = loadFileData(from: url) {
                 return SharedItem(type: .file, data: data, filename: url.lastPathComponent)
             }
         }

@@ -219,7 +219,7 @@ func (s *FileStore) GetUserStats(userID string) (UserStats, error) {
 	}
 
 	if err := s.db.QueryRow(
-		"SELECT COALESCE(SUM(file_size), 0) FROM files WHERE sender_id = ? OR recipient_id = ?", userID, userID,
+		"SELECT COALESCE(SUM(file_size), 0) FROM files WHERE sender_id = ?", userID,
 	).Scan(&stats.StorageUsed); err != nil {
 		return stats, fmt.Errorf("sum storage: %w", err)
 	}

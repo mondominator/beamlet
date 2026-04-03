@@ -29,6 +29,11 @@ func (s *Server) UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.ID == recipientID {
+		http.Error(w, "cannot send to yourself", http.StatusBadRequest)
+		return
+	}
+
 	areContacts, err := s.ContactStore.AreContacts(user.ID, recipientID)
 	if err != nil || !areContacts {
 		http.Error(w, "not a contact", http.StatusForbidden)

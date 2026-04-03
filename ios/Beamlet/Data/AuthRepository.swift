@@ -25,7 +25,17 @@ class AuthRepository {
            let url = URL(string: urlString) {
             serverURL = url
         }
-        token = defaults?.string(forKey: "authToken")
+
+        // Try Keychain first, fall back to UserDefaults for migration
+        if let keychainToken = keychain.get("authToken") {
+            token = keychainToken
+        } else if let defaultsToken = defaults?.string(forKey: "authToken") {
+            // Migrate token from UserDefaults to Keychain
+            token = defaultsToken
+            keychain.set(defaultsToken, forKey: "authToken")
+            defaults?.removeObject(forKey: "authToken")
+        }
+
         userID = defaults?.string(forKey: "userID")
     }
 
@@ -35,7 +45,10 @@ class AuthRepository {
 
         let defaults = UserDefaults(suiteName: suiteName)
         defaults?.set(serverURL.absoluteString, forKey: "serverURL")
-        defaults?.set(token, forKey: "authToken")
+
+        // Store token in Keychain and remove from UserDefaults
+        keychain.set(token, forKey: "authToken")
+        defaults?.removeObject(forKey: "authToken")
     }
 
     func storeDeviceToken(_ token: String) {
@@ -54,6 +67,10 @@ class AuthRepository {
         deviceToken = nil
         userID = nil
 
+        // Clear Keychain
+        keychain.delete("authToken")
+
+        // Clear UserDefaults
         let defaults = UserDefaults(suiteName: suiteName)
         defaults?.removeObject(forKey: "serverURL")
         defaults?.removeObject(forKey: "authToken")
@@ -64,6 +81,7 @@ class AuthRepository {
 // MARK: - Keychain Service
 class KeychainService {
     private let service = "com.beamlet.app"
+    private let accessGroup = "group.com.beamlet.shared"
 
     func set(_ value: String, forKey key: String) {
         guard let data = value.data(using: .utf8) else { return }
@@ -73,6 +91,7 @@ class KeychainService {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: key,
+            kSecAttrAccessGroup as String: accessGroup,
             kSecValueData as String: data,
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
         ]
@@ -84,6 +103,7 @@ class KeychainService {
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: key,
+            kSecAttrAccessGroup as String: accessGroup,
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne
         ]
@@ -103,7 +123,8 @@ class KeychainService {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
-            kSecAttrAccount as String: key
+            kSecAttrAccount as String: key,
+            kSecAttrAccessGroup as String: accessGroup
         ]
         SecItemDelete(query as CFDictionary)
     }

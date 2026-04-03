@@ -132,6 +132,18 @@ func (s *UserStore) List() ([]model.User, error) {
 	return users, nil
 }
 
+func (s *UserStore) Delete(userID string) error {
+	result, err := s.db.Exec("DELETE FROM users WHERE id = ?", userID)
+	if err != nil {
+		return fmt.Errorf("delete user: %w", err)
+	}
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return fmt.Errorf("user not found: %s", userID)
+	}
+	return nil
+}
+
 func (s *UserStore) RevokeToken(userID string) (string, error) {
 	token := generateToken()
 	hash, err := bcrypt.GenerateFromPassword([]byte(token), bcrypt.DefaultCost)

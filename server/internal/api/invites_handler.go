@@ -132,12 +132,18 @@ func (s *Server) RedeemInvite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := s.ContactStore.Add(invite.CreatorID, newUser.ID); err != nil {
+		// Cleanup: delete the newly created user
+		if delErr := s.UserStore.Delete(newUser.ID); delErr != nil {
+			log.Printf("failed to cleanup user %s after contact add failure: %v", newUser.ID, delErr)
+		}
 		http.Error(w, "failed to add contact", http.StatusInternalServerError)
 		return
 	}
 
 	if err := s.InviteStore.Redeem(invite.ID, newUser.ID); err != nil {
 		log.Printf("failed to redeem invite: %v", err)
+		// Non-fatal: user and contact were created successfully.
+		// The invite will remain unredeemed but will expire naturally.
 	}
 
 	creator, err := s.UserStore.GetByID(invite.CreatorID)
