@@ -56,7 +56,7 @@ class NearbyService @Inject constructor(
     private val _nearbyUsers = MutableStateFlow<List<NearbyUser>>(emptyList())
     val nearbyUsers: StateFlow<List<NearbyUser>> = _nearbyUsers.asStateFlow()
 
-    private val _mode = MutableStateFlow(DiscoverabilityMode.EVERYONE)
+    private val _mode = MutableStateFlow(DiscoverabilityMode.CONTACTS_ONLY)
     val mode: StateFlow<DiscoverabilityMode> = _mode.asStateFlow()
 
     private var scope: CoroutineScope? = null
