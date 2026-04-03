@@ -277,6 +277,7 @@ class NearbyService @Inject constructor(
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .build()
 
+        Log.d(TAG, "Starting BLE scan with UUID filter")
         sc.startScan(listOf(filter), settings, scanCallback)
         isScanning = true
     }
@@ -298,6 +299,7 @@ class NearbyService @Inject constructor(
     private val scanCallback = object : ScanCallback() {
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult) {
+            Log.d(TAG, "Scan result: ${result.device.address} rssi=${result.rssi}")
             if (result.rssi < RSSI_THRESHOLD) return
 
             val device = result.device
@@ -331,13 +333,15 @@ class NearbyService @Inject constructor(
 
         @SuppressLint("MissingPermission")
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
+            Log.d(TAG, "Services discovered for ${gatt.device.address}, status=$status, services=${gatt.services.map { it.uuid }}")
             if (status != BluetoothGatt.GATT_SUCCESS) {
                 gatt.disconnect()
                 return
             }
 
-            val characteristic = gatt.getService(SERVICE_UUID)
-                ?.getCharacteristic(CHARACTERISTIC_UUID)
+            val service = gatt.getService(SERVICE_UUID)
+            val characteristic = service?.getCharacteristic(CHARACTERISTIC_UUID)
+            Log.d(TAG, "Service=${service != null}, Characteristic=${characteristic != null}")
 
             if (characteristic != null) {
                 gatt.readCharacteristic(characteristic)
@@ -346,30 +350,46 @@ class NearbyService @Inject constructor(
             }
         }
 
+        // Deprecated overload (Android < 13)
+        @Suppress("DEPRECATION")
         @SuppressLint("MissingPermission")
         override fun onCharacteristicRead(
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic,
             status: Int,
         ) {
-            if (status != BluetoothGatt.GATT_SUCCESS || characteristic.uuid != CHARACTERISTIC_UUID) {
+            Log.d(TAG, "Characteristic read (deprecated): status=$status, uuid=${characteristic.uuid}, valueLen=${characteristic.value?.size}")
+            handleCharacteristicData(gatt, characteristic.value, status)
+        }
+
+        // New overload (Android 13+)
+        @SuppressLint("MissingPermission")
+        override fun onCharacteristicRead(
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic,
+            value: ByteArray,
+            status: Int,
+        ) {
+            Log.d(TAG, "Characteristic read (new): status=$status, uuid=${characteristic.uuid}, valueLen=${value.size}")
+            handleCharacteristicData(gatt, value, status)
+        }
+
+        @SuppressLint("MissingPermission")
+        private fun handleCharacteristicData(gatt: BluetoothGatt, data: ByteArray?, status: Int) {
+            if (status != BluetoothGatt.GATT_SUCCESS || data == null || data.isEmpty()) {
+                Log.w(TAG, "Characteristic read failed or empty, disconnecting")
                 gatt.disconnect()
                 return
             }
 
-            val data = characteristic.value
-            if (data == null || data.isEmpty()) {
-                gatt.disconnect()
-                return
-            }
-
-            // Store payload, then read RSSI for final proximity check
+            Log.d(TAG, "Got payload: ${data.size} bytes, mode=0x${String.format("%02x", data[0])}")
             pendingPayloads[gatt.device.address] = data
             gatt.readRemoteRssi()
         }
 
         @SuppressLint("MissingPermission")
         override fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int) {
+            Log.d(TAG, "Remote RSSI for ${gatt.device.address}: rssi=$rssi, status=$status")
             val data = pendingPayloads.remove(gatt.device.address)
             if (data != null && status == BluetoothGatt.GATT_SUCCESS) {
                 handleDiscoveredPayload(data, rssi)
@@ -458,6 +478,7 @@ class NearbyService @Inject constructor(
                 android.Manifest.permission.BLUETOOTH_ADVERTISE,
                 android.Manifest.permission.BLUETOOTH_CONNECT,
                 android.Manifest.permission.BLUETOOTH_SCAN,
+                android.Manifest.permission.ACCESS_FINE_LOCATION, // Samsung requires this
             )
         } else {
             listOf(

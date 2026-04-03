@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.beamlet.android.data.api.ContactDto
 import com.beamlet.android.data.contacts.ContactRepository
 import com.beamlet.android.data.files.FileRepository
+import com.beamlet.android.data.nearby.NearbyService
+import com.beamlet.android.data.nearby.NearbyUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +17,7 @@ import javax.inject.Inject
 
 data class SendUiState(
     val contacts: List<ContactDto> = emptyList(),
+    val nearbyUsers: List<NearbyUser> = emptyList(),
     val selectedUserIds: Set<String> = emptySet(),
     val attachmentUri: Uri? = null,
     val attachmentDisplayName: String? = null,
@@ -28,6 +31,7 @@ data class SendUiState(
 @HiltViewModel
 class SendViewModel @Inject constructor(
     private val contactRepository: ContactRepository,
+    private val nearbyService: NearbyService,
     private val fileRepository: FileRepository,
 ) : ViewModel() {
 
@@ -42,6 +46,12 @@ class SendViewModel @Inject constructor(
 
     init {
         loadContacts()
+        // Collect nearby users
+        viewModelScope.launch {
+            nearbyService.nearbyUsers.collect { users ->
+                _uiState.value = _uiState.value.copy(nearbyUsers = users)
+            }
+        }
     }
 
     fun loadContacts() {
