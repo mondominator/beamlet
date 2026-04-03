@@ -468,8 +468,8 @@ class BeamletAPI {
         try await request("/api/me")
     }
 
-    func updateDiscoverability(_ mode: DiscoverabilityMode) async throws {
-        let body = try JSONEncoder().encode(["discoverability": mode.rawValue])
+    func updateDiscoverability(_ mode: String) async throws {
+        let body = try JSONSerialization.data(withJSONObject: ["discoverability": mode])
         try await requestVoid("/api/me/discoverability", method: "PUT", body: body)
     }
 

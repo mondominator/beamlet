@@ -179,6 +179,13 @@ class MainActivity : ComponentActivity() {
 
         if (allGranted) {
             nearbyService.start()
+            // Load contacts for hash-based nearby discovery
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    val contacts = contactRepository.listContacts()
+                    nearbyService.updateContacts(contacts)
+                } catch (_: Exception) { }
+            }
         } else {
             requestBlePermissions.launch(blePermissions)
         }
