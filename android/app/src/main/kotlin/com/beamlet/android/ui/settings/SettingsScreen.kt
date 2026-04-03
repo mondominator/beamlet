@@ -158,11 +158,15 @@ fun SettingsScreen(
         // Storage section
         SectionHeader("Storage")
         SettingsLabelValue(
-            "File Cleanup",
+            "Sent File Expiry",
             "${state.fileExpiryDays} day${if (state.fileExpiryDays != 1) "s" else ""}",
         )
+        SettingsLabelValue(
+            "Inbox Cleanup",
+            if (state.inboxCleanupDays == 0) "Never" else "${state.inboxCleanupDays} day${if (state.inboxCleanupDays != 1) "s" else ""}",
+        )
         Text(
-            text = "Files you send and receive will be automatically cleaned up after this period. Pinned files are kept.",
+            text = "Sent File Expiry: how long files you send stay on the server.\nInbox Cleanup: auto-delete received files older than this. Pinned files are kept.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),

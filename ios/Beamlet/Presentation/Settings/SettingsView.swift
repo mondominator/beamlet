@@ -11,7 +11,8 @@ struct SettingsView: View {
     @State private var filesReceived: Int?
     @State private var storageUsed: Int64?
     @AppStorage("appTheme") private var appTheme: String = "system"
-    @AppStorage("fileExpiryDays") private var fileExpiryDays: Int = 1
+    @AppStorage("fileExpiryDays") private var fileExpiryDays: Int = 7
+    @AppStorage("inboxCleanupDays") private var inboxCleanupDays: Int = 1
 
     var body: some View {
         NavigationStack {
@@ -88,17 +89,25 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    Picker("File Cleanup", selection: $fileExpiryDays) {
+                    Picker("Sent File Expiry", selection: $fileExpiryDays) {
                         Text("1 day").tag(1)
                         Text("3 days").tag(3)
                         Text("7 days").tag(7)
                         Text("14 days").tag(14)
                         Text("30 days").tag(30)
                     }
+                    Picker("Inbox Cleanup", selection: $inboxCleanupDays) {
+                        Text("1 day").tag(1)
+                        Text("3 days").tag(3)
+                        Text("7 days").tag(7)
+                        Text("14 days").tag(14)
+                        Text("30 days").tag(30)
+                        Text("Never").tag(0)
+                    }
                 } header: {
                     Text("Storage")
                 } footer: {
-                    Text("Files you send and receive will be automatically cleaned up after this period. Pinned files are kept.")
+                    Text("Sent File Expiry: how long files you send stay on the server.\nInbox Cleanup: auto-delete received files older than this. Pinned files are kept.")
                 }
 
                 Section("Appearance") {

@@ -22,7 +22,8 @@ data class SettingsUiState(
     val filesReceived: Int? = null,
     val storageUsed: Long? = null,
     val appTheme: String = "system",
-    val fileExpiryDays: Int = 1,
+    val fileExpiryDays: Int = 7,
+    val inboxCleanupDays: Int = 1,
     val showDisconnectDialog: Boolean = false,
     val discoverabilityMode: DiscoverabilityMode = DiscoverabilityMode.CONTACTS_ONLY,
 )
@@ -41,11 +42,13 @@ class SettingsViewModel @Inject constructor(
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     init {
-        val savedExpiry = prefs.getInt(PREF_FILE_EXPIRY_DAYS, 1)
+        val savedExpiry = prefs.getInt(PREF_FILE_EXPIRY_DAYS, 7)
+        val savedCleanup = prefs.getInt(PREF_INBOX_CLEANUP_DAYS, 1)
         _uiState.value = _uiState.value.copy(
             serverUrl = authRepository.serverUrl,
             fcmToken = authRepository.fcmToken,
             fileExpiryDays = savedExpiry,
+            inboxCleanupDays = savedCleanup,
         )
         loadStats()
         viewModelScope.launch {
@@ -81,6 +84,11 @@ class SettingsViewModel @Inject constructor(
         prefs.edit().putInt(PREF_FILE_EXPIRY_DAYS, days).apply()
     }
 
+    fun setInboxCleanupDays(days: Int) {
+        _uiState.value = _uiState.value.copy(inboxCleanupDays = days)
+        prefs.edit().putInt(PREF_INBOX_CLEANUP_DAYS, days).apply()
+    }
+
     fun showDisconnectDialog() {
         _uiState.value = _uiState.value.copy(showDisconnectDialog = true)
     }
@@ -105,5 +113,6 @@ class SettingsViewModel @Inject constructor(
 
     companion object {
         const val PREF_FILE_EXPIRY_DAYS = "file_expiry_days"
+        const val PREF_INBOX_CLEANUP_DAYS = "inbox_cleanup_days"
     }
 }
