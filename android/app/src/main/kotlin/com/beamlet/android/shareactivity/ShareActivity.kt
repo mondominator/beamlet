@@ -4,7 +4,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,11 +25,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Send
@@ -41,7 +52,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -138,6 +151,92 @@ private fun ShareScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Nearby section
+        if (state.nearbyUsers.isNotEmpty()) {
+            Text(
+                text = "Nearby",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                items(state.nearbyUsers, key = { it.id }) { user ->
+                    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+                    val pulseScale by infiniteTransition.animateFloat(
+                        initialValue = 1f,
+                        targetValue = 1.4f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(1200, easing = EaseOut),
+                            repeatMode = RepeatMode.Restart,
+                        ),
+                        label = "pulseScale",
+                    )
+                    val pulseAlpha by infiniteTransition.animateFloat(
+                        initialValue = 0.5f,
+                        targetValue = 0f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(1200, easing = EaseOut),
+                            repeatMode = RepeatMode.Restart,
+                        ),
+                        label = "pulseAlpha",
+                    )
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .width(72.dp)
+                            .clickable { viewModel.toggleUser(user.id) },
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            // Pulse ring
+                            Box(
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .scale(pulseScale)
+                                    .alpha(pulseAlpha)
+                                    .clip(CircleShape)
+                                    .border(2.dp, Color(0xFF14B8A6), CircleShape),
+                            )
+                            // Avatar
+                            AvatarView(name = user.name, size = 52.dp)
+                            // Selection or presence indicator
+                            if (state.selectedUserIds.contains(user.id)) {
+                                Icon(
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = null,
+                                    tint = BrandBlue,
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .size(18.dp),
+                                )
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .size(10.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(0xFF34C759)),
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = user.name,
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+        }
 
         // Contact selection
         Text(

@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.beamlet.android.data.api.ContactDto
 import com.beamlet.android.data.contacts.ContactRepository
 import com.beamlet.android.data.files.FileRepository
+import com.beamlet.android.data.nearby.NearbyService
+import com.beamlet.android.data.nearby.NearbyUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +23,7 @@ data class ShareUiState(
     val uri: Uri? = null,
     val displayName: String? = null,
     val contacts: List<ContactDto> = emptyList(),
+    val nearbyUsers: List<NearbyUser> = emptyList(),
     val selectedUserIds: Set<String> = emptySet(),
     val isLoadingContacts: Boolean = true,
     val isSending: Boolean = false,
@@ -32,6 +35,7 @@ data class ShareUiState(
 class ShareViewModel @Inject constructor(
     private val contactRepository: ContactRepository,
     private val fileRepository: FileRepository,
+    private val nearbyService: NearbyService,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
@@ -40,6 +44,12 @@ class ShareViewModel @Inject constructor(
 
     init {
         loadContacts()
+        // Collect nearby users
+        viewModelScope.launch {
+            nearbyService.nearbyUsers.collect { users ->
+                _uiState.value = _uiState.value.copy(nearbyUsers = users)
+            }
+        }
     }
 
     fun processIntent(intent: Intent) {

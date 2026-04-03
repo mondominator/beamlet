@@ -11,6 +11,12 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -18,6 +24,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -59,7 +66,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -259,6 +268,26 @@ fun SendScreen(
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                             ) {
                                 items(state.nearbyUsers, key = { it.id }) { user ->
+                                    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+                                    val pulseScale by infiniteTransition.animateFloat(
+                                        initialValue = 1f,
+                                        targetValue = 1.4f,
+                                        animationSpec = infiniteRepeatable(
+                                            animation = tween(1200, easing = EaseOut),
+                                            repeatMode = RepeatMode.Restart,
+                                        ),
+                                        label = "pulseScale",
+                                    )
+                                    val pulseAlpha by infiniteTransition.animateFloat(
+                                        initialValue = 0.5f,
+                                        targetValue = 0f,
+                                        animationSpec = infiniteRepeatable(
+                                            animation = tween(1200, easing = EaseOut),
+                                            repeatMode = RepeatMode.Restart,
+                                        ),
+                                        label = "pulseAlpha",
+                                    )
+
                                     Column(
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                         modifier = Modifier
@@ -267,18 +296,32 @@ fun SendScreen(
                                                 viewModel.toggleUser(user.id)
                                             },
                                     ) {
-                                        Box(contentAlignment = Alignment.BottomEnd) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            // Pulse ring
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(56.dp)
+                                                    .scale(pulseScale)
+                                                    .alpha(pulseAlpha)
+                                                    .clip(CircleShape)
+                                                    .border(2.dp, Color(0xFF14B8A6), CircleShape),
+                                            )
+                                            // Avatar
                                             AvatarView(name = user.name, size = 52.dp)
+                                            // Selection or presence indicator
                                             if (state.selectedUserIds.contains(user.id)) {
                                                 Icon(
                                                     imageVector = Icons.Default.CheckCircle,
                                                     contentDescription = null,
                                                     tint = BrandBlue,
-                                                    modifier = Modifier.size(18.dp),
+                                                    modifier = Modifier
+                                                        .align(Alignment.BottomEnd)
+                                                        .size(18.dp),
                                                 )
                                             } else {
                                                 Box(
                                                     modifier = Modifier
+                                                        .align(Alignment.BottomEnd)
                                                         .size(10.dp)
                                                         .clip(CircleShape)
                                                         .background(Color(0xFF34C759)),
