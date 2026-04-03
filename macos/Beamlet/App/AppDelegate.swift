@@ -16,6 +16,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
         // Request notification permissions and register for remote notifications
         requestNotificationPermissions()
+
+        // Periodically check if we need to register the device token
+        Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] timer in
+            guard let self else { timer.invalidate(); return }
+            if self.authRepository.isAuthenticated, let token = self.authRepository.deviceToken {
+                self.registerTokenWithServer(token)
+                timer.invalidate()
+            }
+        }
     }
 
     // MARK: - Push Notifications
@@ -37,12 +46,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     func application(_ application: NSApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         let tokenString = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
         authRepository.storeDeviceToken(tokenString)
+        registerTokenWithServer(tokenString)
+    }
 
-        // Register device token with the server
-        if authRepository.isAuthenticated {
-            Task {
-                try? await api.registerDevice(apnsToken: tokenString, platform: "macos")
-            }
+    private func registerTokenWithServer(_ tokenString: String) {
+        guard authRepository.isAuthenticated else { return }
+        Task {
+            try? await api.registerDevice(apnsToken: tokenString, platform: "macos")
         }
     }
 
