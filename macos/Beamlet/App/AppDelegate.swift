@@ -6,13 +6,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
     private var statusBarController: StatusBarController?
     private let authRepository = AuthRepository()
     private lazy var api = BeamletAPI(authRepository: authRepository)
+    private var nearbyService: NearbyService?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Set up notification center delegate
         UNUserNotificationCenter.current().delegate = self
 
+        // Start nearby service if authenticated
+        startNearbyServiceIfNeeded()
+
         // Create the status bar controller with shared dependencies
-        statusBarController = StatusBarController(authRepository: authRepository, api: api)
+        statusBarController = StatusBarController(
+            authRepository: authRepository,
+            api: api,
+            nearbyService: nearbyService
+        )
 
         // Request notification permissions and register for remote notifications
         requestNotificationPermissions()
@@ -25,6 +33,35 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
                 timer.invalidate()
             }
         }
+
+        // Watch for authentication changes to start/stop nearby service
+        Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
+            self?.startNearbyServiceIfNeeded()
+        }
+    }
+
+    // MARK: - Nearby Service
+
+    private func startNearbyServiceIfNeeded() {
+        guard authRepository.isAuthenticated,
+              let userID = authRepository.userID,
+              nearbyService == nil else { return }
+
+        let service = NearbyService(userID: userID, api: api)
+        nearbyService = service
+        service.start()
+
+        // Load contacts for hash-based discovery
+        Task {
+            if let contacts = try? await api.listUsers() {
+                await MainActor.run {
+                    service.updateContacts(contacts)
+                }
+            }
+        }
+
+        // Update the status bar controller with the new nearby service
+        statusBarController?.updateNearbyService(service)
     }
 
     // MARK: - Push Notifications
@@ -58,6 +95,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDele
 
     func application(_ application: NSApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         print("Failed to register for remote notifications: \(error.localizedDescription)")
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        nearbyService?.stop()
     }
 
     // MARK: - UNUserNotificationCenterDelegate

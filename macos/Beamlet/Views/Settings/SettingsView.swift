@@ -4,6 +4,7 @@ import ServiceManagement
 struct SettingsView: View {
     @Environment(AuthRepository.self) private var authRepository
     @Environment(BeamletAPI.self) private var api
+    @Environment(NearbyService.self) private var nearbyService
 
     @State private var showLogoutConfirmation = false
     @State private var filesSent: Int?
@@ -14,8 +15,28 @@ struct SettingsView: View {
     @AppStorage("inboxCleanupDays") private var inboxCleanupDays: Int = 1
 
     var body: some View {
+        @Bindable var nearby = nearbyService
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                // Discoverability
+                sectionHeader("Discoverability")
+                VStack(alignment: .leading, spacing: 8) {
+                    Picker("Nearby Visibility", selection: $nearby.mode) {
+                        ForEach(DiscoverabilityMode.allCases, id: \.self) { mode in
+                            Text(mode.displayName).tag(mode)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .font(.system(size: 11))
+
+                    Text(nearbyService.mode.description)
+                        .font(.system(size: 9))
+                        .foregroundStyle(.tertiary)
+                }
+                .padding(10)
+                .background(Color(nsColor: .windowBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+
                 // Server
                 sectionHeader("Server")
                 VStack(alignment: .leading, spacing: 6) {

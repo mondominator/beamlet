@@ -22,6 +22,8 @@
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Beamlet uses Bluetooth to discover nearby users for quick file sharing.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Beamlet needs camera access for QR code scanning.</string>
 	<key>NSPrincipalClass</key>
