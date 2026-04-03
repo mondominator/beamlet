@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 
 struct SetupView: View {
     @Environment(AuthRepository.self) private var authRepository
@@ -8,6 +9,7 @@ struct SetupView: View {
     @State private var token = ""
     @State private var isConnecting = false
     @State private var error: String?
+    @State private var showQRScanner = false
     @State private var showQRPasteSheet = false
     @State private var qrJSONText = ""
     @State private var scannedPayload: QRPayload?
@@ -30,15 +32,26 @@ struct SetupView: View {
                 }
                 .padding(.top, 20)
 
-                // QR / Invite paste button
+                // Scan QR button
                 Button {
-                    showQRPasteSheet = true
+                    showQRScanner = true
                 } label: {
-                    Label("Paste Invite QR Code", systemImage: "qrcode")
+                    Label("Scan QR Code", systemImage: "qrcode.viewfinder")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
+                .padding(.horizontal, 24)
+
+                // Paste fallback
+                Button {
+                    showQRPasteSheet = true
+                } label: {
+                    Label("Paste QR Code", systemImage: "doc.on.clipboard")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.regular)
                 .padding(.horizontal, 24)
 
                 // Divider
@@ -97,6 +110,14 @@ struct SetupView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .sheet(isPresented: $showQRScanner) {
+            QRScannerSheet { code in
+                showQRScanner = false
+                handleScannedCode(code)
+            } onCancel: {
+                showQRScanner = false
+            }
+        }
         .sheet(isPresented: $showQRPasteSheet) {
             qrPasteSheet
         }
@@ -152,6 +173,15 @@ struct SetupView: View {
 
     // MARK: - Actions
 
+    private func handleScannedCode(_ code: String) {
+        guard let data = code.data(using: .utf8),
+              let payload = try? JSONDecoder().decode(QRPayload.self, from: data) else {
+            error = "Invalid QR code"
+            return
+        }
+        scannedPayload = payload
+    }
+
     private func handleQRPaste() {
         let trimmed = qrJSONText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let data = trimmed.data(using: .utf8),
@@ -200,6 +230,115 @@ struct SetupView: View {
             }
 
             isConnecting = false
+        }
+    }
+}
+
+// MARK: - QR Scanner Sheet (Camera)
+
+private struct QRScannerSheet: View {
+    let onScanned: (String) -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text("Scan QR Code")
+                    .font(.headline)
+                Spacer()
+                Button("Cancel") { onCancel() }
+                    .keyboardShortcut(.cancelAction)
+            }
+            .padding()
+
+            CameraQRView(onScanned: onScanned)
+                .frame(width: 400, height: 350)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.horizontal)
+
+            Text("Point your camera at a Beamlet QR code")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding()
+        }
+        .frame(width: 440, height: 460)
+    }
+}
+
+// MARK: - Camera QR View (AVFoundation)
+
+private struct CameraQRView: NSViewRepresentable {
+    let onScanned: (String) -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        context.coordinator.setupCamera(in: view)
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onScanned: onScanned)
+    }
+
+    class Coordinator: NSObject, AVCaptureMetadataOutputObjectsDelegate {
+        let onScanned: (String) -> Void
+        private var session: AVCaptureSession?
+        private var previewLayer: AVCaptureVideoPreviewLayer?
+        private var hasScanned = false
+
+        init(onScanned: @escaping (String) -> Void) {
+            self.onScanned = onScanned
+        }
+
+        func setupCamera(in view: NSView) {
+            let session = AVCaptureSession()
+            self.session = session
+
+            guard let device = AVCaptureDevice.default(for: .video),
+                  let input = try? AVCaptureDeviceInput(device: device) else {
+                return
+            }
+
+            if session.canAddInput(input) {
+                session.addInput(input)
+            }
+
+            let output = AVCaptureMetadataOutput()
+            if session.canAddOutput(output) {
+                session.addOutput(output)
+                output.setMetadataObjectsDelegate(self, queue: .main)
+                output.metadataObjectTypes = [.qr]
+            }
+
+            let previewLayer = AVCaptureVideoPreviewLayer(session: session)
+            previewLayer.videoGravity = .resizeAspectFill
+            previewLayer.frame = view.bounds
+            previewLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
+            view.layer = CALayer()
+            view.wantsLayer = true
+            view.layer?.addSublayer(previewLayer)
+            self.previewLayer = previewLayer
+
+            DispatchQueue.global(qos: .userInitiated).async {
+                session.startRunning()
+            }
+        }
+
+        func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
+            guard !hasScanned,
+                  let object = metadataObjects.first as? AVMetadataMachineReadableCodeObject,
+                  object.type == .qr,
+                  let value = object.stringValue else { return }
+
+            hasScanned = true
+            session?.stopRunning()
+            onScanned(value)
+        }
+
+        deinit {
+            session?.stopRunning()
         }
     }
 }
