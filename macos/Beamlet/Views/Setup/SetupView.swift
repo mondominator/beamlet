@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+import Vision
 
 struct SetupView: View {
     @Environment(AuthRepository.self) private var authRepository
@@ -265,13 +266,15 @@ private struct QRScannerSheet: View {
     }
 }
 
-// MARK: - Camera QR View (AVFoundation)
+// MARK: - Camera QR View (AVFoundation + Vision)
 
 private struct CameraQRView: NSViewRepresentable {
     let onScanned: (String) -> Void
 
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
+        view.wantsLayer = true
+        view.layer = CALayer()
         context.coordinator.setupCamera(in: view)
         return view
     }
@@ -282,10 +285,9 @@ private struct CameraQRView: NSViewRepresentable {
         Coordinator(onScanned: onScanned)
     }
 
-    class Coordinator: NSObject, AVCaptureMetadataOutputObjectsDelegate {
+    class Coordinator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         let onScanned: (String) -> Void
         private var session: AVCaptureSession?
-        private var previewLayer: AVCaptureVideoPreviewLayer?
         private var hasScanned = false
 
         init(onScanned: @escaping (String) -> Void) {
@@ -305,36 +307,46 @@ private struct CameraQRView: NSViewRepresentable {
                 session.addInput(input)
             }
 
-            let output = AVCaptureMetadataOutput()
-            if session.canAddOutput(output) {
-                session.addOutput(output)
-                output.setMetadataObjectsDelegate(self, queue: .main)
-                output.metadataObjectTypes = [.qr]
+            // Use video output + Vision framework for QR detection on macOS
+            let videoOutput = AVCaptureVideoDataOutput()
+            videoOutput.setSampleBufferDelegate(self, queue: DispatchQueue(label: "qr-scanner"))
+            if session.canAddOutput(videoOutput) {
+                session.addOutput(videoOutput)
             }
 
             let previewLayer = AVCaptureVideoPreviewLayer(session: session)
             previewLayer.videoGravity = .resizeAspectFill
             previewLayer.frame = view.bounds
             previewLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
-            view.layer = CALayer()
-            view.wantsLayer = true
             view.layer?.addSublayer(previewLayer)
-            self.previewLayer = previewLayer
 
             DispatchQueue.global(qos: .userInitiated).async {
                 session.startRunning()
             }
         }
 
-        func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
+        func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
             guard !hasScanned,
-                  let object = metadataObjects.first as? AVMetadataMachineReadableCodeObject,
-                  object.type == .qr,
-                  let value = object.stringValue else { return }
+                  let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
 
-            hasScanned = true
-            session?.stopRunning()
-            onScanned(value)
+            let request = VNDetectBarcodesRequest { [weak self] request, _ in
+                guard let self, !self.hasScanned,
+                      let results = request.results as? [VNBarcodeObservation] else { return }
+
+                for barcode in results {
+                    if barcode.symbology == .qr, let payload = barcode.payloadStringValue {
+                        self.hasScanned = true
+                        self.session?.stopRunning()
+                        DispatchQueue.main.async {
+                            self.onScanned(payload)
+                        }
+                        return
+                    }
+                }
+            }
+
+            let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:])
+            try? handler.perform([request])
         }
 
         deinit {
