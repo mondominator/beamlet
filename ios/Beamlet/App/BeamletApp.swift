@@ -7,12 +7,14 @@ struct BeamletApp: App {
     @State private var authRepository: AuthRepository
     @State private var api: BeamletAPI
     @State private var nearbyService: NearbyService?
+    @State private var receiveRouter: IncomingFileRouter
 
     init() {
         let repo = AuthRepository()
         let apiInstance = BeamletAPI(authRepository: repo)
         _authRepository = State(initialValue: repo)
         _api = State(initialValue: apiInstance)
+        _receiveRouter = State(initialValue: IncomingFileRouter(api: apiInstance))
     }
 
     @AppStorage("appTheme") private var appTheme: String = "system"
@@ -31,7 +33,15 @@ struct BeamletApp: App {
                 .environment(authRepository)
                 .environment(api)
                 .environment(nearbyService)
+                .environment(receiveRouter)
                 .preferredColorScheme(colorScheme)
+                .onReceive(NotificationCenter.default.publisher(for: .didTapNotification)) { notification in
+                    // APNs payload key — see server/internal/push/apns.go.
+                    // The router downloads the file and routes it to the
+                    // share sheet / clipboard / browser without any inbox UI.
+                    guard let fileID = notification.object as? String else { return }
+                    receiveRouter.receive(fileID: fileID)
+                }
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
                     // Clear badge when app becomes active
                     UNUserNotificationCenter.current().setBadgeCount(0)
