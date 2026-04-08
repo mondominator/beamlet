@@ -94,4 +94,54 @@ final class BeamletTests: XCTestCase {
         XCTAssertTrue(string.contains("Content-Type: text/plain"))
         XCTAssertTrue(string.contains("hello"))
     }
+
+    // MARK: - DownloadedItem decoding helpers
+    //
+    // BeamletAPI.downloadItem peels apart the server's `GET /api/files/{id}`
+    // response, which is either JSON (text/link) or raw bytes (file). The
+    // raw header parsing isn't easy to drive end-to-end without a fake
+    // URLProtocol, but the JSON decoding side and the filename parser are
+    // both pure functions we can exercise here. Both are critical for the
+    // new IncomingFileRouter — a regression in either silently breaks the
+    // receive flow.
+
+    func testDownloadedItemDecodesLinkPayload() throws {
+        let json = """
+        {
+            "id": "lnk-1",
+            "sender_id": "u1",
+            "recipient_id": "u2",
+            "filename": "link",
+            "file_type": "text/uri-list",
+            "file_size": 0,
+            "content_type": "link",
+            "text_content": "https://example.com",
+            "read": false
+        }
+        """.data(using: .utf8)!
+        let file = try JSONDecoder().decode(BeamletFile.self, from: json)
+        XCTAssertEqual(file.contentType, "link")
+        XCTAssertTrue(file.isLink)
+        XCTAssertEqual(file.textContent, "https://example.com")
+    }
+
+    func testDownloadedItemDecodesTextPayload() throws {
+        let json = """
+        {
+            "id": "txt-1",
+            "sender_id": "u1",
+            "recipient_id": "u2",
+            "filename": "text",
+            "file_type": "text/plain",
+            "file_size": 0,
+            "content_type": "text",
+            "text_content": "Pick up milk",
+            "read": false
+        }
+        """.data(using: .utf8)!
+        let file = try JSONDecoder().decode(BeamletFile.self, from: json)
+        XCTAssertEqual(file.contentType, "text")
+        XCTAssertTrue(file.isText)
+        XCTAssertEqual(file.textContent, "Pick up milk")
+    }
 }

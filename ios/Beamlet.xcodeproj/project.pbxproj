@@ -13,18 +13,16 @@
 		1BA669D7C449C17BD117FA83 /* NearbyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23B6D2DABDCC187F0F2EAE2E /* NearbyService.swift */; };
 		3A53BFA30432C7981046E227 /* AddContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C357896EA48AFE5244B6FFC4 /* AddContactView.swift */; };
 		3E0B5D283CA14FCD1C9F1635 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98741F30C4CC511161FC0C6 /* QRScannerView.swift */; };
+		414784EE4C5956A420677CEF /* IncomingFileRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF3DDF3BC9DDDC3BA18C447 /* IncomingFileRouter.swift */; };
 		41B18AD8AA45844E5CB38B72 /* AvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F5B18949D9B86291426A6F /* AvatarView.swift */; };
 		4C945886A940D5C46362083C /* PulsingAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E83FB65A45712EA9456F0A78 /* PulsingAvatarView.swift */; };
 		5F9FC085B129882222A56E20 /* SendViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05CA723CA51D1EC531549C2 /* SendViewModel.swift */; };
 		6B1B14DC2BF9C175C9EB678B /* PulsingAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E83FB65A45712EA9456F0A78 /* PulsingAvatarView.swift */; };
 		7507B94CCEC1F3164DC549C8 /* SendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FA922F7885C336DBF950AB0 /* SendView.swift */; };
 		7B4E88C05AF6ADDCEF52D616 /* ScanInviteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C271E9830537D6EF5AD28BF7 /* ScanInviteView.swift */; };
-		891773C013763A6D64683E6D /* InboxItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0EBD52892D51FFFD3616390 /* InboxItemView.swift */; };
-		A1B4B7D82B3C26A0884D1AED /* InboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6FE3585B1C9C679534BD2E4 /* InboxView.swift */; };
 		A303E014B4F45035C1C28F61 /* ShareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD9D15525B63466E88FE254B /* ShareView.swift */; };
 		A68E8DA8058705D9CE6661B4 /* BeamletShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B739DCAC2AF9851C8AEF0FB8 /* BeamletShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A70393E986A1D5F6FB50B0F5 /* BeamletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A540DA2E1EDABC2D29CB8B61 /* BeamletTests.swift */; };
-		A727DD4BD7FB36A1BE1AB1D5 /* QuickReplySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E937F9D3DA778DED96E92A /* QuickReplySheet.swift */; };
 		A8742F65B77465B7905CD609 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FDD43800533A4CF4957CF71 /* ShareViewController.swift */; };
 		AC6A8C4B87482D81075016BE /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0D3990B57D715D887347F1 /* Models.swift */; };
 		B102E3403D93CF420FA7466B /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0D3990B57D715D887347F1 /* Models.swift */; };
@@ -38,10 +36,8 @@
 		D403F32CE1A88E5BAB9F1942 /* SendSuccessOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F3CD2A9E9C5D94A822175D6 /* SendSuccessOverlay.swift */; };
 		D6C916148B91636BD533B86D /* NearbyUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23EDCBE8041A965911D7A9B1 /* NearbyUser.swift */; };
 		D7648B6CF4D20EC10287FE72 /* AuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */; };
-		DFE66E3CAD582A0C1C3B58F7 /* ImageViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98C42F26D30323DBA6CDDC22 /* ImageViewerView.swift */; };
 		E29D10014DC036F9AA997C96 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BF633582A97070F4311DC2 /* RootView.swift */; };
 		E77A35A590A8D353FF3E7EAF /* BeamletApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97C6EE27FC8312321F6EFCCA /* BeamletApp.swift */; };
-		ED34BA6B097762D77C82E978 /* InboxViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B5FCF0EA472D2EAF32B46CB /* InboxViewModel.swift */; };
 		EF094D975E9E13EF6174ECE6 /* NameEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7262AE1FF951D5B44582C3 /* NameEntryView.swift */; };
 		EFB4B64B23062D06523E0E77 /* ContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0E1E42538FB2D86F630429B /* ContactsView.swift */; };
 		F0E934A479CD8E668D477270 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8E50AA0707D07B908E35EB /* MainTabView.swift */; };
@@ -86,24 +82,21 @@
 		23EDCBE8041A965911D7A9B1 /* NearbyUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NearbyUser.swift; sourceTree = "<group>"; };
 		278215F1257F5E2BC5625437 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2BE5518293A4E032BC5BFAB5 /* AuthenticatedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatedImage.swift; sourceTree = "<group>"; };
+		2CF3DDF3BC9DDDC3BA18C447 /* IncomingFileRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncomingFileRouter.swift; sourceTree = "<group>"; };
 		4B7262AE1FF951D5B44582C3 /* NameEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameEntryView.swift; sourceTree = "<group>"; };
 		5E0D3990B57D715D887347F1 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		5F01C9962E9948A9ABC8E471 /* Beamlet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Beamlet.entitlements; sourceTree = "<group>"; };
-		64E937F9D3DA778DED96E92A /* QuickReplySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickReplySheet.swift; sourceTree = "<group>"; };
 		650249C9F9976C21982E6D33 /* BeamletShare.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BeamletShare.entitlements; sourceTree = "<group>"; };
-		6B5FCF0EA472D2EAF32B46CB /* InboxViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxViewModel.swift; sourceTree = "<group>"; };
 		6FA922F7885C336DBF950AB0 /* SendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendView.swift; sourceTree = "<group>"; };
 		84BF633582A97070F4311DC2 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		903D2C509F8CCACDDB8AE9AF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		97C6EE27FC8312321F6EFCCA /* BeamletApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamletApp.swift; sourceTree = "<group>"; };
-		98C42F26D30323DBA6CDDC22 /* ImageViewerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewerView.swift; sourceTree = "<group>"; };
 		9D79409532332E446859A82A /* SetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupView.swift; sourceTree = "<group>"; };
 		A540DA2E1EDABC2D29CB8B61 /* BeamletTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamletTests.swift; sourceTree = "<group>"; };
 		A98741F30C4CC511161FC0C6 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
 		ACDBABB6512D7711A3364D9E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B1F5B18949D9B86291426A6F /* AvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AvatarView.swift; path = Beamlet/Presentation/Components/AvatarView.swift; sourceTree = "<group>"; };
 		B6F52C97B65DB6B7BDDD7DA3 /* BeamletAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeamletAPI.swift; sourceTree = "<group>"; };
-		B6FE3585B1C9C679534BD2E4 /* InboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxView.swift; sourceTree = "<group>"; };
 		B739DCAC2AF9851C8AEF0FB8 /* BeamletShare.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = BeamletShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		BD9D15525B63466E88FE254B /* ShareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareView.swift; sourceTree = "<group>"; };
 		BF8E50AA0707D07B908E35EB /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
@@ -112,7 +105,6 @@
 		C3A6BD3678ACE1E73D3385B1 /* AuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRepository.swift; sourceTree = "<group>"; };
 		CB00183BD0B3A6402565DEE3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		D0E1E42538FB2D86F630429B /* ContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsView.swift; sourceTree = "<group>"; };
-		D0EBD52892D51FFFD3616390 /* InboxItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InboxItemView.swift; sourceTree = "<group>"; };
 		D61FA11B6D57DBAD461351EF /* StateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateViews.swift; sourceTree = "<group>"; };
 		DEC8545F83DC9BD4E0C80EDD /* BeamletTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BeamletTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E12E47C9B5F582AD6DA59E6D /* Beamlet.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Beamlet.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -221,6 +213,14 @@
 			path = Scanner;
 			sourceTree = "<group>";
 		};
+		88AF8A4E57A53EB72A3F9526 /* Receive */ = {
+			isa = PBXGroup;
+			children = (
+				2CF3DDF3BC9DDDC3BA18C447 /* IncomingFileRouter.swift */,
+			);
+			path = Receive;
+			sourceTree = "<group>";
+		};
 		8B5929FCEF9E857A08279468 /* Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -248,7 +248,7 @@
 			isa = PBXGroup;
 			children = (
 				8E3BC6EDFAE75EEDC5BD8900 /* Components */,
-				C6BCD81BFE77B2A3B66DE12D /* Inbox */,
+				88AF8A4E57A53EB72A3F9526 /* Receive */,
 				869F18974DF8BC7350663B6F /* Scanner */,
 				F57D8D33626BCFEE79C5EC4C /* Send */,
 				B3AEC1C1E5FD4C9F89BFC1AE /* Settings */,
@@ -275,18 +275,6 @@
 				CB00183BD0B3A6402565DEE3 /* SettingsView.swift */,
 			);
 			path = Settings;
-			sourceTree = "<group>";
-		};
-		C6BCD81BFE77B2A3B66DE12D /* Inbox */ = {
-			isa = PBXGroup;
-			children = (
-				98C42F26D30323DBA6CDDC22 /* ImageViewerView.swift */,
-				D0EBD52892D51FFFD3616390 /* InboxItemView.swift */,
-				B6FE3585B1C9C679534BD2E4 /* InboxView.swift */,
-				6B5FCF0EA472D2EAF32B46CB /* InboxViewModel.swift */,
-				64E937F9D3DA778DED96E92A /* QuickReplySheet.swift */,
-			);
-			path = Inbox;
 			sourceTree = "<group>";
 		};
 		F57D8D33626BCFEE79C5EC4C /* Send */ = {
@@ -448,10 +436,7 @@
 				CD2A6373E73A7873C8436BD0 /* BeamletAPI.swift in Sources */,
 				E77A35A590A8D353FF3E7EAF /* BeamletApp.swift in Sources */,
 				EFB4B64B23062D06523E0E77 /* ContactsView.swift in Sources */,
-				DFE66E3CAD582A0C1C3B58F7 /* ImageViewerView.swift in Sources */,
-				891773C013763A6D64683E6D /* InboxItemView.swift in Sources */,
-				A1B4B7D82B3C26A0884D1AED /* InboxView.swift in Sources */,
-				ED34BA6B097762D77C82E978 /* InboxViewModel.swift in Sources */,
+				414784EE4C5956A420677CEF /* IncomingFileRouter.swift in Sources */,
 				F0E934A479CD8E668D477270 /* MainTabView.swift in Sources */,
 				AC6A8C4B87482D81075016BE /* Models.swift in Sources */,
 				EF094D975E9E13EF6174ECE6 /* NameEntryView.swift in Sources */,
@@ -459,7 +444,6 @@
 				C9216E428A880CB19658B872 /* NearbyUser.swift in Sources */,
 				6B1B14DC2BF9C175C9EB678B /* PulsingAvatarView.swift in Sources */,
 				3E0B5D283CA14FCD1C9F1635 /* QRScannerView.swift in Sources */,
-				A727DD4BD7FB36A1BE1AB1D5 /* QuickReplySheet.swift in Sources */,
 				E29D10014DC036F9AA997C96 /* RootView.swift in Sources */,
 				7B4E88C05AF6ADDCEF52D616 /* ScanInviteView.swift in Sources */,
 				D403F32CE1A88E5BAB9F1942 /* SendSuccessOverlay.swift in Sources */,

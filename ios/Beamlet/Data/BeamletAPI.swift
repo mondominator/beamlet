@@ -257,6 +257,90 @@ class BeamletAPI {
         return data
     }
 
+    /// Discriminated union returned by ``downloadItem(_:)``. The Beamlet
+    /// server's `GET /api/files/{id}` endpoint returns either:
+    ///
+    ///   - JSON encoding of `BeamletFile` for `text` and `link` content types
+    ///   - The raw bytes (with `Content-Type` and `Content-Disposition`
+    ///     headers) for everything else.
+    ///
+    /// We collapse both shapes into a single sum type so the iOS receive
+    /// router can pattern-match on the result instead of inspecting headers
+    /// directly.
+    enum DownloadedItem {
+        case media(data: Data, contentType: String, filename: String)
+        case text(BeamletFile)
+        case link(BeamletFile)
+    }
+
+    func downloadItem(_ fileID: String) async throws -> DownloadedItem {
+        guard let baseURL = authRepository.serverURL,
+              let token = authRepository.token else {
+            throw APIError.notAuthenticated
+        }
+
+        let url = baseURL.appendingPathComponent("api/files/\(fileID)")
+        var request = URLRequest(url: url)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
+        guard let http = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+        guard 200..<300 ~= http.statusCode else {
+            let message = String(data: data, encoding: .utf8)
+            throw APIError.httpError(statusCode: http.statusCode, message: message)
+        }
+
+        let contentType = (http.value(forHTTPHeaderField: "Content-Type") ?? "")
+            .lowercased()
+
+        // Server signals text/link payloads by returning JSON instead of
+        // the raw bytes — see DownloadFile in server/internal/api/files_handler.go.
+        if contentType.hasPrefix("application/json") {
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let file = try decoder.decode(BeamletFile.self, from: data)
+            switch file.contentType {
+            case "link": return .link(file)
+            default:     return .text(file)
+            }
+        }
+
+        // Binary path — pull the original filename out of Content-Disposition
+        // so the share sheet picks a sensible preview + destination.
+        let filename = parseFilename(
+            from: http.value(forHTTPHeaderField: "Content-Disposition") ?? ""
+        ) ?? fileID
+        return .media(data: data, contentType: contentType, filename: filename)
+    }
+
+    /// Extract the `filename="..."` value from a `Content-Disposition`
+    /// header. Returns nil if the header doesn't contain one. Tolerates
+    /// surrounding whitespace and missing quotes.
+    private func parseFilename(from header: String) -> String? {
+        guard let range = header.range(of: "filename=", options: .caseInsensitive) else {
+            return nil
+        }
+        var raw = String(header[range.upperBound...])
+        if raw.hasPrefix("\"") {
+            raw.removeFirst()
+            if let end = raw.firstIndex(of: "\"") {
+                raw = String(raw[..<end])
+            }
+        } else if let end = raw.firstIndex(of: ";") {
+            raw = String(raw[..<end])
+        }
+        let trimmed = raw.trimmingCharacters(in: .whitespaces)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
     func thumbnailURL(for fileID: String) -> URL? {
         guard let baseURL = authRepository.serverURL else { return nil }
         return baseURL.appendingPathComponent("api/files/\(fileID)/thumbnail")
